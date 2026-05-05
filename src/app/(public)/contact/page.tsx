@@ -5,7 +5,7 @@ import {
   Phone,
   Mail,
   MapPin,
-  Instagram,
+  Camera,
   Send,
   MessageCircle,
   CheckCircle2,
@@ -102,7 +102,7 @@ export default function ContactPage() {
                   className="flex items-start gap-4 group"
                 >
                   <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                    <Instagram className="w-5 h-5" />
+                    <Camera className="w-5 h-5" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">Instagram</p>

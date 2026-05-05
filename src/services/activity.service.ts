@@ -69,7 +69,7 @@ export const activityService = {
   },
 
   async update(id: string, input: UpdateActivityInput) {
-    const { categoryId, ...rest } = input;
+    const { categoryId, itineraries, includes, excludes, images, ...rest } = input;
 
     const data: Prisma.ActivityUpdateInput = {
       ...rest,
@@ -77,6 +77,19 @@ export const activityService = {
 
     if (categoryId) {
       data.category = { connect: { id: categoryId } };
+    }
+
+    if (itineraries !== undefined) {
+      data.itineraries = { deleteMany: {}, createMany: { data: itineraries } };
+    }
+    if (includes !== undefined) {
+      data.includes = { deleteMany: {}, createMany: { data: includes } };
+    }
+    if (excludes !== undefined) {
+      data.excludes = { deleteMany: {}, createMany: { data: excludes } };
+    }
+    if (images !== undefined) {
+      data.images = { deleteMany: {}, createMany: { data: images } };
     }
 
     return activityRepo.update(id, data);

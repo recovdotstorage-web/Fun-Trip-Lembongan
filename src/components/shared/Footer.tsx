@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Palmtree, Instagram, Mail, Phone, MapPin } from "lucide-react";
+import { Palmtree, Camera, Mail, Phone, MapPin } from "lucide-react";
 
 export function Footer() {
   return (
@@ -71,7 +71,7 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 hover:text-emerald-400 transition-colors"
               >
-                <Instagram className="w-4 h-4" />
+                <Camera className="w-4 h-4" />
                 @funtripbali
               </a>
               <div className="flex items-start gap-2">
