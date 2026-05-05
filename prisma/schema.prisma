@@ -1,0 +1,107 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Category {
+  id         String     @id @default(cuid())
+  name       String
+  slug       String     @unique
+  activities Activity[]
+  createdAt  DateTime   @default(now())
+}
+
+model Activity {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  categoryId       String
+  category         Category @relation(fields: [categoryId], references: [id])
+
+  price            Int
+  duration         String
+  shortDescription String
+  description      String
+  status           String   @default("DRAFT")
+  youtubeVideoId   String?
+
+  images           ActivityImage[]
+  itineraries      ActivityItinerary[]
+  includes         ActivityInclude[]
+  excludes         ActivityExclude[]
+  inquiries        Inquiry[]
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model ActivityImage {
+  id         String   @id @default(cuid())
+  activityId String
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  publicId   String
+  imageUrl   String
+  isPrimary  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model ActivityItinerary {
+  id          String   @id @default(cuid())
+  activityId  String
+  activity    Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  stepOrder   Int
+  title       String
+  description String
+}
+
+model ActivityInclude {
+  id         String   @id @default(cuid())
+  activityId String
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  item       String
+}
+
+model ActivityExclude {
+  id         String   @id @default(cuid())
+  activityId String
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  item       String
+}
+
+model Inquiry {
+  id         String    @id @default(cuid())
+  name       String
+  email      String?
+  phone      String
+  message    String
+  activityId String?
+  activity   Activity? @relation(fields: [activityId], references: [id], onDelete: SetNull)
+  status     String    @default("NEW")
+  createdAt  DateTime  @default(now())
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model BlogPost {
+  id                String   @id @default(cuid())
+  title             String
+  slug              String   @unique
+  content           String
+  thumbnailPublicId String?
+  thumbnailUrl      String?
+  metaTitle         String?
+  metaDescription   String?
+  status            String   @default("DRAFT")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
