@@ -7,6 +7,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: `${process.env["DATABASE_URL"]}?authToken=${process.env["TURSO_AUTH_TOKEN"]}`,
+    url: process.env["DATABASE_URL"],
   },
 });

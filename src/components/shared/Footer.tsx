@@ -1,97 +1,118 @@
 import Link from "next/link";
-import { Palmtree, Camera, Mail, Phone, MapPin } from "lucide-react";
+import { Camera, Mail, MapPin, Phone, Send } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="bg-gray-950 text-gray-400">
-      {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {/* Brand */}
-          <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                <Palmtree className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <span className="text-lg font-bold text-white">Fun Trip</span>
-                <span className="text-lg font-bold text-emerald-400">
-                  {" "}
-                  Lembongan
-                </span>
-              </div>
+    <footer className="border-t border-slate-200 bg-slate-200 text-[#404751]">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-20 sm:px-6 lg:grid-cols-4 lg:px-8">
+        <div className="lg:col-span-2">
+          <Link href="/" className="mb-5 inline-flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#005e97] text-white shadow-lg shadow-sky-900/10">
+              <span className="text-lg font-bold">LB</span>
+            </div>
+            <div className="leading-tight">
+              <span className="block text-lg font-bold text-[#1a1c1c]">Lembongan</span>
+              <span className="block text-lg font-bold text-[#005e97]">Breeze</span>
+            </div>
+          </Link>
+          <p className="max-w-xl leading-relaxed text-[#404751]">
+            Your gateway to the hidden gems of Nusa Lembongan. Experience the
+            island through the eyes of those who call it home.
+          </p>
+        </div>
+
+        <div>
+          <h4 className="mb-4 text-sm font-bold uppercase tracking-[0.15em] text-[#1a1c1c]">
+            Quick Links
+          </h4>
+          <div className="flex flex-col gap-3">
+            <Link className="hover:text-[#005e97]" href="/about">
+              About Our Island
             </Link>
-            <p className="text-gray-500 max-w-md leading-relaxed">
-              Discover the magic of Nusa Lembongan with our curated tours and
-              activities. From snorkeling in crystal-clear waters to exploring
-              mangrove forests — create unforgettable memories with us.
-            </p>
+            <Link className="hover:text-[#005e97]" href="/activities">
+              Tours & Packages
+            </Link>
+            <Link className="hover:text-[#005e97]" href="/activities">
+              Rental Fleet
+            </Link>
+            <Link className="hover:text-[#005e97]" href="/blog">
+              Travel Blog
+            </Link>
           </div>
+        </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="text-white font-semibold mb-4">Quick Links</h4>
-            <div className="flex flex-col gap-3">
-              <Link
-                href="/activities"
-                className="hover:text-emerald-400 transition-colors"
-              >
-                Activities
-              </Link>
-              <Link
-                href="/contact"
-                className="hover:text-emerald-400 transition-colors"
-              >
-                Contact Us
-              </Link>
-            </div>
+        <div>
+          <h4 className="mb-4 text-sm font-bold uppercase tracking-[0.15em] text-[#1a1c1c]">
+            Support
+          </h4>
+          <div className="flex flex-col gap-3">
+            <Link className="hover:text-[#005e97]" href="/contact">
+              Terms of Service
+            </Link>
+            <Link className="hover:text-[#005e97]" href="/contact">
+              Privacy Policy
+            </Link>
+            <Link className="hover:text-[#005e97]" href="/contact">
+              Contact Us
+            </Link>
+            <Link className="font-semibold hover:text-[#005e97]" href="/contact">
+              WhatsApp Support
+            </Link>
           </div>
+        </div>
 
-          {/* Contact */}
-          <div>
-            <h4 className="text-white font-semibold mb-4">Contact</h4>
-            <div className="flex flex-col gap-3">
-              <a
-                href="tel:+6281234567890"
-                className="flex items-center gap-2 hover:text-emerald-400 transition-colors"
-              >
-                <Phone className="w-4 h-4" />
-                +62 812 3456 7890
-              </a>
-              <a
-                href="mailto:info@funtripbali.com"
-                className="flex items-center gap-2 hover:text-emerald-400 transition-colors"
-              >
-                <Mail className="w-4 h-4" />
-                info@funtripbali.com
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 hover:text-emerald-400 transition-colors"
-              >
-                <Camera className="w-4 h-4" />
-                @funtripbali
-              </a>
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
-                <span>Nusa Lembongan, Bali, Indonesia</span>
-              </div>
-            </div>
+        <div>
+          <h4 className="mb-4 text-sm font-bold uppercase tracking-[0.15em] text-[#1a1c1c]">
+            Newsletter
+          </h4>
+          <p className="mb-4 text-[#404751]">
+            Get island updates and exclusive offers.
+          </p>
+          <div className="flex overflow-hidden rounded-xl border border-slate-300 bg-[#f9f9f9]">
+            <input
+              type="email"
+              placeholder="Email address"
+              className="min-w-0 flex-1 bg-transparent px-4 py-3 text-sm text-[#1a1c1c] outline-none"
+            />
+            <button
+              type="button"
+              className="flex items-center justify-center bg-[#005e97] px-4 text-white transition hover:bg-[#004f80]"
+              aria-label="Subscribe"
+            >
+              <Send className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="mt-5 flex items-center gap-3 text-sm text-[#404751]">
+            <MapPin className="h-4 w-4" />
+            <span>Nusa Lembongan, Bali, Indonesia</span>
+          </div>
+          <div className="mt-3 flex items-center gap-3 text-sm text-[#404751]">
+            <Phone className="h-4 w-4" />
+            <a href="tel:+6281234567890" className="hover:text-[#005e97]">
+              +62 812 3456 7890
+            </a>
+          </div>
+          <div className="mt-3 flex items-center gap-3 text-sm text-[#404751]">
+            <Mail className="h-4 w-4" />
+            <a href="mailto:info@funtripbali.com" className="hover:text-[#005e97]">
+              info@funtripbali.com
+            </a>
+          </div>
+          <div className="mt-3 flex items-center gap-3 text-sm text-[#404751]">
+            <Camera className="h-4 w-4" />
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#005e97]">
+              @funtripbali
+            </a>
           </div>
         </div>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-gray-600">
-            © {new Date().getFullYear()} Fun Trip Lembongan. All rights reserved.
-          </p>
-          <p className="text-sm text-gray-700">
-            Crafted with ❤️ in Bali
-          </p>
+      <div className="border-t border-slate-300/80">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-6 text-xs font-semibold uppercase tracking-widest text-[#404751] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+          <p>© {new Date().getFullYear()} Nusa Lembongan Breeze Rentals &amp; Tours.</p>
+          <div className="flex items-center gap-2">
+            <span className="text-[#005e97]">SECURE BOOKING GUARANTEED</span>
+          </div>
         </div>
       </div>
     </footer>
