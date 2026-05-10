@@ -4,11 +4,11 @@ import * as fs from "fs";
 
 dotenv.config();
 
-const url = process.env.TURSO_DATABASE_URL;
+const url = process.env.DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN;
 
 if (!url) {
-  console.error("TURSO_DATABASE_URL is not set");
+  console.error("DATABASE_URL is not set");
   process.exit(1);
 }
 
