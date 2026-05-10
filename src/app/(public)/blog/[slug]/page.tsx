@@ -43,7 +43,7 @@ export default async function BlogDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="pt-20 lg:pt-24 pb-16">
+    <div className="pb-16">
       {/* Breadcrumb */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <Link
