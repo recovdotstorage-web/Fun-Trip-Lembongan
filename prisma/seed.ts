@@ -46,15 +46,101 @@ async function main() {
   });
 
   // Create Activities
+  const buggyRental = await prisma.activity.create({
+    data: {
+      name: "Buggy Car Rental",
+      slug: "buggy-car-rental",
+      categoryId: waterSports.id, // Using water sports for now or maybe create a new category
+      price: 150000,
+      duration: "Full Day",
+      shortDescription: "Explore Nusa Lembongan comfortably with our premium buggy cars. Perfect for families and groups.",
+      description: "Our Buggy Car Rental provides the ultimate comfort for island exploration. These vehicles are easy to drive and perfect for navigating the scenic roads of Nusa Lembongan. Please note that buggy cars cannot cross the Yellow Bridge to Nusa Ceningan due to weight restrictions.",
+      status: "PUBLISHED",
+      images: {
+        create: [
+          {
+            publicId: "funtrip-lembongan/buggy-car",
+            imageUrl: "https://images.unsplash.com/photo-1544923246-77307dd654ca?q=80&w=2070",
+            isPrimary: true,
+          }
+        ]
+      },
+      includes: {
+        create: [
+          { item: "Fuel Included" },
+          { item: "Free Delivery/Pickup" },
+          { item: "4-6 Seater Capacity" },
+          { item: "Safety Instruction" }
+        ]
+      },
+      excludes: {
+        create: [
+          { item: "Damage Guarantee" },
+          { item: "Driver (Self-drive only)" }
+        ]
+      },
+      itineraries: {
+        create: [
+          { stepOrder: 1, title: "Pickup", description: "Collect your buggy from our office or have it delivered to your hotel." },
+          { stepOrder: 2, title: "Island Exploration", description: "Drive to Dream Beach, Devil's Tear, and Panorama Point." },
+          { stepOrder: 3, title: "Lunch Break", description: "Stop at any local restaurant of your choice." },
+          { stepOrder: 4, title: "Sunset at Mushroom Bay", description: "End your day with a beautiful sunset view." }
+        ]
+      }
+    }
+  });
+
+  const scooterRental = await prisma.activity.create({
+    data: {
+      name: "Scooter Rental",
+      slug: "scooter-rental",
+      categoryId: waterSports.id,
+      price: 75000,
+      duration: "24 Hours",
+      shortDescription: "The most flexible way to explore both Nusa Lembongan and Nusa Ceningan. High-quality scooters available.",
+      description: "Rent a scooter to enjoy total freedom on the islands. Our scooters are well-maintained and come with helmets. Unlike buggy cars, scooters can cross the Yellow Bridge, allowing you to explore the rugged beauty of Nusa Ceningan as well.",
+      status: "PUBLISHED",
+      images: {
+        create: [
+          {
+            publicId: "funtrip-lembongan/scooter-rental",
+            imageUrl: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=2070",
+            isPrimary: true,
+          }
+        ]
+      },
+      includes: {
+        create: [
+          { item: "2 Helmets" },
+          { item: "Full Tank of Fuel" },
+          { item: "Lembongan & Ceningan Access" }
+        ]
+      },
+      excludes: {
+        create: [
+          { item: "Insurance" },
+          { item: "Flat Tire Repair" }
+        ]
+      },
+      itineraries: {
+        create: [
+          { stepOrder: 1, title: "Check-in", description: "Quick paperwork and safety briefing." },
+          { stepOrder: 2, title: "Lembongan Highlights", description: "Visit the Blue Lagoon and Yellow Bridge." },
+          { stepOrder: 3, title: "Ceningan Adventure", description: "Cross the bridge and explore Ceningan's cliffs." }
+        ]
+      }
+    }
+  });
+
   await prisma.activity.create({
     data: {
-      name: "Manta Ray Snorkeling Safari",
-      slug: "manta-ray-snorkeling-safari",
+      name: "Snorkeling Safari",
+      slug: "snorkeling-safari",
       categoryId: snorkeling.id,
       price: 350000,
       duration: "4 Hours",
-      shortDescription: "Swim with the majestic Manta Rays at Manta Point and explore 3 beautiful snorkeling spots around Nusa Penida and Lembongan.",
-      description: "Experience the magic of swimming alongside giant manta rays in their natural habitat. Our Manta Ray Snorkeling Safari takes you to the famous Manta Point, followed by Crystal Bay and Mangrove Point. We provide all equipment and a professional guide to ensure your safety and enjoyment.",
+      shortDescription: "Swim with the majestic Manta Rays at Manta Point and explore 3 beautiful snorkeling spots.",
+      description: "Experience the magic of swimming alongside giant manta rays in their natural habitat. Our Snorkeling Safari takes you to the famous Manta Point, followed by Crystal Bay and Mangrove Point. We provide all equipment and a professional guide to ensure your safety and enjoyment.",
       status: "PUBLISHED",
       images: {
         create: [
@@ -70,14 +156,11 @@ async function main() {
           { item: "Snorkeling Equipment" },
           { item: "Professional Guide" },
           { item: "Mineral Water" },
-          { item: "Boat Transfer" },
-          { item: "Towels" }
+          { item: "Boat Transfer" }
         ]
       },
       excludes: {
         create: [
-          { item: "Personal Expenses" },
-          { item: "Hotel Transfer" },
           { item: "Lunch" }
         ]
       },
@@ -86,8 +169,50 @@ async function main() {
           { stepOrder: 1, title: "Meet up at Office", description: "Briefing and fitting snorkeling equipment." },
           { stepOrder: 2, title: "Manta Point", description: "Snorkeling with Manta Rays for about 45 minutes." },
           { stepOrder: 3, title: "Crystal Bay", description: "Enjoy the beautiful corals and colorful fishes." },
-          { stepOrder: 4, title: "Mangrove Point", description: "Relaxing snorkel at the mangrove forest area." },
-          { stepOrder: 5, title: "Back to Office", description: "Return to base, shower and finish." }
+          { stepOrder: 4, title: "Mangrove Point", description: "Relaxing snorkel at the mangrove forest area." }
+        ]
+      }
+    }
+  });
+
+  await prisma.activity.create({
+    data: {
+      name: "Lembongan Island Tour",
+      slug: "lembongan-island-tour",
+      categoryId: islandTour.id,
+      price: 450000,
+      duration: "4-5 Hours",
+      shortDescription: "A comprehensive guided tour of Nusa Lembongan's most iconic landmarks.",
+      description: "Discover the best of Nusa Lembongan in a single day. Our local expert driver will take you to Dream Beach, Devil's Tear, Panorama Point, and the Yellow Bridge. You'll also enjoy a serene boat ride through the Mangrove Forest.",
+      status: "PUBLISHED",
+      images: {
+        create: [
+          {
+            publicId: "funtrip-lembongan/island-tour",
+            imageUrl: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?q=80&w=1200",
+            isPrimary: true,
+          }
+        ]
+      },
+      includes: {
+        create: [
+          { item: "Private Transport" },
+          { item: "Mangrove Boat Tour" },
+          { item: "Entry Fees" },
+          { item: "Local Guide" }
+        ]
+      },
+      excludes: {
+        create: [
+          { item: "Lunch" }
+        ]
+      },
+      itineraries: {
+        create: [
+          { stepOrder: 1, title: "Panorama Point", description: "Overview of Jungutbatu village and the ocean." },
+          { stepOrder: 2, title: "Devil's Tear", description: "Witness the powerful ocean spray against the cliffs." },
+          { stepOrder: 3, title: "Yellow Bridge", description: "Visit the iconic bridge connecting Lembongan and Ceningan." },
+          { stepOrder: 4, title: "Mangrove Forest", description: "A quiet boat ride through the mangroves." }
         ]
       }
     }
@@ -123,9 +248,7 @@ async function main() {
       },
       excludes: {
         create: [
-          { item: "Personal Expenses" },
-          { item: "Hotel Transfer in Bali" },
-          { item: "Tipping" }
+          { item: "Hotel Transfer in Bali" }
         ]
       },
       itineraries: {
@@ -133,14 +256,12 @@ async function main() {
           { stepOrder: 1, title: "Depart from Sanur", description: "Take the fast boat at 08:00 AM." },
           { stepOrder: 2, title: "Arrive in Nusa Penida", description: "Meet the driver at the port." },
           { stepOrder: 3, title: "Angel's Billabong & Broken Beach", description: "Explore the natural infinity pool and the circular cliff formation." },
-          { stepOrder: 4, title: "Lunch", description: "Enjoy local indonesian food." },
-          { stepOrder: 5, title: "Kelingking Beach", description: "Visit the iconic T-Rex shaped cliff." },
-          { stepOrder: 6, title: "Crystal Bay", description: "Relax at the beach before heading back." },
-          { stepOrder: 7, title: "Return to Sanur", description: "Take the 16:30 PM fast boat back to Bali." }
+          { stepOrder: 4, title: "Kelingking Beach", description: "Visit the iconic T-Rex shaped cliff." }
         ]
       }
     }
   });
+
 
   // Create Settings
   await prisma.setting.createMany({

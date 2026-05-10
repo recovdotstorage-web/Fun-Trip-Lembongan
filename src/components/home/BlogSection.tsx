@@ -95,32 +95,33 @@ export function BlogSection() {
             <motion.article
               variants={fadeUpVariants}
               key={article.id}
-              className="bg-white overflow-hidden border border-zinc-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col cursor-pointer group"
+              className="bg-white overflow-hidden border border-zinc-200 flex flex-col cursor-pointer group"
             >
-              <div className="h-56 overflow-hidden relative">
+              <div className="h-64 overflow-hidden relative border-b border-zinc-200">
                 <Image
                   src={article.image}
                   alt={article.title}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
-                <div className="absolute top-4 left-4 bg-zinc-900/80 backdrop-blur-md text-white text-[10px] font-medium px-3 py-1 uppercase tracking-widest">
+                <div className="absolute top-0 left-0 bg-zinc-900 text-white text-[10px] font-bold px-4 py-2 uppercase tracking-widest">
                   {article.category}
                 </div>
               </div>
 
-              <div className="p-8 flex flex-col flex-grow">
-                <div className="text-[11px] font-medium text-zinc-400 mb-4 uppercase tracking-widest">
+              <div className="p-10 flex flex-col flex-grow">
+                <div className="text-[11px] font-bold text-zinc-400 mb-6 uppercase tracking-widest">
                   {article.date}
                 </div>
-                <h4 className="text-xl font-medium text-zinc-900 mb-4 group-hover:text-zinc-600 transition-colors line-clamp-2 leading-snug">
+                <h4 className="text-2xl font-[family-name:var(--font-outfit)] font-semibold text-zinc-950 mb-6 group-hover:text-zinc-600 transition-colors line-clamp-2 leading-tight">
                   {article.title}
                 </h4>
-                <p className="text-zinc-600 mb-8 flex-grow text-sm font-light leading-relaxed line-clamp-3">
+                <p className="text-zinc-600 mb-8 flex-grow text-base font-normal leading-relaxed line-clamp-3">
                   {article.excerpt}
                 </p>
-                <div className="mt-auto border-t border-zinc-100 pt-6 flex items-center text-zinc-900 font-medium text-xs uppercase tracking-widest group-hover:text-zinc-500 transition-colors">
-                  Read Article <span className="ml-2 font-normal">→</span>
+                <div className="mt-auto border-t border-zinc-200 pt-8 flex items-center text-zinc-950 font-bold text-xs uppercase tracking-widest">
+                  Read Article <span className="ml-3">→</span>
                 </div>
               </div>
             </motion.article>
@@ -132,13 +133,13 @@ export function BlogSection() {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={fadeUpVariants}
-          className="mt-16 text-center"
+          className="mt-20 text-center"
         >
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 bg-transparent border border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white px-8 py-4 font-medium tracking-wide text-sm transition-colors mx-auto uppercase"
+            className="inline-flex items-center gap-3 bg-zinc-950 text-white px-10 py-5 font-bold tracking-widest text-sm transition-all active:scale-95 uppercase"
           >
-            View All Articles
+            Explore All Stories
           </Link>
         </motion.div>
       </div>

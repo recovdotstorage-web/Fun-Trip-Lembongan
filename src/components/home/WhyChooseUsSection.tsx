@@ -4,6 +4,7 @@ import { Map, ThumbsUp, Clock, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { type ReactNode } from "react";
 import { motion } from "framer-motion";
+import Counter from "@/components/shared/Counter";
 
 const springTransition = {
   type: "spring" as const,
@@ -85,13 +86,16 @@ export function WhyChooseUsSection() {
                 className="w-full h-[450px] md:h-[550px] object-cover border border-zinc-200"
               />
             </div>
-            <div className="absolute -bottom-8 -right-2 lg:-right-8 bg-zinc-900 text-white p-6 z-20 border border-zinc-800">
-              <h4 className="text-4xl md:text-5xl font-medium tracking-widest mb-1">2016</h4>
+            <div className="absolute -bottom-8 -right-2 lg:-right-8 bg-zinc-900 text-white p-6 z-20 border border-zinc-800 min-w-[140px]">
+              <h4 className="text-4xl md:text-5xl font-medium tracking-widest mb-1">
+                <Counter value={2016} showComma={false} />
+              </h4>
               <p className="font-light tracking-widest uppercase text-[10px]">
                 Established
               </p>
             </div>
           </motion.div>
+
 
           {/* Right Side: Content Layout */}
           <motion.div variants={fadeUpVariants} className="order-1 lg:order-2">

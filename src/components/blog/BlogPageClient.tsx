@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { BookOpen, Clock, ArrowRight, Flame, Search, X, ChevronDown } from "lucide-react";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 
 type Post = {
   id: string;
@@ -30,11 +31,11 @@ function formatDate(date: Date) {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(date);
+  }).format(new Date(date));
 }
 
 function estimateReadTime(content: string) {
-  const words = content.split(/\s+/).length;
+  const words = content.replace(/<[^>]*>?/gm, "").split(/\s+/).length;
   const minutes = Math.max(1, Math.ceil(words / 200));
   return `${minutes} min read`;
 }
@@ -63,57 +64,70 @@ function useDebounce<T>(value: T, delay: number): T {
   return debounced;
 }
 
-function PostCard({ post, isHot = false }: { post: Post & { category: string }; isHot?: boolean }) {
+const fadeUpVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+  }
+};
+
+function PostCard({ post, index }: { post: Post & { category: string }; index: number }) {
   return (
-    <Link
-      href={`/blog/${post.slug}`}
-      className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 border border-gray-100"
+    <motion.div
+      variants={fadeUpVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
     >
-      <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-cyan-100 to-sky-200">
-        {post.thumbnailUrl ? (
-          <Image
-            src={post.thumbnailUrl}
-            alt={post.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-700"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <BookOpen className="w-10 h-10 text-sky-400/40" />
-          </div>
-        )}
-        {isHot && (
-          <div className="absolute top-3 left-3">
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold bg-rose-500 text-white rounded-full shadow-md">
-              <Flame className="w-3 h-3" />
-              Hot
+      <Link
+        href={`/blog/${post.slug}`}
+        className="group block bg-white border border-zinc-200 rounded-none transition-all duration-500 hover:border-zinc-400"
+      >
+        <div className="relative aspect-[16/10] overflow-hidden bg-zinc-50 border-b border-zinc-100">
+          {post.thumbnailUrl ? (
+            <Image
+              src={post.thumbnailUrl}
+              alt={post.title}
+              fill
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <BookOpen className="w-10 h-10 text-zinc-200" strokeWidth={1} />
+            </div>
+          )}
+          <div className="absolute top-4 left-4">
+            <span className="px-3 py-1 text-[10px] font-bold bg-white text-zinc-950 border border-zinc-200 tracking-widest uppercase">
+              {post.category}
             </span>
           </div>
-        )}
-      </div>
-      <div className="p-5">
-        <div className="flex items-center gap-3 text-xs text-gray-400 mb-3">
-          <span className="flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
-            {estimateReadTime(post.content)}
-          </span>
-          <span>{formatDate(post.createdAt)}</span>
         </div>
-        <h3 className="text-lg font-bold text-gray-900 group-hover:text-sky-600 transition-colors line-clamp-2 leading-tight mb-2">
-          {post.title}
-        </h3>
-        {post.metaDescription && (
-          <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
-            {post.metaDescription}
-          </p>
-        )}
-        <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-          <span className="text-sm font-medium text-sky-600">Read More</span>
-          <ArrowRight className="w-4 h-4 text-sky-600 group-hover:translate-x-1 transition-transform" />
+        <div className="p-8">
+          <div className="flex items-center gap-4 text-[10px] font-bold tracking-widest text-zinc-400 mb-6 uppercase">
+            <span className="flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5" />
+              {estimateReadTime(post.content)}
+            </span>
+            <span>{formatDate(post.createdAt)}</span>
+          </div>
+          <h3 className="text-2xl font-semibold text-zinc-950 group-hover:text-zinc-600 transition-colors leading-tight mb-4">
+            {post.title}
+          </h3>
+          {post.metaDescription && (
+            <p className="text-zinc-500 line-clamp-2 text-sm leading-relaxed mb-8">
+              {post.metaDescription}
+            </p>
+          )}
+          <div className="flex items-center gap-2 text-zinc-950 font-bold text-xs tracking-widest uppercase border-b border-transparent group-hover:border-zinc-950 w-fit pb-1 transition-all">
+            Read Story
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </motion.div>
   );
 }
 
@@ -122,13 +136,10 @@ export default function BlogPageClient({ posts }: { posts: Post[] }) {
   const [searchInput, setSearchInput] = useState("");
   const [sortBy, setSortBy] = useState("Latest");
   const [sortOpen, setSortOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
 
-  // Debounced search — 300 ms
   const searchQuery = useDebounce(searchInput, 300);
 
-  // Close sort dropdown on outside click
   useEffect(() => {
     function handler(e: MouseEvent) {
       if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
@@ -159,202 +170,190 @@ export default function BlogPageClient({ posts }: { posts: Post[] }) {
         : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
 
-  const [featured, ...rest] = filtered;
-  const showFeatured = activeCategory === "All" && !searchQuery;
+  const featuredPost = filtered[0];
+  const regularPosts = filtered.slice(1);
+  const showFeatured = activeCategory === "All" && !searchQuery && filtered.length > 0;
 
   return (
-    <>
-      {/* ─── Tab Filter Bar ─── */}
-      <section className="bg-white border-b border-gray-200 sticky top-[72px] z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-
-            {/* Category tabs */}
-            <nav className="flex items-center overflow-x-auto no-scrollbar" aria-label="Blog categories">
-              {CATEGORIES.map(({ key, label }) => (
-                <button
-                  key={key}
-                  onClick={() => setActiveCategory(key)}
-                  className={`
-                    relative flex-shrink-0 px-4 py-5 text-xs font-bold tracking-widest transition-colors
-                    ${activeCategory === key
-                      ? "text-sky-700"
-                      : "text-gray-400 hover:text-gray-700"
-                    }
-                  `}
-                >
-                  {label}
-                  {/* Active underline */}
-                  {activeCategory === key && (
-                    <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-sky-600 rounded-t-full" />
-                  )}
-                </button>
-              ))}
-            </nav>
-
-            {/* Right side: Search + Sort */}
-            <div className="flex items-center gap-3 flex-shrink-0 pl-4">
-              {/* Search */}
-              <div className="relative hidden sm:block">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  onFocus={() => setSearchOpen(true)}
-                  onBlur={() => { if (!searchInput) setSearchOpen(false); }}
-                  className={`pl-8 pr-7 py-1.5 text-xs rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all duration-500 ${
-                    searchOpen ? "w-64" : "w-36"
-                  }`}
-                />
-                {searchInput && (
-                  <button
-                    onClick={() => setSearchInput("")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
+    <div className="min-h-screen bg-[#FDFBF7] pb-24">
+      {/* Editorial Header */}
+      <section className="pt-32 pb-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-zinc-200 pb-16">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="max-w-3xl"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <span className="w-8 h-[1px] bg-zinc-950"></span>
+                <span className="text-xs uppercase tracking-[0.2em] font-bold text-zinc-950">The Archive</span>
               </div>
+              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-semibold text-zinc-950 tracking-tight leading-[0.9] mb-8">
+                Stories &<br /><span className="text-zinc-400 italic font-light">Perspectives.</span>
+              </h1>
+              <p className="text-xl text-zinc-500 font-light leading-relaxed max-w-xl">
+                A curated collection of island guides, travel narratives, and local insights from the heart of Nusa Lembongan.
+              </p>
+            </motion.div>
 
-              {/* Sort dropdown */}
+            {/* Filter Bar Inside Header Area */}
+            <div className="flex flex-wrap items-center gap-4">
               <div className="relative" ref={sortRef}>
                 <button
-                  onClick={() => setSortOpen((o) => !o)}
-                  className="flex items-center gap-1 text-xs font-bold tracking-widest text-gray-500 hover:text-gray-800 transition py-5 whitespace-nowrap"
+                  onClick={() => setSortOpen(!sortOpen)}
+                  className="flex items-center gap-6 px-6 py-4 bg-white border border-zinc-200 rounded-none text-xs font-bold tracking-widest uppercase hover:border-zinc-400 transition-colors"
                 >
-                  SORT BY: {sortBy.toUpperCase()}
-                  <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortOpen ? "rotate-180" : ""}`} />
+                  Sort: {sortBy}
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${sortOpen ? "rotate-180" : ""}`} />
                 </button>
-                {sortOpen && (
-                  <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-gray-100 py-1 min-w-[120px] z-50">
-                    {SORT_OPTIONS.map((opt) => (
-                      <button
-                        key={opt}
-                        onClick={() => { setSortBy(opt); setSortOpen(false); }}
-                        className={`w-full text-left px-4 py-2 text-xs font-semibold tracking-wide transition ${
-                          sortBy === opt ? "text-sky-600 bg-sky-50" : "text-gray-600 hover:bg-gray-50"
-                        }`}
-                      >
-                        {opt.toUpperCase()}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <AnimatePresence>
+                  {sortOpen && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute right-0 top-full mt-2 bg-white border border-zinc-200 rounded-none py-2 min-w-[160px] z-50 shadow-xl"
+                    >
+                      {SORT_OPTIONS.map((opt) => (
+                        <button
+                          key={opt}
+                          onClick={() => { setSortBy(opt); setSortOpen(false); }}
+                          className={`w-full text-left px-6 py-3 text-[10px] font-bold tracking-widest uppercase transition-colors ${
+                            sortBy === opt ? "bg-zinc-50 text-zinc-950" : "text-zinc-400 hover:text-zinc-950 hover:bg-zinc-50"
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            </div>
-          </div>
-
-          {/* Mobile search (shown below tabs) */}
-          <div className="sm:hidden pb-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search articles..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-9 pr-9 py-2.5 text-sm rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition"
-              />
-              {searchInput && (
-                <button
-                  onClick={() => setSearchInput("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                <input
+                  type="text"
+                  placeholder="SEARCH THE ARCHIVE..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="pl-12 pr-6 py-4 bg-white border border-zinc-200 rounded-none text-[10px] font-bold tracking-widest uppercase focus:outline-none focus:border-zinc-950 w-full md:w-64 transition-all"
+                />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── Posts ─── */}
-      <section className="py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {filtered.length === 0 ? (
-            <div className="text-center py-24">
-              <BookOpen className="w-14 h-14 text-gray-300 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-gray-500">No articles found</h2>
-              <p className="mt-2 text-gray-400">Try a different category or search term.</p>
+      {/* Category Navigation */}
+      <section className="px-4 sm:px-6 lg:px-8 mb-16">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="flex items-center gap-8 overflow-x-auto no-scrollbar border-b border-zinc-100 pb-4">
+            {CATEGORIES.map(({ key, label }) => (
               <button
-                onClick={() => { setActiveCategory("All"); setSearchInput(""); }}
-                className="mt-6 px-5 py-2.5 bg-sky-600 text-white rounded-xl text-sm font-medium hover:bg-sky-700 transition"
+                key={key}
+                onClick={() => setActiveCategory(key)}
+                className={`
+                  relative flex-shrink-0 text-[10px] font-black tracking-[0.2em] uppercase transition-colors pb-4
+                  ${activeCategory === key ? "text-zinc-950" : "text-zinc-300 hover:text-zinc-500"}
+                `}
               >
-                Clear Filters
+                {label}
+                {activeCategory === key && (
+                  <motion.div 
+                    layoutId="cat-underline"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-zinc-950" 
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content Grid */}
+      <section className="px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1400px] mx-auto">
+          {filtered.length === 0 ? (
+            <div className="py-32 text-center border border-dashed border-zinc-200">
+              <BookOpen className="w-12 h-12 text-zinc-200 mx-auto mb-6" strokeWidth={1} />
+              <h2 className="text-xl font-semibold text-zinc-950 mb-2">No entries found</h2>
+              <p className="text-zinc-500 text-sm mb-8">Refine your search or try another category.</p>
+              <button 
+                onClick={() => { setActiveCategory("All"); setSearchInput(""); }}
+                className="px-8 py-4 bg-zinc-950 text-white text-[10px] font-bold tracking-widest uppercase hover:bg-zinc-800 transition-all"
+              >
+                Clear all filters
               </button>
             </div>
           ) : (
-            <>
-              {/* Featured */}
-              {featured && showFeatured && (
-                <div className="mb-12">
-                  <Link
-                    href={`/blog/${featured.slug}`}
-                    className="group grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 bg-white border border-gray-100"
+            <div className="space-y-24">
+              {/* Featured Section */}
+              {showFeatured && featuredPost && (
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="group relative"
+                >
+                  <Link 
+                    href={`/blog/${featuredPost.slug}`}
+                    className="grid grid-cols-1 lg:grid-cols-12 border border-zinc-200 rounded-none overflow-hidden bg-white hover:border-zinc-400 transition-colors duration-500"
                   >
-                    <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[360px] bg-gradient-to-br from-cyan-200 to-sky-300">
-                      {featured.thumbnailUrl ? (
+                    <div className="lg:col-span-7 relative aspect-[16/10] lg:aspect-auto min-h-[400px] bg-zinc-50 overflow-hidden border-b lg:border-b-0 lg:border-r border-zinc-200">
+                      {featuredPost.thumbnailUrl ? (
                         <Image
-                          src={featured.thumbnailUrl}
-                          alt={featured.title}
+                          src={featuredPost.thumbnailUrl}
+                          alt={featuredPost.title}
                           fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-700"
-                          sizes="(max-width: 1024px) 100vw, 50vw"
+                          className="object-cover transition-transform duration-1000 group-hover:scale-105"
                           priority
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <BookOpen className="w-20 h-20 text-sky-400/40" />
+                          <BookOpen className="w-20 h-20 text-zinc-100" strokeWidth={1} />
                         </div>
                       )}
-                      <div className="absolute top-4 left-4 flex gap-2">
-                        <span className="px-3 py-1 text-xs font-semibold bg-sky-600 text-white rounded-full shadow">
-                          Featured
+                      <div className="absolute top-8 left-8">
+                        <span className="px-4 py-2 bg-zinc-950 text-white text-[10px] font-bold tracking-[0.2em] uppercase">
+                          Featured Entry
                         </span>
                       </div>
                     </div>
-                    <div className="p-8 lg:p-12 flex flex-col justify-center">
-                      <span className="inline-block text-xs font-bold tracking-widest text-sky-600 uppercase mb-4">
-                        {featured.category}
-                      </span>
-                      <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
+                    <div className="lg:col-span-5 p-10 sm:p-16 flex flex-col justify-center">
+                      <div className="flex items-center gap-4 text-[10px] font-bold tracking-widest text-zinc-400 mb-8 uppercase">
                         <span className="flex items-center gap-1.5">
                           <Clock className="w-4 h-4" />
-                          {estimateReadTime(featured.content)}
+                          {estimateReadTime(featuredPost.content)}
                         </span>
-                        <span>{formatDate(featured.createdAt)}</span>
+                        <span>{formatDate(featuredPost.createdAt)}</span>
                       </div>
-                      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 group-hover:text-sky-600 transition-colors mb-4 leading-tight">
-                        {featured.title}
+                      <h2 className="text-4xl sm:text-5xl font-semibold text-zinc-950 leading-[1.1] mb-8 group-hover:text-zinc-600 transition-colors">
+                        {featuredPost.title}
                       </h2>
-                      {featured.metaDescription && (
-                        <p className="text-gray-500 leading-relaxed mb-6 line-clamp-3">
-                          {featured.metaDescription}
+                      {featuredPost.metaDescription && (
+                        <p className="text-lg text-zinc-500 font-light leading-relaxed mb-12 line-clamp-4">
+                          {featuredPost.metaDescription}
                         </p>
                       )}
-                      <div className="flex items-center gap-2 text-sky-600 font-medium">
-                        Read Story
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      <div className="flex items-center gap-3 text-zinc-950 font-bold text-sm tracking-[0.2em] uppercase border-b border-zinc-950 w-fit pb-2 transition-all group-hover:gap-5">
+                        Read the full story
+                        <ArrowRight className="w-5 h-5" />
                       </div>
                     </div>
                   </Link>
-                </div>
+                </motion.div>
               )}
 
-              {/* Grid */}
-              {(showFeatured ? rest : filtered).length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                  {(showFeatured ? rest : filtered).map((post, i) => (
-                    <PostCard key={post.id} post={post} isHot={i === 0} />
-                  ))}
-                </div>
-              )}
-            </>
+              {/* Grid Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+                {(showFeatured ? regularPosts : filtered).map((post, idx) => (
+                  <PostCard key={post.id} post={post} index={idx} />
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </section>
-    </>
+    </div>
   );
 }

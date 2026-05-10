@@ -5,10 +5,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, Loader2, ImagePlus, Star } from "lucide-react";
 import {
-  createActivity,
-  updateActivity,
-  uploadActivityImage,
-  deleteActivityImage,
+  createService,
+  updateService,
+  uploadServiceImage,
+  deleteServiceImage,
   setPrimaryImage,
 } from "./actions";
 import type { Activity, ActivityImage, Category } from "@prisma/client";
@@ -68,11 +68,11 @@ export function ActivityForm({ categories, activity }: Props) {
 
     startTransition(async () => {
       if (activity) {
-        await updateActivity(activity.id, fd);
+        await updateService(activity.id, fd);
         setFeedback("Saved!");
         setTimeout(() => setFeedback(""), 3000);
       } else {
-        await createActivity(fd);
+        await createService(fd);
       }
     });
   }
@@ -85,7 +85,7 @@ export function ActivityForm({ categories, activity }: Props) {
     fd.append("isPrimary", images.length === 0 ? "true" : "false");
 
     startUpload(async () => {
-      await uploadActivityImage(activity.id, fd);
+      await uploadServiceImage(activity.id, fd);
       // Refresh images list (simple reload approach)
       router.refresh();
     });
@@ -93,7 +93,7 @@ export function ActivityForm({ categories, activity }: Props) {
 
   async function handleDeleteImage(imageId: string) {
     if (!activity) return;
-    await deleteActivityImage(imageId, activity.id);
+    await deleteServiceImage(imageId, activity.id);
     setImages((prev) => prev.filter((img) => img.id !== imageId));
     router.refresh();
   }

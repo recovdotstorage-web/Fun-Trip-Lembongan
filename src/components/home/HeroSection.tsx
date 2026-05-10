@@ -19,6 +19,7 @@ export function HeroSection({ onWaClick }: HeroSectionProps) {
           fill
           className="object-cover"
           priority
+          sizes="100vw"
         />
         {/* Subtle, warmer gradient for the editorial feel */}
         <div className="absolute inset-0 bg-zinc-950/40" />

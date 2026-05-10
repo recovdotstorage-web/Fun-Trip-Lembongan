@@ -2,7 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { ActivityForm } from "../ActivityForm";
 import { notFound } from "next/navigation";
 
-export default async function NewActivityPage() {
+export const dynamic = "force-dynamic";
+
+export default async function NewServicePage() {
   const categories = await prisma.category.findMany({
     orderBy: { name: "asc" },
   });
@@ -15,7 +17,7 @@ export default async function NewActivityPage() {
             No categories found
           </h2>
           <p className="text-sm text-amber-700">
-            You need at least one category before creating an activity. Please
+            You need at least one category before creating a service. Please
             seed the database or create a category first.
           </p>
         </div>

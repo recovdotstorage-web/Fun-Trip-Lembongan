@@ -2,6 +2,7 @@
 
 import { Star } from "lucide-react";
 import { motion } from "framer-motion";
+import Counter from "@/components/shared/Counter";
 
 const springTransition = {
   type: "spring" as const,
@@ -67,7 +68,9 @@ export function TrustedSection() {
             </p>
           </motion.div>
           <motion.div variants={fadeUpVariants} className="flex flex-col items-center">
-            <h3 className="text-3xl font-medium text-zinc-900 tracking-widest uppercase">Since 2016</h3>
+            <h3 className="text-3xl font-medium text-zinc-900 tracking-widest uppercase">
+              Since <Counter value={2016} showComma={false} duration={3} />
+            </h3>
             <p className="text-[11px] text-zinc-500 font-light uppercase tracking-widest mt-1">Trusted Local Operator</p>
           </motion.div>
         </motion.div>
@@ -75,3 +78,4 @@ export function TrustedSection() {
     </section>
   );
 }
+

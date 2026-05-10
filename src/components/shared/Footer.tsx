@@ -1,47 +1,64 @@
 import Link from "next/link";
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail, ArrowRight } from "lucide-react";
 
 export function Footer() {
+  const currentYear = new Date().getFullYear();
+
+  const quickLinks = [
+    { label: "About", href: "/about" },
+    { label: "Services", href: "/services" },
+    { label: "Reviews", href: "/#reviews" },
+    { label: "Blog", href: "/blog" },
+    { label: "FAQ", href: "/#faq" },
+    { label: "Contact", href: "/#contact" },
+  ];
+
+  const services = [
+    { label: "Buggy Car Rental", slug: "buggy-car-rental" },
+    { label: "Scooter Rental", slug: "scooter-rental" },
+    { label: "Snorkeling Safari", slug: "snorkeling-safari" },
+    { label: "Lembongan Island Tour", slug: "lembongan-island-tour" },
+  ];
+
   return (
-    <footer className="bg-zinc-950 text-zinc-400 pt-24 pb-12 border-t border-zinc-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top Footer: 4 Columns Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
-          {/* Col 1: Brand Identity */}
-          <div>
-            <div className="flex items-center gap-2 mb-6">
-              <span className="font-medium text-2xl tracking-tight text-white">
-                FUN TRIP{" "}
-                <span className="text-zinc-500 font-light">LEMBONGAN</span>
+    <footer className="bg-zinc-950 text-zinc-400 pt-32 pb-12 border-t border-zinc-900 relative overflow-hidden">
+      {/* Subtle Background Pattern */}
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
+        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 lg:gap-12 mb-24">
+          {/* Col 1: Brand & Philosophy */}
+          <div className="space-y-8">
+            <div className="flex flex-col">
+              <span className="font-[family-name:var(--font-outfit)] font-semibold text-3xl tracking-tighter text-white">
+                FUN TRIP
+              </span>
+              <span className="text-zinc-500 font-light tracking-[0.3em] text-[10px] uppercase -mt-1 ml-0.5">
+                LEMBONGAN
               </span>
             </div>
-            <p className="text-sm leading-relaxed mb-6 text-slate-400">
-              Premium local tour operator based in Nusa Lembongan. Providing
-              hassle-free buggy rentals, scooter hires, and unforgettable
-              snorkeling safaris since 2016.
+            <p className="text-sm leading-relaxed font-light">
+              We curate premium island experiences in Nusa Lembongan. From luxury buggy rentals to hidden snorkeling gems, our local expertise ensures your journey is nothing short of extraordinary.
             </p>
           </div>
 
-          {/* Col 2: Quick Links */}
-          <div className="lg:pl-8">
-            <h4 className="text-white font-medium tracking-[0.2em] uppercase text-[11px] mb-8">
-              Quick Links
+          {/* Col 2: Navigation */}
+          <div>
+            <h4 className="text-white font-semibold tracking-widest uppercase text-[10px] mb-10 border-l-2 border-zinc-500 pl-4">
+              Explore
             </h4>
             <ul className="space-y-4">
-              {[
-                { label: "About", href: "/about" },
-                { label: "Services", href: "/#services" },
-                { label: "Reviews", href: "/#reviews" },
-                { label: "Blog", href: "/blog" },
-                { label: "FAQ", href: "/#faq" },
-                { label: "Contact", href: "/#contact" },
-              ].map((link) => (
+              {quickLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm font-light hover:text-white transition-colors flex items-center gap-3"
+                    className="text-sm font-light hover:text-white transition-all flex items-center group"
                   >
-                    <span className="text-zinc-700 text-[10px]">■</span>{" "}
+                    <span className="w-0 overflow-hidden group-hover:w-4 transition-all duration-300 opacity-0 group-hover:opacity-100">
+                      <ArrowRight className="w-3 h-3 mr-2" />
+                    </span>
                     {link.label}
                   </Link>
                 </li>
@@ -51,75 +68,81 @@ export function Footer() {
 
           {/* Col 3: Services */}
           <div>
-            <h4 className="text-white font-medium tracking-[0.2em] uppercase text-[11px] mb-8">
-              Our Services
+            <h4 className="text-white font-semibold tracking-widest uppercase text-[10px] mb-10 border-l-2 border-zinc-500 pl-4">
+              Our Experiences
             </h4>
             <ul className="space-y-4">
-              {[
-                "Buggy Car Rental",
-                "Scooter Rental",
-                "Snorkeling Safari",
-                "Lembongan Island Tour",
-              ].map((service) => (
-                <li key={service}>
+              {services.map((service) => (
+                <li key={service.label}>
                   <Link
-                    href="/#services"
-                    className="text-sm font-light hover:text-white transition-colors flex items-center gap-3"
+                    href={`/services/${service.slug}`}
+                    className="text-sm font-light hover:text-white transition-all flex items-center group"
                   >
-                    <span className="text-zinc-700 text-[10px]">■</span> {service}
+                    <span className="w-0 overflow-hidden group-hover:w-4 transition-all duration-300 opacity-0 group-hover:opacity-100">
+                      <ArrowRight className="w-3 h-3 mr-2" />
+                    </span>
+                    {service.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Col 4: Contact Info */}
+          {/* Col 4: Reach Us */}
           <div>
-            <h4 className="text-white font-medium tracking-[0.2em] uppercase text-[11px] mb-8">
-              Contact Us
+            <h4 className="text-white font-semibold tracking-widest uppercase text-[10px] mb-10 border-l-2 border-zinc-500 pl-4">
+              Connect
             </h4>
-            <ul className="space-y-5">
-              <li className="group">
-                <a 
-                  href="https://www.google.com/maps/search/?api=1&query=Jl.+Jungutbatu,+Nusa+Lembongan,+Bali+80771"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-start gap-4 text-sm font-light cursor-pointer"
-                >
-                  <div className="bg-zinc-900 p-2 shrink-0 group-hover:bg-zinc-800 transition-colors border border-zinc-800">
-                    <MapPin className="h-3 w-3 text-zinc-400 group-hover:text-white" />
-                  </div>
-                  <span className="pt-1.5 text-zinc-400 group-hover:text-zinc-300 transition-colors">
+            <div className="space-y-8">
+              <div className="flex items-start gap-4 group">
+                <div className="w-10 h-10 rounded-none bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0 group-hover:border-zinc-500 transition-colors">
+                  <MapPin className="w-4 h-4 text-zinc-500 group-hover:text-white" />
+                </div>
+                <div className="space-y-1">
+                  <span className="block text-[10px] uppercase tracking-tighter text-zinc-600 font-bold">Office</span>
+                  <a 
+                    href="https://www.google.com/maps/search/?api=1&query=Jl.+Jungutbatu,+Nusa+Lembongan,+Bali+80771"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-light hover:text-zinc-200 transition-colors block leading-snug"
+                  >
                     Jl. Jungutbatu, Nusa Lembongan, Bali 80771
-                  </span>
-                </a>
-              </li>
-              <li className="flex items-start gap-4 text-sm font-light group">
-                <div className="bg-zinc-900 p-2 shrink-0 group-hover:bg-zinc-800 transition-colors border border-zinc-800">
-                  <Phone className="h-3 w-3 text-zinc-400 group-hover:text-white" />
+                  </a>
                 </div>
-                <a href="tel:+6281234567890" className="pt-1.5 text-zinc-400 group-hover:text-white transition-colors">
-                  +62 812 3456 7890
-                </a>
-              </li>
-              <li className="flex items-start gap-4 text-sm font-light group">
-                <div className="bg-zinc-900 p-2 shrink-0 group-hover:bg-zinc-800 transition-colors border border-zinc-800">
-                  <Mail className="h-3 w-3 text-zinc-400 group-hover:text-white" />
+              </div>
+
+              <div className="flex items-start gap-4 group">
+                <div className="w-10 h-10 rounded-none bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0 group-hover:border-zinc-500 transition-colors">
+                  <Phone className="w-4 h-4 text-zinc-500 group-hover:text-white" />
                 </div>
-                <a href="mailto:hello@funtriplembongan.com" className="pt-1.5 text-zinc-400 group-hover:text-white transition-colors">
-                  hello@funtriplembongan.com
-                </a>
-              </li>
-            </ul>
+                <div className="space-y-1">
+                  <span className="block text-[10px] uppercase tracking-tighter text-zinc-600 font-bold">Contact</span>
+                  <a href="tel:+6281234567890" className="text-sm font-light hover:text-zinc-200 transition-colors block">
+                    +62 812 3456 7890
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 group">
+                <div className="w-10 h-10 rounded-none bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0 group-hover:border-zinc-500 transition-colors">
+                  <Mail className="w-4 h-4 text-zinc-500 group-hover:text-white" />
+                </div>
+                <div className="space-y-1">
+                  <span className="block text-[10px] uppercase tracking-tighter text-zinc-600 font-bold">Email</span>
+                  <a href="mailto:hello@funtriplembongan.com" className="text-sm font-light hover:text-zinc-200 transition-colors block">
+                    hello@funtriplembongan.com
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Bottom Footer */}
-        <div className="pt-8 border-t border-zinc-900 flex flex-col items-center">
-          <div className="text-xs tracking-widest text-zinc-600 font-light text-center uppercase">
-            &copy; {new Date().getFullYear()} Fun Trip Lembongan. All rights
-            reserved.
-          </div>
+        {/* Bottom Section */}
+        <div className="pt-12 border-t border-zinc-900/50 flex flex-col  items-center ">
+          <p className="text-[10px] tracking-widest text-zinc-600 font-light uppercase">
+            &copy; {currentYear} Fun Trip Lembongan. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

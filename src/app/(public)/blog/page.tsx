@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import BlogPageClient from "@/components/blog/BlogPageClient";
 
@@ -17,40 +16,35 @@ export default async function BlogPage() {
     orderBy: { createdAt: "desc" },
   });
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "Fun Trip Lembongan Blog",
+    "description": "Travel stories and guides for Nusa Lembongan",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Fun Trip Lembongan",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://funtriplembongan.com/images/hero.png"
+      }
+    },
+    "blogPost": posts.map((post) => ({
+      "@type": "BlogPosting",
+      "headline": post.title,
+      "url": `https://funtriplembongan.com/blog/${post.slug}`,
+      "datePublished": post.createdAt.toISOString(),
+      "image": post.thumbnailUrl || "https://funtriplembongan.com/images/hero.png",
+    })),
+  };
+
   return (
-    <div>
-      {/* Hero — full-bleed photo */}
-      <section className="relative h-[420px] sm:h-[520px] flex items-center justify-center overflow-hidden">
-        {/* Background image */}
-        <Image
-          src="/images/hero.png"
-          alt="Nusa Lembongan ocean view"
-          fill
-          className="object-cover object-center"
-          priority
-          sizes="100vw"
-        />
-        {/* Dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
-
-        {/* Content */}
-        <div className="relative z-10 text-center px-4 sm:px-6 max-w-3xl mx-auto">
-          <h1
-            className="text-4xl sm:text-6xl font-bold text-white leading-tight"
-            style={{ fontFamily: "'Georgia', 'Times New Roman', serif", textShadow: "0 2px 20px rgba(0,0,0,0.5)" }}
-          >
-            Island Tales &amp; Travel Guides
-          </h1>
-          <p
-            className="mt-5 text-base sm:text-lg text-white/80 max-w-xl mx-auto leading-relaxed"
-            style={{ textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}
-          >
-            Discover the hidden secrets of Nusa Lembongan through the eyes of our guests and local experts.
-          </p>
-        </div>
-      </section>
-
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <BlogPageClient posts={posts} />
-    </div>
+    </>
   );
 }
