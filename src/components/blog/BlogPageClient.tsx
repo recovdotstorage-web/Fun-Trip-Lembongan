@@ -122,6 +122,7 @@ export default function BlogPageClient({ posts }: { posts: Post[] }) {
   const [searchInput, setSearchInput] = useState("");
   const [sortBy, setSortBy] = useState("Latest");
   const [sortOpen, setSortOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
 
   // Debounced search — 300 ms
@@ -201,7 +202,11 @@ export default function BlogPageClient({ posts }: { posts: Post[] }) {
                   placeholder="Search..."
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  className="pl-8 pr-7 py-1.5 text-xs rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition w-44 focus:w-56 duration-300"
+                  onFocus={() => setSearchOpen(true)}
+                  onBlur={() => { if (!searchInput) setSearchOpen(false); }}
+                  className={`pl-8 pr-7 py-1.5 text-xs rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all duration-500 ${
+                    searchOpen ? "w-64" : "w-36"
+                  }`}
                 />
                 {searchInput && (
                   <button
