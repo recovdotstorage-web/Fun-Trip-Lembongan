@@ -1,8 +1,9 @@
 "use client";
 
-import { Car, Bike, Ship, MapPin, CheckCircle, Send } from "lucide-react";
+import { Car, Bike, Ship, MapPin, CheckCircle, Send, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 const springTransition = {
   type: "spring" as const,
@@ -38,6 +39,7 @@ const services = [
   {
     id: 1,
     title: "Buggy Car Rental",
+    slug: "buggy-car-rental",
     price: "Best Price",
     icon: <Car className="h-6 w-6 text-zinc-900" />,
     image: "/images/surfing.png",
@@ -51,6 +53,7 @@ const services = [
   {
     id: 2,
     title: "Scooter Rental",
+    slug: "scooter-rental",
     price: "Best Price",
     icon: <Bike className="h-6 w-6 text-zinc-900" />,
     image: "/images/diving.png",
@@ -65,6 +68,7 @@ const services = [
   {
     id: 3,
     title: "Snorkeling Safari",
+    slug: "snorkeling-safari",
     price: "Best Price",
     icon: <Ship className="h-6 w-6 text-zinc-900" />,
     image: "/images/snorkeling.png",
@@ -78,6 +82,7 @@ const services = [
   {
     id: 4,
     title: "Lembongan Island Tour",
+    slug: "lembongan-island-tour",
     price: "Best Price",
     icon: <MapPin className="h-6 w-6 text-zinc-900" />,
     image: "/images/island-tour.png",
@@ -118,11 +123,26 @@ export function ServicesSection({ onWaClick }: ServicesSectionProps) {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={staggerContainer}
-          className="grid grid-cols-4 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {services.map((srv) => (
             <ServiceCard key={srv.id} service={srv} onWaClick={onWaClick} />
           ))}
+        </motion.div>
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeUpVariants}
+          className="mt-16 text-center"
+        >
+          <Link 
+            href="/services"
+            className="inline-flex items-center gap-3 px-10 py-5 bg-zinc-900 text-white text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all group"
+          >
+            Show All Services
+            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </motion.div>
       </div>
     </section>
@@ -136,7 +156,9 @@ function ServiceCard({
   service: (typeof services)[0];
   onWaClick: (message?: string) => void;
 }) {
-  const handleBook = () => {
+  const handleBook = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     const message = `*Service Inquiry*\n*Item:* ${service.title}\n\nHi Funtrip Lembongan, I want to book this. How much is it?`;
     onWaClick(message);
   };
@@ -144,52 +166,61 @@ function ServiceCard({
   return (
     <motion.div
       variants={fadeUpVariants}
-      className={`bg-white overflow-hidden border transition-transform duration-300 hover:-translate-y-1 flex flex-col ${
+      className={`group bg-white overflow-hidden border transition-all duration-300 hover:border-zinc-900 flex flex-col rounded-none ${
         service.popular ? "border-zinc-900 relative" : "border-zinc-200"
       }`}
     >
-      {service.popular && (
-        <div className="absolute top-4 right-4 bg-zinc-900 text-white text-[10px] font-medium px-3 py-1.5 z-10 uppercase tracking-widest">
-          Most Booked
+      <Link href={`/services/${service.slug}`} className="flex flex-col flex-grow">
+        {service.popular && (
+          <div className="absolute top-4 right-4 bg-zinc-900 text-white text-[10px] font-medium px-3 py-1.5 z-10 uppercase tracking-widest">
+            Most Booked
+          </div>
+        )}
+        <div className="h-48 overflow-hidden relative">
+          <Image
+            src={service.image}
+            alt={service.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-700"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
         </div>
-      )}
-      <div className="h-40 overflow-hidden relative">
-        <Image
-          src={service.image}
-          alt={service.title}
-          fill
-          className="object-cover hover:scale-105 transition-transform duration-500"
-        />
-      </div>
-      <div className="p-6 flex flex-col flex-grow">
-        {/* Icon + Title on same row */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="bg-zinc-50 p-2 shrink-0">{service.icon}</div>
-          <h4 className="text-lg font-medium text-zinc-900 leading-tight">{service.title}</h4>
-        </div>
-        <div className="text-lg font-medium text-zinc-900 mb-4 border-b border-zinc-100 pb-4">
-          {service.price}{" "}
-          <span className="text-[10px] font-light text-zinc-500 uppercase tracking-widest ml-1">
-            Via WhatsApp
-          </span>
-        </div>
+        <div className="p-6 flex flex-col flex-grow">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-zinc-50 p-2 shrink-0 group-hover:bg-zinc-100 transition-colors">{service.icon}</div>
+            <h4 className="text-lg font-medium text-zinc-900 leading-tight group-hover:text-zinc-900">{service.title}</h4>
+          </div>
+          <div className="text-lg font-medium text-zinc-900 mb-4 border-b border-zinc-100 pb-4">
+            {service.price}{" "}
+            <span className="text-[10px] font-light text-zinc-500 uppercase tracking-widest ml-1">
+              Via WhatsApp
+            </span>
+          </div>
 
-        <ul className="space-y-3 mb-6 flex-grow">
-          {service.features.map((feature, idx) => (
-            <li key={idx} className="flex items-start text-zinc-600 text-sm font-light">
-              <CheckCircle className="h-4 w-4 text-zinc-900 mr-3 shrink-0 mt-0.5" />
-              <span>{feature}</span>
-            </li>
-          ))}
-        </ul>
+          <ul className="space-y-3 mb-6 flex-grow">
+            {service.features.map((feature, idx) => (
+              <li key={idx} className="flex items-start text-zinc-600 text-sm font-light">
+                <CheckCircle className="h-4 w-4 text-zinc-900 mr-3 shrink-0 mt-0.5" />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
 
-        <button
-          onClick={handleBook}
-          className="w-full py-3.5 px-4 bg-zinc-900 hover:bg-zinc-800 text-white font-medium transition-colors flex justify-center items-center gap-2 text-[11px] uppercase tracking-widest"
-        >
-          <Send className="h-3 w-3" /> Book on WhatsApp
-        </button>
-      </div>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={handleBook}
+              className="w-full py-3 px-4 bg-zinc-900 hover:bg-zinc-800 text-white font-medium transition-colors flex justify-center items-center gap-2 text-[10px] uppercase tracking-widest"
+            >
+              <Send className="h-3 w-3" /> Book on WhatsApp
+            </button>
+            <div className="flex items-center justify-center gap-2 text-zinc-500 text-[10px] uppercase tracking-widest font-medium py-2 group-hover:text-zinc-900 transition-colors">
+              View Details <ArrowRight className="h-3 w-3" />
+            </div>
+          </div>
+        </div>
+      </Link>
     </motion.div>
   );
 }
+

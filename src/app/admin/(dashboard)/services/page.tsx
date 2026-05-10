@@ -23,8 +23,8 @@ function timeAgo(date: Date) {
   return `${days} days ago`;
 }
 
-export default async function AdminActivitiesPage() {
-  const activities = await prisma.activity.findMany({
+export default async function AdminServicesPage() {
+  const services = await prisma.activity.findMany({
     orderBy: { createdAt: "desc" },
     include: {
       category: { select: { name: true } },
@@ -37,36 +37,36 @@ export default async function AdminActivitiesPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Activities</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Services</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            {activities.length} total · manage your packages
+            {services.length} total · manage your packages
           </p>
         </div>
         <Link
-          href="/admin/activities/new"
+          href="/admin/services/new"
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-emerald-500/20"
         >
           <Plus className="w-4 h-4" />
-          New Activity
+          New Service
         </Link>
       </div>
 
       {/* Table */}
-      {activities.length === 0 ? (
+      {services.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm py-24 text-center">
           <Compass className="w-14 h-14 text-gray-200 mx-auto mb-4" />
           <h2 className="text-lg font-semibold text-gray-500">
-            No activities yet
+            No services yet
           </h2>
           <p className="text-sm text-gray-400 mt-1 mb-6">
             Create your first package to get started.
           </p>
           <Link
-            href="/admin/activities/new"
+            href="/admin/services/new"
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-500 transition"
           >
             <Plus className="w-4 h-4" />
-            Create Activity
+            Create Service
           </Link>
         </div>
       ) : (
@@ -76,7 +76,7 @@ export default async function AdminActivitiesPage() {
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100">
                   <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-4">
-                    Activity
+                    Service
                   </th>
                   <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-4">
                     Category
@@ -94,7 +94,7 @@ export default async function AdminActivitiesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {activities.map((act) => (
+                {services.map((act) => (
                   <tr key={act.id} className="hover:bg-gray-50/50 transition">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -148,7 +148,7 @@ export default async function AdminActivitiesPage() {
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2 justify-end">
                         <Link
-                          href={`/activities/${act.slug}`}
+                          href={`/services/${act.slug}`}
                           target="_blank"
                           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
                           title="Preview"
@@ -156,7 +156,7 @@ export default async function AdminActivitiesPage() {
                           <Eye className="w-4 h-4" />
                         </Link>
                         <Link
-                          href={`/admin/activities/${act.id}/edit`}
+                          href={`/admin/services/${act.id}/edit`}
                           className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
                           title="Edit"
                         >

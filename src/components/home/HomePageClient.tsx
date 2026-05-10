@@ -1,6 +1,5 @@
 "use client";
 
-import { Navbar } from "@/components/shared/Navbar";
 import { HeroSection } from "@/components/home/HeroSection";
 import { BookingWidget } from "@/components/home/BookingWidget";
 import { TrustedSection } from "@/components/home/TrustedSection";
@@ -10,9 +9,8 @@ import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { BlogSection } from "@/components/home/BlogSection";
 import { FAQSection } from "@/components/home/FAQSection";
 import { ContactSection } from "@/components/home/ContactSection";
-import { Footer } from "@/components/shared/Footer";
 
-const WA_NUMBER = "6281234567890"; // Ganti dengan nomor WA bisnis yang benar
+const WA_NUMBER = "6281234567890";
 
 export function HomePageClient() {
   const handleWhatsAppRedirect = (message?: string) => {
@@ -23,23 +21,16 @@ export function HomePageClient() {
   };
 
   return (
-    <div
-      className="min-h-screen bg-[#FDFBF7] text-zinc-900"
-      style={{ fontFamily: "'Outfit', sans-serif" }}
-    >
-      <Navbar />
-      <main className="pt-20">
-        <HeroSection onWaClick={handleWhatsAppRedirect} />
-        <BookingWidget onWaClick={handleWhatsAppRedirect} />
-        <TrustedSection />
-        <ServicesSection onWaClick={handleWhatsAppRedirect} />
-        <WhyChooseUsSection />
-        <TestimonialsSection />
-        <BlogSection />
-        <FAQSection onWaClick={handleWhatsAppRedirect} />
-        <ContactSection onWaClick={handleWhatsAppRedirect} />
-      </main>
-      <Footer />
-    </div>
+    <>
+      <HeroSection onWaClick={handleWhatsAppRedirect} />
+      <BookingWidget onWaClick={handleWhatsAppRedirect} />
+      <TrustedSection />
+      <ServicesSection onWaClick={handleWhatsAppRedirect} />
+      <WhyChooseUsSection />
+      <TestimonialsSection />
+      <BlogSection />
+      <FAQSection onWaClick={handleWhatsAppRedirect} />
+      <ContactSection onWaClick={handleWhatsAppRedirect} />
+    </>
   );
 }

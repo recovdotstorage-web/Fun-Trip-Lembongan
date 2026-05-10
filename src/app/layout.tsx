@@ -13,24 +13,25 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://funtriplembongan.com"),
   title: {
-    default: "Fun Trip Lembongan — Tour & Activity Nusa Lembongan",
+    default: "Fun Trip Lembongan — Tour & Service Nusa Lembongan",
     template: "%s | Fun Trip Lembongan",
   },
   description:
-    "Discover the best tours and activities in Nusa Lembongan, Bali. Snorkeling, mangrove tours, island hopping, and more. Book your adventure today!",
+    "Discover the best tours and services in Nusa Lembongan, Bali. Snorkeling, mangrove tours, island hopping, and more. Book your adventure today!",
   keywords: [
     "Nusa Lembongan",
     "Bali tour",
     "snorkeling Lembongan",
     "island hopping Bali",
     "mangrove tour",
-    "Lembongan activities",
+    "Lembongan services",
   ],
   openGraph: {
-    title: "Fun Trip Lembongan — Tour & Activity Nusa Lembongan",
+    title: "Fun Trip Lembongan — Tour & Service Nusa Lembongan",
     description:
-      "Discover the best tours and activities in Nusa Lembongan, Bali.",
+      "Discover the best tours and services in Nusa Lembongan, Bali.",
     type: "website",
     locale: "id_ID",
   },

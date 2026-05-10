@@ -7,10 +7,13 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <div 
+      className="min-h-screen bg-[#FDFBF7] text-zinc-900"
+      style={{ fontFamily: "'Outfit', sans-serif" }}
+    >
       <Navbar />
-      <main className="min-h-screen pt-20">{children}</main>
+      <main className="pt-20">{children}</main>
       <Footer />
-    </>
+    </div>
   );
 }

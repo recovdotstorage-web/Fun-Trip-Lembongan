@@ -24,65 +24,69 @@ export function ActivityCard({
 }: ActivityCardProps) {
   return (
     <Link
-      href={`/activities/${slug}`}
-      className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 border border-gray-100"
+      href={`/services/${slug}`}
+      className="group block bg-white rounded-none overflow-hidden border border-zinc-200 hover:border-zinc-900 transition-all duration-300 flex flex-col h-full"
     >
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+      <div className="relative aspect-[16/10] overflow-hidden bg-zinc-100 border-b border-zinc-200">
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={name}
             fill
-            className="object-cover group-hover:scale-110 transition-transform duration-700"
+            className="object-cover group-hover:scale-105 transition-transform duration-700 grayscale-[0.2] group-hover:grayscale-0"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-emerald-200 to-teal-300 flex items-center justify-center">
-            <span className="text-emerald-700 font-medium text-lg">
+          <div className="w-full h-full bg-zinc-50 flex items-center justify-center">
+            <span className="text-zinc-400 font-medium text-lg uppercase tracking-tighter">
               {name.charAt(0)}
             </span>
           </div>
         )}
         {/* Category Badge */}
-        <div className="absolute top-3 left-3">
-          <span className="px-3 py-1 text-xs font-semibold bg-white/90 backdrop-blur-sm text-emerald-700 rounded-full">
+        <div className="absolute top-4 left-4">
+          <span className="px-3 py-1.5 text-[10px] font-medium bg-zinc-900 text-white rounded-none uppercase tracking-[0.2em]">
             {categoryName}
           </span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-5">
-        <h3 className="text-lg font-bold text-gray-900 group-hover:text-emerald-600 transition-colors line-clamp-1">
-          {name}
-        </h3>
-        <p className="mt-2 text-sm text-gray-500 line-clamp-2 leading-relaxed">
-          {shortDescription}
-        </p>
-
-        {/* Meta */}
-        <div className="mt-4 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-gray-400 uppercase tracking-wider">
-              Starts from
-            </p>
-            <p className="text-lg font-bold text-emerald-600">
-              {formatCurrency(price)}
-            </p>
-          </div>
-          <div className="flex items-center gap-1.5 text-gray-400">
-            <Clock className="w-4 h-4" />
-            <span className="text-sm">{duration}</span>
-          </div>
+      <div className="p-6 flex flex-col flex-grow">
+        <div className="flex-grow">
+          <h3 className="text-xl font-medium text-zinc-900 group-hover:text-zinc-900 transition-colors line-clamp-1 font-[family-name:var(--font-outfit)] leading-tight mb-3">
+            {name}
+          </h3>
+          <p className="text-sm text-zinc-500 line-clamp-2 leading-relaxed font-light mb-6">
+            {shortDescription}
+          </p>
         </div>
 
-        {/* CTA */}
-        <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-          <span className="text-sm font-medium text-emerald-600 group-hover:text-emerald-700">
-            View Details
-          </span>
-          <ArrowRight className="w-4 h-4 text-emerald-600 group-hover:translate-x-1 transition-transform" />
+        {/* Meta */}
+        <div className="mt-auto">
+          <div className="flex items-center justify-between border-t border-zinc-100 pt-6 mb-6">
+            <div className="flex flex-col">
+              <span className="text-[10px] text-zinc-400 uppercase tracking-widest mb-1">
+                From
+              </span>
+              <span className="text-lg font-medium text-zinc-900">
+                {formatCurrency(price)}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-zinc-400">
+              <Clock className="w-3.5 h-3.5" />
+              <span className="text-[11px] uppercase tracking-wider">{duration}</span>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="flex items-center justify-between text-zinc-900 group-hover:translate-x-1 transition-transform">
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em]">
+              View Details
+            </span>
+            <ArrowRight className="w-4 h-4" />
+          </div>
         </div>
       </div>
     </Link>

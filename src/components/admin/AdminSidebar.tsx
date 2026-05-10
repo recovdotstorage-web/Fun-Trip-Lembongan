@@ -21,8 +21,8 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
-    label: "Activities",
-    href: "/admin/activities",
+    label: "Services",
+    href: "/admin/services",
     icon: Compass,
   },
   {

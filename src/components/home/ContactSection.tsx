@@ -58,6 +58,7 @@ export function ContactSection({ onWaClick }: ContactSectionProps) {
           alt="Lembongan Coastline"
           fill
           className="object-cover"
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-zinc-950/90" />
       </div>

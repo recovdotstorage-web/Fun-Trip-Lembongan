@@ -1,15 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { ActivityForm } from "../../ActivityForm";
-import { deleteActivity } from "../../actions";
+import { deleteService } from "../../actions";
 import { Trash2 } from "lucide-react";
 
 type Props = { params: Promise<{ id: string }> };
 
-export default async function EditActivityPage({ params }: Props) {
+export default async function EditServicePage({ params }: Props) {
   const { id } = await params;
 
-  const [activity, categories] = await Promise.all([
+  const [service, categories] = await Promise.all([
     prisma.activity.findUnique({
       where: { id },
       include: {
@@ -21,11 +21,11 @@ export default async function EditActivityPage({ params }: Props) {
     prisma.category.findMany({ orderBy: { name: "asc" } }),
   ]);
 
-  if (!activity) notFound();
+  if (!service) notFound();
 
   return (
     <div>
-      <ActivityForm categories={categories} activity={activity} />
+      <ActivityForm categories={categories} activity={service} />
 
       {/* Danger zone */}
       <div className="px-6 lg:px-8 pb-12 max-w-4xl mx-auto">
@@ -34,11 +34,11 @@ export default async function EditActivityPage({ params }: Props) {
             Danger Zone
           </h3>
           <p className="text-sm text-red-600 mb-4">
-            Permanently delete this activity and all its images. This cannot be
+            Permanently delete this service and all its images. This cannot be
             undone.
           </p>
           <form
-            action={deleteActivity.bind(null, activity.id)}
+            action={deleteService.bind(null, service.id)}
           >
             <button
               type="submit"
@@ -46,7 +46,7 @@ export default async function EditActivityPage({ params }: Props) {
               onClick={(e) => {
                 if (
                   !confirm(
-                    `Delete "${activity.name}"? This action cannot be undone.`
+                    `Delete "${service.name}"? This action cannot be undone.`
                   )
                 ) {
                   e.preventDefault();
@@ -54,7 +54,7 @@ export default async function EditActivityPage({ params }: Props) {
               }}
             >
               <Trash2 className="w-4 h-4" />
-              Delete Activity
+              Delete Service
             </button>
           </form>
         </div>

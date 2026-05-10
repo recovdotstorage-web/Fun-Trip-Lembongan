@@ -24,9 +24,9 @@ function buildSlug(name: string) {
   return slugify(name, { lower: true, strict: true });
 }
 
-// ── Create Activity ──────────────────────────────────────────────────────────
+// ── Create Service ──────────────────────────────────────────────────────────
 
-export async function createActivity(formData: FormData) {
+export async function createService(formData: FormData) {
   await requireAdmin();
 
   const name = formData.get("name") as string;
@@ -69,14 +69,14 @@ export async function createActivity(formData: FormData) {
     },
   });
 
-  revalidatePath("/admin/activities");
-  revalidatePath("/activities");
-  redirect(`/admin/activities/${activity.id}/edit`);
+  revalidatePath("/admin/services");
+  revalidatePath("/services");
+  redirect(`/admin/services/${activity.id}/edit`);
 }
 
-// ── Update Activity ──────────────────────────────────────────────────────────
+// ── Update Service ──────────────────────────────────────────────────────────
 
-export async function updateActivity(id: string, formData: FormData) {
+export async function updateService(id: string, formData: FormData) {
   await requireAdmin();
 
   const name = formData.get("name") as string;
@@ -115,33 +115,33 @@ export async function updateActivity(id: string, formData: FormData) {
     }),
   ]);
 
-  revalidatePath("/admin/activities");
-  revalidatePath(`/admin/activities/${id}/edit`);
-  revalidatePath("/activities");
+  revalidatePath("/admin/services");
+  revalidatePath(`/admin/services/${id}/edit`);
+  revalidatePath("/services");
 }
 
-// ── Delete Activity ──────────────────────────────────────────────────────────
+// ── Delete Service ──────────────────────────────────────────────────────────
 
-export async function deleteActivity(id: string) {
+export async function deleteService(id: string) {
   await requireAdmin();
 
   // Delete Cloudinary images first
   const images = await prisma.activityImage.findMany({ where: { activityId: id } });
   await Promise.all(
-    images.map((img) => cloudinary.uploader.destroy(img.publicId).catch(() => {}))
+    images.map((img) => cloudinary.uploader.destroy(img.publicId).catch(() => { }))
   );
 
   await prisma.activity.delete({ where: { id } });
 
-  revalidatePath("/admin/activities");
-  revalidatePath("/activities");
-  redirect("/admin/activities");
+  revalidatePath("/admin/services");
+  revalidatePath("/services");
+  redirect("/admin/services");
 }
 
-// ── Upload Activity Image ─────────────────────────────────────────────────────
+// ── Upload Service Image ─────────────────────────────────────────────────────
 
-export async function uploadActivityImage(
-  activityId: string,
+export async function uploadServiceImage(
+  serviceId: string,
   formData: FormData
 ) {
   await requireAdmin();
@@ -159,7 +159,7 @@ export async function uploadActivityImage(
       cloudinary.uploader
         .upload_stream(
           {
-            folder: "funtriplembongan/activities",
+            folder: "funtriplembongan/services",
             resource_type: "image",
           },
           (err, res) => (err ? reject(err) : resolve(res as any))
@@ -171,47 +171,47 @@ export async function uploadActivityImage(
   // If primary, unset all others first
   if (isPrimary) {
     await prisma.activityImage.updateMany({
-      where: { activityId },
+      where: { activityId: serviceId },
       data: { isPrimary: false },
     });
   }
 
   await prisma.activityImage.create({
     data: {
-      activityId,
+      activityId: serviceId,
       publicId: result.public_id,
       imageUrl: result.secure_url,
       isPrimary,
     },
   });
 
-  revalidatePath(`/admin/activities/${activityId}/edit`);
-  revalidatePath("/activities");
+  revalidatePath(`/admin/services/${serviceId}/edit`);
+  revalidatePath("/services");
 }
 
-// ── Delete Activity Image ─────────────────────────────────────────────────────
+// ── Delete Service Image ─────────────────────────────────────────────────────
 
-export async function deleteActivityImage(imageId: string, activityId: string) {
+export async function deleteServiceImage(imageId: string, serviceId: string) {
   await requireAdmin();
 
   const image = await prisma.activityImage.findUnique({ where: { id: imageId } });
   if (!image) return;
 
-  await cloudinary.uploader.destroy(image.publicId).catch(() => {});
+  await cloudinary.uploader.destroy(image.publicId).catch(() => { });
   await prisma.activityImage.delete({ where: { id: imageId } });
 
-  revalidatePath(`/admin/activities/${activityId}/edit`);
-  revalidatePath("/activities");
+  revalidatePath(`/admin/services/${serviceId}/edit`);
+  revalidatePath("/services");
 }
 
 // ── Set Primary Image ─────────────────────────────────────────────────────────
 
-export async function setPrimaryImage(imageId: string, activityId: string) {
+export async function setPrimaryImage(imageId: string, serviceId: string) {
   await requireAdmin();
 
   await prisma.$transaction([
     prisma.activityImage.updateMany({
-      where: { activityId },
+      where: { activityId: serviceId },
       data: { isPrimary: false },
     }),
     prisma.activityImage.update({
@@ -220,5 +220,5 @@ export async function setPrimaryImage(imageId: string, activityId: string) {
     }),
   ]);
 
-  revalidatePath(`/admin/activities/${activityId}/edit`);
+  revalidatePath(`/admin/services/${serviceId}/edit`);
 }

@@ -15,9 +15,9 @@ export const dynamic = "force-dynamic";
 
 async function getStats() {
   const [
-    totalActivities,
-    publishedActivities,
-    draftActivities,
+    totalServices,
+    publishedServices,
+    draftServices,
     totalPosts,
     publishedPosts,
     totalInquiries,
@@ -32,7 +32,7 @@ async function getStats() {
     prisma.inquiry.count({ where: { status: "NEW" } }),
   ]);
 
-  const recentActivities = await prisma.activity.findMany({
+  const recentServices = await prisma.activity.findMany({
     orderBy: { updatedAt: "desc" },
     take: 5,
     select: {
@@ -52,14 +52,14 @@ async function getStats() {
   });
 
   return {
-    totalActivities,
-    publishedActivities,
-    draftActivities,
+    totalServices,
+    publishedServices,
+    draftServices,
     totalPosts,
     publishedPosts,
     totalInquiries,
     newInquiries,
-    recentActivities,
+    recentServices,
     recentInquiries,
   };
 }
@@ -86,12 +86,12 @@ export default async function DashboardPage() {
 
   const statCards = [
     {
-      title: "Total Activities",
-      value: stats.totalActivities,
-      sub: `${stats.publishedActivities} published · ${stats.draftActivities} draft`,
+      title: "Total Services",
+      value: stats.totalServices,
+      sub: `${stats.publishedServices} published · ${stats.draftServices} draft`,
       icon: Compass,
       color: "text-emerald-600 bg-emerald-50",
-      href: "/admin/activities",
+      href: "/admin/services",
     },
     {
       title: "Blog Posts",
@@ -112,13 +112,13 @@ export default async function DashboardPage() {
     {
       title: "Published Rate",
       value:
-        stats.totalActivities > 0
-          ? `${Math.round((stats.publishedActivities / stats.totalActivities) * 100)}%`
+        stats.totalServices > 0
+          ? `${Math.round((stats.publishedServices / stats.totalServices) * 100)}%`
           : "—",
-      sub: "Activities live",
+      sub: "Services live",
       icon: TrendingUp,
       color: "text-rose-600 bg-rose-50",
-      href: "/admin/activities",
+      href: "/admin/services",
     },
   ];
 
@@ -134,11 +134,11 @@ export default async function DashboardPage() {
         </div>
         <div className="flex gap-3">
           <Link
-            href="/admin/activities/new"
+            href="/admin/services/new"
             className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-emerald-500/20"
           >
             <Plus className="w-4 h-4" />
-            New Activity
+            New Service
           </Link>
         </div>
       </div>
@@ -169,32 +169,32 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activities */}
+        {/* Recent Services */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">
-              Recent Activities
+              Recent Services
             </h2>
             <Link
-              href="/admin/activities"
+              href="/admin/services"
               className="text-sm text-emerald-600 hover:text-emerald-500 font-medium transition"
             >
               View all
             </Link>
           </div>
           <div className="divide-y divide-gray-50">
-            {stats.recentActivities.length === 0 ? (
+            {stats.recentServices.length === 0 ? (
               <p className="px-6 py-8 text-sm text-gray-400 text-center">
-                No activities yet.{" "}
+                No services yet.{" "}
                 <Link
-                  href="/admin/activities/new"
+                  href="/admin/services/new"
                   className="text-emerald-600 hover:underline"
                 >
                   Create one
                 </Link>
               </p>
             ) : (
-              stats.recentActivities.map((act) => (
+              stats.recentServices.map((act) => (
                 <div
                   key={act.id}
                   className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/50 transition"
@@ -219,7 +219,7 @@ export default async function DashboardPage() {
                       {act.status === "PUBLISHED" ? "Live" : "Draft"}
                     </span>
                     <Link
-                      href={`/admin/activities/${act.id}/edit`}
+                      href={`/admin/services/${act.id}/edit`}
                       className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
                       title="Edit"
                     >
