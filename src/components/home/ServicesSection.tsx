@@ -1,5 +1,34 @@
+"use client";
+
 import { Car, Bike, Ship, MapPin, CheckCircle, Send } from "lucide-react";
 import Image from "next/image";
+import { motion } from "framer-motion";
+
+const springTransition = {
+  type: "spring" as const,
+  stiffness: 100,
+  damping: 20,
+};
+
+const fadeUpVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: springTransition
+  }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.05,
+    }
+  }
+};
 
 interface ServicesSectionProps {
   onWaClick: (message?: string) => void;
@@ -10,7 +39,7 @@ const services = [
     id: 1,
     title: "Buggy Car Rental",
     price: "Best Price",
-    icon: <Car className="h-6 w-6 text-[#005b96]" />,
+    icon: <Car className="h-6 w-6 text-zinc-900" />,
     image: "/images/surfing.png",
     features: [
       "Comfortable seating for groups",
@@ -23,7 +52,7 @@ const services = [
     id: 2,
     title: "Scooter Rental",
     price: "Best Price",
-    icon: <Bike className="h-6 w-6 text-[#005b96]" />,
+    icon: <Bike className="h-6 w-6 text-zinc-900" />,
     image: "/images/diving.png",
     features: [
       "No driving license required",
@@ -37,7 +66,7 @@ const services = [
     id: 3,
     title: "Snorkeling Safari",
     price: "Best Price",
-    icon: <Ship className="h-6 w-6 text-[#005b96]" />,
+    icon: <Ship className="h-6 w-6 text-zinc-900" />,
     image: "/images/snorkeling.png",
     features: [
       "Swim with Manta Rays",
@@ -50,7 +79,7 @@ const services = [
     id: 4,
     title: "Lembongan Island Tour",
     price: "Best Price",
-    icon: <MapPin className="h-6 w-6 text-[#005b96]" />,
+    icon: <MapPin className="h-6 w-6 text-zinc-900" />,
     image: "/images/island-tour.png",
     features: [
       "Dream Beach & Devil's Tear",
@@ -63,26 +92,38 @@ const services = [
 
 export function ServicesSection({ onWaClick }: ServicesSectionProps) {
   return (
-    <section id="services" className="py-24 bg-slate-50">
+    <section id="services" className="py-24 bg-[#FDFBF7]">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-[#005b96] font-bold tracking-widest uppercase text-sm mb-2">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainer}
+          className="text-center max-w-3xl mx-auto mb-16"
+        >
+          <motion.h2 variants={fadeUpVariants} className="text-zinc-900 font-light tracking-widest uppercase text-sm mb-2">
             What We Offer
-          </h2>
-          <h3 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6">
+          </motion.h2>
+          <motion.h3 variants={fadeUpVariants} className="text-3xl md:text-5xl font-medium text-zinc-900 mb-6">
             Our Services &amp; Rentals
-          </h3>
-          <p className="text-lg text-slate-600">
+          </motion.h3>
+          <motion.p variants={fadeUpVariants} className="text-lg text-zinc-600 font-light">
             Choose from our premium rentals to explore on your own, or join our
             guided tours to see the best of Nusa Lembongan.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
-        <div className="grid grid-cols-4 gap-6">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainer}
+          className="grid grid-cols-4 gap-6"
+        >
           {services.map((srv) => (
             <ServiceCard key={srv.id} service={srv} onWaClick={onWaClick} />
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -101,13 +142,14 @@ function ServiceCard({
   };
 
   return (
-    <div
-      className={`bg-white overflow-hidden shadow-lg border border-slate-100 transition-transform duration-300 hover:-translate-y-2 flex flex-col ${
-        service.popular ? "ring-2 ring-[#005b96] relative" : ""
+    <motion.div
+      variants={fadeUpVariants}
+      className={`bg-white overflow-hidden border transition-transform duration-300 hover:-translate-y-1 flex flex-col ${
+        service.popular ? "border-zinc-900 relative" : "border-zinc-200"
       }`}
     >
       {service.popular && (
-        <div className="absolute top-4 right-4 bg-[#005b96] text-white text-xs font-bold px-3 py-1 z-10 uppercase tracking-wider">
+        <div className="absolute top-4 right-4 bg-zinc-900 text-white text-[10px] font-medium px-3 py-1.5 z-10 uppercase tracking-widest">
           Most Booked
         </div>
       )}
@@ -122,20 +164,20 @@ function ServiceCard({
       <div className="p-6 flex flex-col flex-grow">
         {/* Icon + Title on same row */}
         <div className="flex items-center gap-3 mb-4">
-          <div className="bg-sky-50 p-2 shrink-0">{service.icon}</div>
-          <h4 className="text-lg font-bold text-slate-900 leading-tight">{service.title}</h4>
+          <div className="bg-zinc-50 p-2 shrink-0">{service.icon}</div>
+          <h4 className="text-lg font-medium text-zinc-900 leading-tight">{service.title}</h4>
         </div>
-        <div className="text-lg font-extrabold text-[#005b96] mb-4 border-b border-slate-100 pb-4">
+        <div className="text-lg font-medium text-zinc-900 mb-4 border-b border-zinc-100 pb-4">
           {service.price}{" "}
-          <span className="text-xs font-medium text-slate-500 uppercase ml-1">
+          <span className="text-[10px] font-light text-zinc-500 uppercase tracking-widest ml-1">
             Via WhatsApp
           </span>
         </div>
 
         <ul className="space-y-3 mb-6 flex-grow">
           {service.features.map((feature, idx) => (
-            <li key={idx} className="flex items-start text-slate-600 text-sm">
-              <CheckCircle className="h-4 w-4 text-[#005b96] mr-3 shrink-0 mt-0.5" />
+            <li key={idx} className="flex items-start text-zinc-600 text-sm font-light">
+              <CheckCircle className="h-4 w-4 text-zinc-900 mr-3 shrink-0 mt-0.5" />
               <span>{feature}</span>
             </li>
           ))}
@@ -143,11 +185,11 @@ function ServiceCard({
 
         <button
           onClick={handleBook}
-          className="w-full py-3 px-4 bg-slate-900 hover:bg-[#005b96] text-white font-bold transition-colors flex justify-center items-center gap-2 text-sm uppercase tracking-wider"
+          className="w-full py-3.5 px-4 bg-zinc-900 hover:bg-zinc-800 text-white font-medium transition-colors flex justify-center items-center gap-2 text-[11px] uppercase tracking-widest"
         >
-          <Send className="h-4 w-4" /> Book on WhatsApp
+          <Send className="h-3 w-3" /> Book on WhatsApp
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }

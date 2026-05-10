@@ -155,6 +155,34 @@ async function main() {
     ]
   });
 
+  // Create Blog Posts
+  await prisma.blogPost.deleteMany();
+  await prisma.blogPost.createMany({
+    data: [
+      {
+        title: "Top 5 Snorkeling Spots in Nusa Lembongan",
+        slug: "top-5-snorkeling-spots-in-nusa-lembongan",
+        content: "<p>Nusa Lembongan and its neighboring islands are renowned for their crystal-clear waters and vibrant marine life. Here are our top 5 picks for snorkeling...</p>",
+        thumbnailUrl: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=2070",
+        status: "PUBLISHED"
+      },
+      {
+        title: "A Perfect Day Trip to Nusa Penida",
+        slug: "perfect-day-trip-to-nusa-penida",
+        content: "<p>Planning a day trip to Nusa Penida? This guide covers everything from taking the fast boat from Sanur to visiting the iconic Kelingking Beach...</p>",
+        thumbnailUrl: "https://images.unsplash.com/photo-1559628233-eb1b1a45564b?q=80&w=1964",
+        status: "PUBLISHED"
+      },
+      {
+        title: "Exploring the Mangrove Forest of Lembongan",
+        slug: "exploring-mangrove-forest-lembongan",
+        content: "<p>The tranquil mangrove forest in the north of Nusa Lembongan offers a peaceful escape. Hop on a small traditional boat and glide through the calm waters...</p>",
+        thumbnailUrl: "https://images.unsplash.com/photo-1518182170546-076616fd62bf?q=80&w=2070",
+        status: "PUBLISHED"
+      }
+    ]
+  });
+
   console.log("Seeding finished.");
 }
 

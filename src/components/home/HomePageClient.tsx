@@ -24,7 +24,7 @@ export function HomePageClient() {
 
   return (
     <div
-      className="min-h-screen bg-slate-50 text-slate-900"
+      className="min-h-screen bg-[#FDFBF7] text-zinc-900"
       style={{ fontFamily: "'Outfit', sans-serif" }}
     >
       <Navbar />

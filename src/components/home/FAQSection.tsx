@@ -2,6 +2,33 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Phone } from "lucide-react";
+import { motion } from "framer-motion";
+
+const springTransition = {
+  type: "spring" as const,
+  stiffness: 100,
+  damping: 20,
+};
+
+const fadeUpVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: springTransition
+  }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.05,
+    }
+  }
+};
 
 interface FAQSectionProps {
   onWaClick: (message?: string) => void;
@@ -30,31 +57,37 @@ export function FAQSection({ onWaClick }: FAQSectionProps) {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section id="faq" className="py-24 bg-white border-b border-slate-200">
+    <section id="faq" className="py-24 bg-white border-b border-zinc-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainer}
+          className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start"
+        >
           {/* Left Side: Sticky Header & CTA */}
-          <div className="lg:col-span-5 lg:sticky lg:top-32">
-            <h2 className="text-[#005b96] font-bold tracking-widest uppercase text-sm mb-2">
+          <motion.div variants={fadeUpVariants} className="lg:col-span-5 lg:sticky lg:top-32">
+            <h2 className="text-zinc-900 font-light tracking-widest uppercase text-sm mb-2">
               Got Questions?
             </h2>
-            <h3 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6">
+            <h3 className="text-3xl md:text-5xl font-medium text-zinc-900 mb-6">
               Frequently Asked Questions
             </h3>
-            <p className="text-lg text-slate-600 mb-10">
+            <p className="text-lg text-zinc-600 mb-10 font-light">
               Find quick answers to common questions about our rentals, tours, and
               policies. Need more details? We are just a message away.
             </p>
 
-            <div className="bg-slate-50 border border-slate-200 p-8 flex flex-col items-start relative overflow-hidden group">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-[#005b96]/5 rounded-full blur-2xl group-hover:bg-[#005b96]/10 transition-colors" />
-              <div className="w-14 h-14 bg-[#005b96] text-white flex justify-center items-center mb-6 shadow-md">
-                <Phone className="h-6 w-6" />
+            <div className="bg-white border border-zinc-200 p-8 flex flex-col items-start relative overflow-hidden group">
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-zinc-100 rounded-full blur-2xl group-hover:bg-zinc-200 transition-colors" />
+              <div className="w-14 h-14 bg-zinc-900 text-white flex justify-center items-center mb-6">
+                <Phone className="h-6 w-6 text-zinc-100" />
               </div>
-              <h4 className="font-bold text-xl text-slate-900 mb-2 relative z-10">
+              <h4 className="font-medium text-xl text-zinc-900 mb-2 relative z-10">
                 Still have questions?
               </h4>
-              <p className="text-slate-600 mb-8 relative z-10">
+              <p className="text-zinc-600 mb-8 relative z-10 font-light">
                 Our local team is ready to help you plan your perfect Lembongan
                 trip.
               </p>
@@ -64,22 +97,22 @@ export function FAQSection({ onWaClick }: FAQSectionProps) {
                     "Hi Funtrip Lembongan, I have a few questions before I book."
                   )
                 }
-                className="text-[#005b96] font-bold uppercase tracking-widest text-sm flex items-center gap-3 hover:text-amber-500 transition-colors relative z-10"
+                className="text-zinc-900 font-medium uppercase tracking-widest text-[11px] flex items-center gap-3 hover:text-zinc-600 transition-colors relative z-10"
               >
                 Ask on WhatsApp <span className="text-xl leading-none">→</span>
               </button>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Side: Accordion List */}
-          <div className="lg:col-span-7 space-y-4 mt-4 lg:mt-0">
+          <motion.div variants={fadeUpVariants} className="lg:col-span-7 space-y-4 mt-4 lg:mt-0">
             {faqs.map((faq, idx) => (
               <div
                 key={idx}
                 className={`border bg-white transition-all duration-300 ${
                   openIndex === idx
-                    ? "border-slate-300 border-l-4 border-l-[#005b96] shadow-lg"
-                    : "border-slate-200 hover:border-[#005b96] border-l-4 border-l-transparent"
+                    ? "border-zinc-300 border-l-2 border-l-zinc-900 shadow-sm"
+                    : "border-zinc-200 hover:border-zinc-900 border-l-2 border-l-transparent"
                 }`}
               >
                 <button
@@ -87,8 +120,8 @@ export function FAQSection({ onWaClick }: FAQSectionProps) {
                   onClick={() => setOpenIndex(openIndex === idx ? -1 : idx)}
                 >
                   <span
-                    className={`font-bold text-lg pr-4 ${
-                      openIndex === idx ? "text-[#005b96]" : "text-slate-800"
+                    className={`font-medium text-lg pr-4 ${
+                      openIndex === idx ? "text-zinc-900" : "text-zinc-800"
                     }`}
                   >
                     {faq.q}
@@ -96,14 +129,14 @@ export function FAQSection({ onWaClick }: FAQSectionProps) {
                   <div
                     className={`shrink-0 w-8 h-8 flex items-center justify-center border transition-colors ${
                       openIndex === idx
-                        ? "bg-[#005b96] border-[#005b96] text-white"
-                        : "bg-slate-50 border-slate-200 text-slate-500"
+                        ? "bg-zinc-900 border-zinc-900 text-white"
+                        : "bg-zinc-50 border-zinc-200 text-zinc-500"
                     }`}
                   >
                     {openIndex === idx ? (
-                      <ChevronUp className="h-5 w-5" />
+                      <ChevronUp className="h-4 w-4" />
                     ) : (
-                      <ChevronDown className="h-5 w-5" />
+                      <ChevronDown className="h-4 w-4" />
                     )}
                   </div>
                 </button>
@@ -115,14 +148,14 @@ export function FAQSection({ onWaClick }: FAQSectionProps) {
                       : "max-h-0 opacity-0"
                   }`}
                 >
-                  <p className="text-slate-600 leading-relaxed border-t border-slate-100 pt-4">
+                  <p className="text-zinc-600 font-light leading-relaxed border-t border-zinc-100 pt-4">
                     {faq.a}
                   </p>
                 </div>
               </div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

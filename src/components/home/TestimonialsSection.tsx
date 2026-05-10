@@ -1,5 +1,34 @@
+"use client";
+
 import { Star } from "lucide-react";
 import Image from "next/image";
+import { motion } from "framer-motion";
+
+const springTransition = {
+  type: "spring" as const,
+  stiffness: 100,
+  damping: 20,
+};
+
+const fadeUpVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: springTransition
+  }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.05,
+    }
+  }
+};
 
 const testimonials = [
   {
@@ -48,30 +77,42 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section id="reviews" className="py-24 bg-[#f8f9fc] overflow-hidden">
+    <section id="reviews" className="py-24 bg-[#FDFBF7] overflow-hidden border-b border-zinc-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="text-center max-w-3xl mx-auto">
-          <h2 className="text-[#005b96] font-bold tracking-widest uppercase text-sm mb-2">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainer}
+          className="text-center max-w-3xl mx-auto"
+        >
+          <motion.h2 variants={fadeUpVariants} className="text-zinc-900 font-light tracking-widest uppercase text-sm mb-2">
             What They Say
-          </h2>
-          <h3 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6">
+          </motion.h2>
+          <motion.h3 variants={fadeUpVariants} className="text-3xl md:text-5xl font-medium text-zinc-900 mb-6">
             Guest Testimonials
-          </h3>
-          <p className="text-lg text-slate-600">
+          </motion.h3>
+          <motion.p variants={fadeUpVariants} className="text-lg text-zinc-600 font-light">
             Real stories from foreign travelers who explored the island with us.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
 
       {/* Marquee Container */}
-      <div className="relative flex overflow-x-hidden group">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={springTransition}
+        className="relative flex overflow-x-hidden group"
+      >
         <div className="animate-marquee-unlimited flex">
           {[1, 2, 3, 4].map((blockIndex) => (
             <div key={`block-${blockIndex}`} className="flex gap-6 pr-6 shrink-0">
               {testimonials.map((t) => (
                 <div
                   key={`${blockIndex}-${t.id}`}
-                  className="w-[320px] md:w-[400px] shrink-0 bg-white p-8 shadow-sm hover:shadow-md transition-shadow duration-300 border border-slate-100 flex flex-col cursor-pointer"
+                  className="w-[320px] md:w-[400px] shrink-0 bg-[#FDFBF7] p-8 shadow-sm transition-shadow duration-300 border border-zinc-200 flex flex-col cursor-pointer"
                 >
                   <div className="flex gap-1 mb-6">
                     {[...Array(5)].map((_, i) => (
@@ -81,7 +122,7 @@ export function TestimonialsSection() {
                       />
                     ))}
                   </div>
-                  <p className="text-slate-600 italic mb-8 flex-grow leading-relaxed text-[15px]">
+                  <p className="text-zinc-600 italic mb-8 flex-grow leading-relaxed text-[15px] font-light">
                     &ldquo;{t.text}&rdquo;
                   </p>
                   <div className="flex items-center gap-4 mt-auto">
@@ -90,11 +131,11 @@ export function TestimonialsSection() {
                       alt={t.name}
                       width={48}
                       height={48}
-                      className="w-12 h-12 object-cover border-2 border-slate-100"
+                      className="w-12 h-12 object-cover border border-zinc-200"
                       unoptimized
                     />
                     <div>
-                      <h4 className="font-bold text-slate-900 text-sm">
+                      <h4 className="font-medium text-zinc-900 text-sm">
                         {t.name}
                       </h4>
                       <div className="flex items-center gap-1.5 mt-1">
@@ -104,7 +145,7 @@ export function TestimonialsSection() {
                           alt="Google"
                           className="w-3.5 h-3.5"
                         />
-                        <p className="text-xs text-slate-500 font-medium">
+                        <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-light">
                           Google Review
                         </p>
                       </div>
@@ -115,7 +156,7 @@ export function TestimonialsSection() {
             </div>
           ))}
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
