@@ -78,7 +78,7 @@ export function ServicesSection({ onWaClick }: ServicesSectionProps) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-4 gap-6">
           {services.map((srv) => (
             <ServiceCard key={srv.id} service={srv} onWaClick={onWaClick} />
           ))}
@@ -111,25 +111,28 @@ function ServiceCard({
           Most Booked
         </div>
       )}
-      <div className="h-48 overflow-hidden relative">
+      <div className="h-40 overflow-hidden relative">
         <Image
           src={service.image}
           alt={service.title}
           fill
           className="object-cover hover:scale-105 transition-transform duration-500"
         />
-        <div className="absolute bottom-0 left-0 bg-white p-2">{service.icon}</div>
       </div>
       <div className="p-6 flex flex-col flex-grow">
-        <h4 className="text-xl font-bold text-slate-900 mb-2">{service.title}</h4>
-        <div className="text-lg font-extrabold text-[#005b96] mb-6 border-b border-slate-100 pb-4">
+        {/* Icon + Title on same row */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="bg-sky-50 p-2 shrink-0">{service.icon}</div>
+          <h4 className="text-lg font-bold text-slate-900 leading-tight">{service.title}</h4>
+        </div>
+        <div className="text-lg font-extrabold text-[#005b96] mb-4 border-b border-slate-100 pb-4">
           {service.price}{" "}
           <span className="text-xs font-medium text-slate-500 uppercase ml-1">
             Via WhatsApp
           </span>
         </div>
 
-        <ul className="space-y-3 mb-8 flex-grow">
+        <ul className="space-y-3 mb-6 flex-grow">
           {service.features.map((feature, idx) => (
             <li key={idx} className="flex items-start text-slate-600 text-sm">
               <CheckCircle className="h-4 w-4 text-[#005b96] mr-3 shrink-0 mt-0.5" />

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const articles = [
   {
@@ -84,9 +85,12 @@ export function BlogSection() {
         </div>
 
         <div className="mt-12 text-center">
-          <button className="bg-transparent border-2 border-[#005b96] text-[#005b96] hover:bg-[#005b96] hover:text-white px-8 py-4 font-bold text-lg transition-all flex items-center justify-center gap-2 mx-auto">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 bg-transparent border-2 border-[#005b96] text-[#005b96] hover:bg-[#005b96] hover:text-white px-8 py-4 font-bold text-lg transition-all mx-auto"
+          >
             View All Articles
-          </button>
+          </Link>
         </div>
       </div>
     </section>

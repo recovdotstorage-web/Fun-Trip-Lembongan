@@ -35,7 +35,7 @@ export default async function BlogPage() {
   const [featured, ...rest] = posts;
 
   return (
-    <div className="pt-20 lg:pt-24">
+    <div>
       {/* Hero */}
       <section className="relative py-16 sm:py-24 bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 overflow-hidden">
         <div className="absolute inset-0 opacity-30">

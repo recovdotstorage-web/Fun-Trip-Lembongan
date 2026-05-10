@@ -62,16 +62,6 @@ export function HeroSection({ onWaClick }: HeroSectionProps) {
           </div>
         </div>
       </div>
-
-      {/* Scroll hint */}
-      <a
-        href="#services"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-white/50 hover:text-white/80 transition-colors group"
-        aria-label="Scroll down"
-      >
-        <span className="text-[10px] uppercase tracking-widest font-bold">Scroll</span>
-        <ChevronDown className="h-5 w-5 animate-bounce" />
-      </a>
     </section>
   );
 }
