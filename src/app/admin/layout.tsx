@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      <body className="bg-gray-50 min-h-screen">{children}</body>
-    </html>
+    <div className="bg-gray-50 min-h-screen">
+      {children}
+    </div>
   );
 }

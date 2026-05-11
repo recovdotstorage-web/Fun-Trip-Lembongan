@@ -37,6 +37,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { LoadingProvider } from "@/components/ui/LoadingProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -45,7 +47,9 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${inter.variable} ${outfit.variable}`}>
       <body className="font-sans antialiased bg-white text-gray-900">
-        {children}
+        <LoadingProvider>
+          {children}
+        </LoadingProvider>
       </body>
     </html>
   );

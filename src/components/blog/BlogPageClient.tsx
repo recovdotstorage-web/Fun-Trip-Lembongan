@@ -6,6 +6,8 @@ import Image from "next/image";
 import { BookOpen, Clock, ArrowRight, Flame, Search, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 
+import { sanitizeString } from "@/lib/utils/sanitization";
+
 type Post = {
   id: string;
   title: string;
@@ -236,7 +238,7 @@ export default function BlogPageClient({ posts }: { posts: Post[] }) {
                   type="text"
                   placeholder="SEARCH THE ARCHIVE..."
                   value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
+                  onChange={(e) => setSearchInput(sanitizeString(e.target.value))}
                   className="pl-12 pr-6 py-4 bg-white border border-zinc-200 rounded-none text-[10px] font-bold tracking-widest uppercase focus:outline-none focus:border-zinc-950 w-full md:w-64 transition-all"
                 />
               </div>

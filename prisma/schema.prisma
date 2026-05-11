@@ -33,7 +33,6 @@ model Activity {
   itineraries ActivityItinerary[]
   includes    ActivityInclude[]
   excludes    ActivityExclude[]
-  inquiries   Inquiry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -73,24 +72,8 @@ model ActivityExclude {
   item       String
 }
 
-model Inquiry {
-  id         String    @id @default(cuid())
-  name       String
-  email      String?
-  phone      String
-  message    String
-  activityId String?
-  activity   Activity? @relation(fields: [activityId], references: [id], onDelete: SetNull)
-  status     String    @default("NEW")
-  createdAt  DateTime  @default(now())
-}
 
-model Setting {
-  id        String   @id @default(cuid())
-  key       String   @unique
-  value     String
-  updatedAt DateTime @updatedAt
-}
+
 
 model BlogPost {
   id                String   @id @default(cuid())
@@ -161,4 +144,24 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String   // e.g., "CREATE", "UPDATE", "DELETE"
+  entity     String   // e.g., "Activity", "BlogPost"
+  entityId   String
+  entityName String?
+  adminEmail String
+  createdAt  DateTime @default(now())
+}
+
+model VisitorLog {
+  id          String   @id @default(cuid())
+  ip          String
+  userAgent   String?
+  path        String
+  country     String?
+  countryCode String?
+  createdAt   DateTime @default(now())
 }

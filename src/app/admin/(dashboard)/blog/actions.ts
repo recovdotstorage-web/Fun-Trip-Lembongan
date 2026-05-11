@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import slugify from "slugify";
 import { v2 as cloudinary } from "cloudinary";
+import { recordAuditLog } from "@/lib/audit";
+import { sanitizeString } from "@/lib/utils/sanitization";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -15,9 +17,10 @@ cloudinary.config({
 
 async function requireAdmin() {
   const session = await auth();
-  if (!session || (session.user as any)?.role !== "ADMIN") {
+  if (!session?.user || (session.user as any)?.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }
+  return session as any;
 }
 
 function buildSlug(title: string) {
@@ -27,10 +30,10 @@ function buildSlug(title: string) {
 export async function createBlogPost(formData: FormData) {
   await requireAdmin();
 
-  const title = formData.get("title") as string;
-  const content = formData.get("content") as string;
-  const metaTitle = (formData.get("metaTitle") as string) || null;
-  const metaDescription = (formData.get("metaDescription") as string) || null;
+  const title = sanitizeString(formData.get("title") as string);
+  const content = sanitizeString(formData.get("content") as string);
+  const metaTitle = sanitizeString(formData.get("metaTitle") as string) || null;
+  const metaDescription = sanitizeString(formData.get("metaDescription") as string) || null;
   const status = formData.get("status") as string;
   const imageFile = formData.get("thumbnail") as File | null;
 
@@ -71,18 +74,25 @@ export async function createBlogPost(formData: FormData) {
     },
   });
 
+  await recordAuditLog({
+    action: "CREATE",
+    entity: "BlogPost",
+    entityId: post.id,
+    entityName: post.title,
+  });
+
   revalidatePath("/admin/blog");
   revalidatePath("/blog");
-  redirect(`/admin/blog/${post.id}/edit`);
+  redirect("/admin/blog");
 }
 
 export async function updateBlogPost(id: string, formData: FormData) {
   await requireAdmin();
 
-  const title = formData.get("title") as string;
-  const content = formData.get("content") as string;
-  const metaTitle = (formData.get("metaTitle") as string) || null;
-  const metaDescription = (formData.get("metaDescription") as string) || null;
+  const title = sanitizeString(formData.get("title") as string);
+  const content = sanitizeString(formData.get("content") as string);
+  const metaTitle = sanitizeString(formData.get("metaTitle") as string) || null;
+  const metaDescription = sanitizeString(formData.get("metaDescription") as string) || null;
   const status = formData.get("status") as string;
   const imageFile = formData.get("thumbnail") as File | null;
 
@@ -93,9 +103,8 @@ export async function updateBlogPost(id: string, formData: FormData) {
   let thumbnailUrl = existing.thumbnailUrl;
 
   if (imageFile && imageFile.size > 0) {
-    // Delete old image
     if (thumbnailPublicId) {
-      await cloudinary.uploader.destroy(thumbnailPublicId).catch(() => {});
+      await cloudinary.uploader.destroy(thumbnailPublicId).catch(() => { });
     }
 
     const bytes = await imageFile.arrayBuffer();
@@ -127,9 +136,17 @@ export async function updateBlogPost(id: string, formData: FormData) {
     },
   });
 
+  await recordAuditLog({
+    action: "UPDATE",
+    entity: "BlogPost",
+    entityId: id,
+    entityName: title,
+  });
+
   revalidatePath("/admin/blog");
   revalidatePath(`/blog/${existing.slug}`);
   revalidatePath("/blog");
+  redirect("/admin/blog");
 }
 
 export async function deleteBlogPost(id: string) {
@@ -139,12 +156,20 @@ export async function deleteBlogPost(id: string) {
   if (!post) return;
 
   if (post.thumbnailPublicId) {
-    await cloudinary.uploader.destroy(post.thumbnailPublicId).catch(() => {});
+    await cloudinary.uploader.destroy(post.thumbnailPublicId).catch(() => { });
   }
 
   await prisma.blogPost.delete({ where: { id } });
+
+  await recordAuditLog({
+    action: "DELETE",
+    entity: "BlogPost",
+    entityId: id,
+    entityName: post.title,
+  });
 
   revalidatePath("/admin/blog");
   revalidatePath("/blog");
   redirect("/admin/blog");
 }
+

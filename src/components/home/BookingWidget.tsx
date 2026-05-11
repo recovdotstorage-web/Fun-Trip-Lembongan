@@ -30,6 +30,8 @@ const fadeUpVariants = {
   }
 };
 
+import { sanitizeString } from "@/lib/utils/sanitization";
+
 export function BookingWidget({ onWaClick }: BookingWidgetProps) {
   const [selectedService, setSelectedService] = useState(services[2]);
   const [isOpen, setIsOpen] = useState(false);
@@ -48,7 +50,8 @@ export function BookingWidget({ onWaClick }: BookingWidgetProps) {
   }, []);
 
   const handleQuickBook = () => {
-    const message = `*Quick Booking Request*\n\n*Service:* ${selectedService.label}\n*Travel Date:* ${travelDate || "Not specified"}\n\nHi Funtrip Lembongan, is this available?`;
+    const cleanDate = sanitizeString(travelDate);
+    const message = `*Quick Booking Request*\n\n*Service:* ${selectedService.label}\n*Travel Date:* ${cleanDate || "Not specified"}\n\nHi Funtrip Lembongan, is this available?`;
     onWaClick(message);
   };
 

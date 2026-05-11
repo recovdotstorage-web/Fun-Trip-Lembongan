@@ -3,33 +3,51 @@ import Link from "next/link";
 import {
   Compass,
   BookOpen,
-  MessageSquare,
-  TrendingUp,
-  Plus,
-  ArrowRight,
-  Eye,
-  Clock,
+  ChevronRight,
+  History,
+  User as UserIcon,
+  Globe,
+  ShieldCheck,
+  Plane,
 } from "lucide-react";
+import AnalyticsChart from "@/components/admin/AnalyticsChart";
+import { AdminHeader } from "@/components/admin/AdminHeader";
+import { ActivityFeed } from "@/components/admin/ActivityFeed";
+import * as motion from "framer-motion/client";
 
 export const dynamic = "force-dynamic";
 
-async function getStats() {
+async function getStats(timeframe: "week" | "month" | "all" = "week") {
+  const safeCount = async (model: any, where?: any) => {
+    try {
+      if (!model) return 0;
+      return await model.count({ where });
+    } catch (e) {
+      console.error("Count failed:", e);
+      return 0;
+    }
+  };
+
   const [
     totalServices,
     publishedServices,
     draftServices,
     totalPosts,
     publishedPosts,
-    totalInquiries,
-    newInquiries,
+    totalVisitors,
+    totalUsers,
+    totalLogs,
+    totalForeignVisitors,
   ] = await Promise.all([
     prisma.activity.count(),
     prisma.activity.count({ where: { status: "PUBLISHED" } }),
     prisma.activity.count({ where: { status: "DRAFT" } }),
     prisma.blogPost.count(),
     prisma.blogPost.count({ where: { status: "PUBLISHED" } }),
-    prisma.inquiry.count(),
-    prisma.inquiry.count({ where: { status: "NEW" } }),
+    prisma.visitorLog.count(),
+    prisma.user.count(),
+    prisma.auditLog.count(),
+    prisma.visitorLog.count({ where: { countryCode: { not: "ID" } } }),
   ]);
 
   const recentServices = await prisma.activity.findMany({
@@ -45,11 +63,89 @@ async function getStats() {
     },
   });
 
-  const recentInquiries = await prisma.inquiry.findMany({
+  const recentLogs = await prisma.auditLog.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 50, // Increase for pagination
+  }).catch(() => []);
+
+  // Fetch Top 5 Visitor Logs safely
+  const topVisitors = await prisma.visitorLog.findMany({
     orderBy: { createdAt: "desc" },
     take: 5,
-    include: { activity: { select: { name: true } } },
+  }).catch(() => []);
+
+  // ... existing chart data logic ...
+  let startDate = new Date();
+  const chartDataMap: Record<string, number> = {};
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Makassar",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   });
+
+  if (timeframe === "week") {
+    startDate.setDate(startDate.getDate() - 7);
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const [_, month, day] = formatter.format(d).split("-");
+      chartDataMap[`${day}/${month}`] = 0;
+    }
+  } else if (timeframe === "month") {
+    startDate.setDate(startDate.getDate() - 30);
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const [_, month, day] = formatter.format(d).split("-");
+      chartDataMap[`${day}/${month}`] = 0;
+    }
+  } else {
+    // "all" - group by month for the last 12 months
+    startDate.setFullYear(startDate.getFullYear() - 1);
+    const monthFormatter = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Makassar",
+      month: "short",
+      year: "2-digit",
+    });
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      chartDataMap[monthFormatter.format(d)] = 0;
+    }
+  }
+
+  const rawVisitors = await prisma.visitorLog.findMany({
+    where: {
+      createdAt: {
+        gte: startDate,
+      },
+    },
+    select: { createdAt: true },
+  }).catch(() => []);
+
+  rawVisitors.forEach((v: any) => {
+    let label = "";
+    if (timeframe === "all") {
+      label = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Asia/Makassar",
+        month: "short",
+        year: "2-digit",
+      }).format(v.createdAt);
+    } else {
+      const [_, month, day] = formatter.format(v.createdAt).split("-");
+      label = `${day}/${month}`;
+    }
+
+    if (chartDataMap[label] !== undefined) {
+      chartDataMap[label]++;
+    }
+  });
+
+  const chartData = Object.keys(chartDataMap).map((key) => ({
+    date: key,
+    visits: chartDataMap[key],
+  }));
 
   return {
     totalServices,
@@ -57,225 +153,244 @@ async function getStats() {
     draftServices,
     totalPosts,
     publishedPosts,
-    totalInquiries,
-    newInquiries,
+    totalVisitors,
+    totalUsers,
+    totalLogs,
+    totalForeignVisitors,
     recentServices,
-    recentInquiries,
+    recentLogs: recentLogs.map(log => ({
+      ...log,
+      createdAt: log.createdAt.toISOString()
+    })),
+    topVisitors,
+    chartData,
   };
 }
 
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-  }).format(price / 100);
+function formatWITA(date: Date) {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Makassar",
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(date)) + " WITA";
 }
 
-function timeAgo(date: Date) {
-  const diff = Date.now() - new Date(date).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
-}
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ timeframe?: string }>;
+}) {
+  const { timeframe = "week" } = await searchParams;
+  const stats = await getStats(timeframe as any);
 
-export default async function DashboardPage() {
-  const stats = await getStats();
+  const filters = [
+    { label: "This Week", value: "week" },
+    { label: "This Month", value: "month" },
+    { label: "All Time", value: "all" },
+  ];
 
   const statCards = [
     {
-      title: "Total Services",
+      title: "Active Services",
       value: stats.totalServices,
-      sub: `${stats.publishedServices} published · ${stats.draftServices} draft`,
+      sub: `${stats.publishedServices} live on site`,
       icon: Compass,
-      color: "text-emerald-600 bg-emerald-50",
       href: "/admin/services",
     },
     {
-      title: "Blog Posts",
+      title: "Stories & Blogs",
       value: stats.totalPosts,
-      sub: `${stats.publishedPosts} published`,
+      sub: `${stats.publishedPosts} published articles`,
       icon: BookOpen,
-      color: "text-indigo-600 bg-indigo-50",
       href: "/admin/blog",
     },
     {
-      title: "Inquiries",
-      value: stats.totalInquiries,
-      sub: `${stats.newInquiries} new`,
-      icon: MessageSquare,
-      color: "text-amber-600 bg-amber-50",
+      title: "Administrators",
+      value: stats.totalUsers,
+      sub: "Active system accounts",
+      icon: UserIcon,
+      href: "/admin/users",
+    },
+    {
+      title: "System Logs",
+      value: stats.totalLogs,
+      sub: "Total recorded events",
+      icon: History,
+      href: "/admin/logs",
+    },
+    {
+      title: "Total Visitors",
+      value: stats.totalVisitors,
+      sub: "All-time visits tracked",
+      icon: Globe,
       href: "#",
     },
     {
-      title: "Published Rate",
-      value:
-        stats.totalServices > 0
-          ? `${Math.round((stats.publishedServices / stats.totalServices) * 100)}%`
-          : "—",
-      sub: "Services live",
-      icon: TrendingUp,
-      color: "text-rose-600 bg-rose-50",
-      href: "/admin/services",
+      title: "Foreign Visitors",
+      value: stats.totalForeignVisitors,
+      sub: "Visits from outside ID",
+      icon: Plane,
+      href: "#",
     },
   ];
 
   return (
-    <div className="p-6 lg:p-8 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Welcome back! Here&apos;s what&apos;s happening.
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Link
-            href="/admin/services/new"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-emerald-500/20"
-          >
-            <Plus className="w-4 h-4" />
-            New Service
-          </Link>
-        </div>
-      </div>
-
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+    <div className="p-4 md:p-8 lg:p-12 max-w-7xl mx-auto bg-[#FDFBF7] min-h-screen">
+      <AdminHeader
+        title="Dashboard"
+        highlight="Control"
+        category="System Overview"
+        subtitle="Welcome to the command center. Monitor user activity, track visits, and manage your island operations."
+      />
+      
+      {/* Stat Grid - Vanguard Islands */}
+      <motion.div 
+        variants={{
+          show: {
+            transition: {
+              staggerChildren: 0.1
+            }
+          }
+        }}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 mb-16"
+      >
         {statCards.map((card) => (
-          <Link
+          <motion.div
             key={card.title}
-            href={card.href}
-            className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition group"
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              show: { opacity: 1, y: 0 }
+            }}
           >
-            <div className="flex items-start justify-between mb-4">
-              <div
-                className={`w-11 h-11 rounded-xl ${card.color} flex items-center justify-center`}
-              >
-                <card.icon className="w-5 h-5" />
-              </div>
-              <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 group-hover:translate-x-0.5 transition-all" />
-            </div>
-            <p className="text-3xl font-bold text-gray-900">{card.value}</p>
-            <p className="text-sm font-medium text-gray-500 mt-1">
-              {card.title}
-            </p>
-            <p className="text-xs text-gray-400 mt-0.5">{card.sub}</p>
-          </Link>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Services */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-            <h2 className="text-base font-semibold text-gray-900">
-              Recent Services
-            </h2>
             <Link
-              href="/admin/services"
-              className="text-sm text-emerald-600 hover:text-emerald-500 font-medium transition"
+              href={card.href}
+              className="group relative block bg-white rounded-xl border border-zinc-100 p-2 overflow-hidden hover:shadow-xl hover:shadow-black/5 transition-all duration-500"
             >
-              View all
-            </Link>
-          </div>
-          <div className="divide-y divide-gray-50">
-            {stats.recentServices.length === 0 ? (
-              <p className="px-6 py-8 text-sm text-gray-400 text-center">
-                No services yet.{" "}
-                <Link
-                  href="/admin/services/new"
-                  className="text-emerald-600 hover:underline"
-                >
-                  Create one
-                </Link>
-              </p>
-            ) : (
-              stats.recentServices.map((act) => (
-                <div
-                  key={act.id}
-                  className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/50 transition"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {act.name}
-                    </p>
-                    <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                      <Clock className="w-3 h-3" />
-                      {timeAgo(act.updatedAt)}
-                    </p>
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-8">
+                  <div className="p-[2px] bg-zinc-100 rounded-lg group-hover:bg-zinc-50 transition-all duration-700">
+                    <div className="w-12 h-12 bg-zinc-100 rounded-[10px] flex items-center justify-center transition-all duration-700 group-hover:scale-105">
+                      <card.icon className="w-6 h-6 text-zinc-900 transition-colors duration-700" strokeWidth={1.5} />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span
-                      className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
-                        act.status === "PUBLISHED"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-gray-100 text-gray-500"
-                      }`}
-                    >
-                      {act.status === "PUBLISHED" ? "Live" : "Draft"}
-                    </span>
-                    <Link
-                      href={`/admin/services/${act.id}/edit`}
-                      className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
-                      title="Edit"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Link>
+                  <div className="w-8 h-8 rounded-full bg-zinc-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ChevronRight className="w-4 h-4 text-zinc-400" />
                   </div>
                 </div>
-              ))
-            )}
+                <div>
+                  <p className="text-4xl font-semibold text-zinc-900 tracking-tight mb-1">{card.value}</p>
+                  <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1">{card.title}</p>
+                  <p className="text-[10px] text-zinc-400 font-medium">{card.sub}</p>
+                </div>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-white/0 to-zinc-50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+            </Link>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="grid grid-cols-12 gap-8 mb-16"
+      >
+        {/* Traffic Chart */}
+        <div className="col-span-full lg:col-span-12 bg-white rounded-xl border border-zinc-100 shadow-sm overflow-hidden flex flex-col group p-8 min-h-[450px]">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-[11px] font-bold uppercase tracking-[0.3em] text-zinc-400 flex items-center gap-3">
+                <Globe className="w-3.5 h-3.5" />
+                Visitor Traffic ({timeframe === "week" ? "7 Days" : timeframe === "month" ? "30 Days" : "12 Months"})
+              </h2>
+              <p className="text-xs text-zinc-500 mt-1">Real-time visitor telemetry</p>
+            </div>
+            <div className="flex items-center bg-zinc-50 p-1 rounded-lg border border-zinc-100">
+              {filters.map((f) => (
+                <Link
+                  key={f.value}
+                  href={`/admin/dashboard?timeframe=${f.value}`}
+                  className={`px-3 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider transition-all ${
+                    timeframe === f.value
+                      ? "bg-white text-zinc-900 shadow-sm border border-zinc-100"
+                      : "text-zinc-400 hover:text-zinc-600"
+                  }`}
+                >
+                  {f.label}
+                </Link>
+              ))}
+            </div>
           </div>
+          <div className="flex-1 min-h-[300px]">
+            <AnalyticsChart data={stats.chartData} />
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="mt-20"
+      >
+        <div className="flex items-center justify-between mb-8 px-2">
+          <h2 className="text-[11px] font-bold uppercase tracking-[0.3em] text-zinc-400 flex items-center gap-3">
+            <Globe className="w-3.5 h-3.5" />
+            Top 5 Recent Visitors
+          </h2>
         </div>
 
-        {/* Recent Inquiries */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-            <h2 className="text-base font-semibold text-gray-900">
-              Recent Inquiries
-            </h2>
-            <span className="text-xs text-gray-400">via WhatsApp form</span>
-          </div>
-          <div className="divide-y divide-gray-50">
-            {stats.recentInquiries.length === 0 ? (
-              <p className="px-6 py-8 text-sm text-gray-400 text-center">
-                No inquiries yet.
-              </p>
-            ) : (
-              stats.recentInquiries.map((inq) => (
-                <div
-                  key={inq.id}
-                  className="flex items-start gap-4 px-6 py-4 hover:bg-gray-50/50 transition"
-                >
-                  <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center shrink-0 text-amber-700 text-xs font-bold">
-                    {inq.name[0].toUpperCase()}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {stats.topVisitors.length === 0 ? (
+            <div className="col-span-full bg-white border border-zinc-100 border-dashed rounded-xl px-8 py-12 text-center text-zinc-400 text-xs italic">
+              No visitors recorded yet.
+            </div>
+          ) : (
+            stats.topVisitors.map((visitor: any) => (
+              <div key={visitor.id} className="relative group bg-white border border-zinc-100 rounded-xl p-6 transition-all duration-500 hover:shadow-xl hover:shadow-black/5 hover:-translate-y-1 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="px-2 py-1 rounded-lg text-[8px] font-bold uppercase tracking-widest bg-blue-50 text-blue-600">
+                    VISITOR
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">
-                      {inq.name}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {inq.activity?.name ?? "General inquiry"}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {timeAgo(inq.createdAt)}
-                    </p>
-                  </div>
-                  {inq.status === "NEW" && (
-                    <span className="px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-700 rounded-full shrink-0">
-                      New
-                    </span>
-                  )}
+                  <span className="text-[9px] text-zinc-300 font-bold tracking-widest">{formatWITA(visitor.createdAt)}</span>
                 </div>
-              ))
-            )}
-          </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-400 border border-zinc-100">
+                    <UserIcon className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-[11px] font-bold text-zinc-900 truncate">{visitor.ip}</p>
+                      {visitor.countryCode && (
+                        <span className={`text-[8px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-widest ${
+                          visitor.countryCode === "ID" ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-500"
+                        }`}>
+                          {visitor.countryCode}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[9px] text-zinc-400 font-medium truncate max-w-[200px]" title={visitor.userAgent || "Unknown Device"}>
+                      {visitor.userAgent?.split(" ")[0] || "Unknown Device"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-4 border-t border-zinc-50">
+                  <Compass className="w-3 h-3 text-zinc-400" />
+                  <span className="text-[10px] font-medium text-zinc-400 truncate italic">
+                    Path: {visitor.path}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

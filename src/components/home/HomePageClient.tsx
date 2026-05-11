@@ -9,13 +9,14 @@ import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { BlogSection } from "@/components/home/BlogSection";
 import { FAQSection } from "@/components/home/FAQSection";
 import { ContactSection } from "@/components/home/ContactSection";
+import { CONTACT_INFO } from "@/constants/contact";
 
-const WA_NUMBER = "6281234567890";
+const WA_NUMBER = CONTACT_INFO.whatsapp;
 
 export function HomePageClient() {
   const handleWhatsAppRedirect = (message?: string) => {
     const defaultMessage =
-      "Hello Funtrip Lembongan, I would like to inquire about your services.";
+      "Hello Funtrip Lembongan, I would like to book a service.";
     const encodedMessage = encodeURIComponent(message || defaultMessage);
     window.open(`https://wa.me/${WA_NUMBER}?text=${encodedMessage}`, "_blank");
   };
