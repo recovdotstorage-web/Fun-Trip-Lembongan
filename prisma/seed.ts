@@ -296,15 +296,17 @@ async function main() {
 
   // Create Admin User
   console.log("Seeding admin user...");
-  const hashedPassword = await bcrypt.hash("admin123", 10);
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@funtripbali.com";
+  const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+  const hashedPassword = await bcrypt.hash(adminPassword, 10);
   await prisma.user.upsert({
-    where: { email: "admin@funtrip.com" },
+    where: { email: adminEmail },
     update: {
       password: hashedPassword,
       role: "ADMIN",
     },
     create: {
-      email: "admin@funtrip.com",
+      email: adminEmail,
       name: "Admin Vanguard",
       password: hashedPassword,
       role: "ADMIN",
