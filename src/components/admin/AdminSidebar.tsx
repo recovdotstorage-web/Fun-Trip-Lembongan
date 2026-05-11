@@ -47,13 +47,12 @@ const navItems = [
     href: "/admin/logs",
     icon: History,
   },
-    {
+  {
     label: "Back to Website",
     href: "/",
     icon: Home,
   },
 ];
-
 
 export function AdminSidebar() {
   const pathname = usePathname();
@@ -68,8 +67,7 @@ export function AdminSidebar() {
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-white text-zinc-900">
-      {/* Logo Section - Double Bezel Architecture */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
@@ -92,8 +90,7 @@ export function AdminSidebar() {
         </div>
       </motion.div>
 
-      {/* Navigation - Island Architecture */}
-      <motion.nav 
+      <motion.nav
         variants={{
           show: {
             transition: {
@@ -106,7 +103,7 @@ export function AdminSidebar() {
         animate="show"
         className="flex-1 px-4 py-6 space-y-2"
       >
-        {navItems.map((item, idx) => {
+        {navItems.map((item) => {
           const active = isActive(item.href);
           return (
             <motion.div
@@ -115,35 +112,33 @@ export function AdminSidebar() {
                 hidden: { opacity: 0, x: -20, filter: "blur(10px)" },
                 show: { opacity: 1, x: 0, filter: "blur(0px)" }
               }}
-              transition={{ 
-                duration: 0.5, 
+              transition={{
+                duration: 0.5,
                 ease: [0.16, 1, 0.3, 1]
               }}
             >
               <Link
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
-                className={`relative group flex items-center gap-4 px-5 py-4 rounded-xl text-xs font-bold tracking-[0.1em] uppercase transition-all duration-500 ${
-                  active
+                className={`relative group flex items-center gap-4 px-5 py-4 rounded-xl text-xs font-bold tracking-[0.1em] uppercase transition-all duration-500 ${active
                     ? "bg-zinc-900 text-white shadow-[0_10px_30px_rgba(0,0,0,0.1)] border border-zinc-900"
                     : "text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 border border-transparent"
-                }`}
+                  }`}
               >
-                <motion.div 
+                <motion.div
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   whileTap={{ scale: 0.9 }}
-                  className={`relative z-10 p-2 rounded-xl transition-all duration-500 ${
-                    active ? "bg-white text-zinc-900" : "text-zinc-300 group-hover:text-zinc-600"
-                  }`}
+                  className={`relative z-10 p-2 rounded-xl transition-all duration-500 ${active ? "bg-white text-zinc-900" : "text-zinc-300 group-hover:text-zinc-600"
+                    }`}
                 >
                   <item.icon
-                    className={`w-4 h-4 transition-transform duration-500 group-active:scale-95`}
+                    className="w-4 h-4 transition-transform duration-500 group-active:scale-95"
                     strokeWidth={1.5}
                   />
                 </motion.div>
-                
+
                 <span className="relative z-10">{item.label}</span>
-                
+
                 {active && (
                   <motion.div
                     layoutId="active-nav-glow"
@@ -151,7 +146,7 @@ export function AdminSidebar() {
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
-                
+
                 {active && (
                   <motion.div
                     layoutId="active-indicator"
@@ -164,8 +159,7 @@ export function AdminSidebar() {
         })}
       </motion.nav>
 
-      {/* Footer - Logout Bezel */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5, duration: 1 }}
@@ -194,12 +188,10 @@ export function AdminSidebar() {
 
   return (
     <>
-      {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-80 bg-white h-screen sticky top-0 border-r border-zinc-200">
         {sidebarContent}
       </aside>
 
-      {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 h-20 bg-white/80 border-b border-zinc-200 backdrop-blur-2xl">
         <div className="flex items-center gap-4">
           <div className="flex flex-col">
@@ -215,7 +207,6 @@ export function AdminSidebar() {
         </button>
       </div>
 
-      {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileOpen && (
           <div className="lg:hidden fixed inset-0 z-50 overflow-hidden">
@@ -242,4 +233,5 @@ export function AdminSidebar() {
     </>
   );
 }
+
 
