@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import slugify from "slugify";
 import { v2 as cloudinary } from "cloudinary";
 import { recordAuditLog } from "@/lib/audit";
+import { sanitizeString } from "@/lib/utils/sanitization";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -16,10 +17,10 @@ cloudinary.config({
 
 async function requireAdmin() {
   const session = await auth();
-  if (!session || (session.user as any)?.role !== "ADMIN") {
+  if (!session?.user || (session.user as any)?.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }
-  return session;
+  return session as any;
 }
 
 function buildSlug(title: string) {
@@ -27,12 +28,12 @@ function buildSlug(title: string) {
 }
 
 export async function createBlogPost(formData: FormData) {
-  const session = await requireAdmin();
+  await requireAdmin();
 
-  const title = formData.get("title") as string;
-  const content = formData.get("content") as string;
-  const metaTitle = (formData.get("metaTitle") as string) || null;
-  const metaDescription = (formData.get("metaDescription") as string) || null;
+  const title = sanitizeString(formData.get("title") as string);
+  const content = sanitizeString(formData.get("content") as string);
+  const metaTitle = sanitizeString(formData.get("metaTitle") as string) || null;
+  const metaDescription = sanitizeString(formData.get("metaDescription") as string) || null;
   const status = formData.get("status") as string;
   const imageFile = formData.get("thumbnail") as File | null;
 
@@ -86,12 +87,12 @@ export async function createBlogPost(formData: FormData) {
 }
 
 export async function updateBlogPost(id: string, formData: FormData) {
-  const session = await requireAdmin();
+  await requireAdmin();
 
-  const title = formData.get("title") as string;
-  const content = formData.get("content") as string;
-  const metaTitle = (formData.get("metaTitle") as string) || null;
-  const metaDescription = (formData.get("metaDescription") as string) || null;
+  const title = sanitizeString(formData.get("title") as string);
+  const content = sanitizeString(formData.get("content") as string);
+  const metaTitle = sanitizeString(formData.get("metaTitle") as string) || null;
+  const metaDescription = sanitizeString(formData.get("metaDescription") as string) || null;
   const status = formData.get("status") as string;
   const imageFile = formData.get("thumbnail") as File | null;
 
@@ -102,7 +103,6 @@ export async function updateBlogPost(id: string, formData: FormData) {
   let thumbnailUrl = existing.thumbnailUrl;
 
   if (imageFile && imageFile.size > 0) {
-    // Delete old image
     if (thumbnailPublicId) {
       await cloudinary.uploader.destroy(thumbnailPublicId).catch(() => { });
     }
@@ -150,7 +150,7 @@ export async function updateBlogPost(id: string, formData: FormData) {
 }
 
 export async function deleteBlogPost(id: string) {
-  const session = await requireAdmin();
+  await requireAdmin();
 
   const post = await prisma.blogPost.findUnique({ where: { id } });
   if (!post) return;
@@ -172,3 +172,4 @@ export async function deleteBlogPost(id: string) {
   revalidatePath("/blog");
   redirect("/admin/blog");
 }
+

@@ -171,7 +171,7 @@ export default function AboutContent() {
               </h2>
               <div className="space-y-6 text-lg text-zinc-600 leading-relaxed">
                 <p>
-                  Founded in 2016 by Kak Trisna, Fun Trip Lembongan began as a humble family-run service. Initially transitioning from local craftsmanship, our founder envisioned a tourism model where visitors could explore the island&apos;s hidden gems safely while directly supporting the local community.
+                  Founded in 2016 by Trisna, Fun Trip Lembongan began as a humble family-run service. Initially transitioning from local craftsmanship, our founder envisioned a tourism model where visitors could explore the island&apos;s hidden gems safely while directly supporting the local community.
                 </p>
               </div>
             </motion.div>
@@ -187,13 +187,7 @@ export default function AboutContent() {
                 &ldquo;We don&apos;t just provide vehicles or tours; we share the stories of our cliffs, the secrets of our mangroves, and the genuine warmth of our community.&rdquo;
               </p>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-none bg-zinc-800 border border-zinc-700 overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop" alt="Founder" className="w-full h-full object-cover" />
-                </div>
-                <div>
-                  <p className="font-semibold text-white">Kak Trisna</p>
                   <p className="text-sm text-zinc-500 uppercase tracking-widest font-bold">Founder</p>
-                </div>
               </div>
             </motion.div>
           </div>

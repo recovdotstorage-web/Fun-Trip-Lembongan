@@ -13,6 +13,8 @@ import { motion, AnimatePresence } from "framer-motion";
  * Archetype: Editorial Split + Editorial Luxury Vibe
  */
 
+import { sanitizeString } from "@/lib/utils/sanitization";
+
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -29,10 +31,14 @@ function LoginForm() {
     setLoading(true);
     setError("");
 
+    // Sanitize credentials
+    const cleanEmail = sanitizeString(email);
+    const cleanPassword = sanitizeString(password);
+
     try {
       const res = await signIn("credentials", {
-        email,
-        password,
+        email: cleanEmail,
+        password: cleanPassword,
         redirect: false,
       });
 

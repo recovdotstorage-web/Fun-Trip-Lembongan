@@ -6,22 +6,21 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordAuditLog } from "@/lib/audit";
 import bcrypt from "bcryptjs";
+import { sanitizeString } from "@/lib/utils/sanitization";
 
 async function requireAdmin() {
   const session = await auth();
-  if (!session || (session.user as any)?.role !== "ADMIN") {
+  if (!session?.user || (session.user as any)?.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }
-  return session;
+  return session as any;
 }
-
-// ── Create User ──────────────────────────────────────────────────────────────
 
 export async function createUser(formData: FormData) {
   await requireAdmin();
 
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
+  const name = sanitizeString(formData.get("name") as string);
+  const email = sanitizeString(formData.get("email") as string);
   const password = formData.get("password") as string;
   const role = (formData.get("role") as string) || "USER";
 
@@ -45,13 +44,11 @@ export async function createUser(formData: FormData) {
   redirect("/admin/users");
 }
 
-// ── Update User ──────────────────────────────────────────────────────────────
-
 export async function updateUser(id: string, formData: FormData) {
   await requireAdmin();
 
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
+  const name = sanitizeString(formData.get("name") as string);
+  const email = sanitizeString(formData.get("email") as string);
   const role = formData.get("role") as string;
   const newPassword = (formData.get("password") as string)?.trim();
 
@@ -73,10 +70,8 @@ export async function updateUser(id: string, formData: FormData) {
   redirect("/admin/users");
 }
 
-// ── Update Role (kept for backward compat) ────────────────────────────────────
-
 export async function updateUserRole(userId: string, role: string) {
-  const session = await requireAdmin();
+  await requireAdmin();
 
   const user = await prisma.user.update({
     where: { id: userId },
@@ -93,12 +88,9 @@ export async function updateUserRole(userId: string, role: string) {
   revalidatePath("/admin/users");
 }
 
-// ── Delete User ───────────────────────────────────────────────────────────────
-
 export async function deleteUser(userId: string) {
   const session = await requireAdmin();
 
-  // Prevent self-deletion
   if (session.user.id === userId) {
     throw new Error("You cannot delete your own account.");
   }
@@ -118,3 +110,4 @@ export async function deleteUser(userId: string) {
   revalidatePath("/admin/users");
   redirect("/admin/users");
 }
+

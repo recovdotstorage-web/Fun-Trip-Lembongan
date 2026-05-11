@@ -4,6 +4,8 @@ import { useState } from "react";
 import { MapPin, Phone, Send } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { sanitizeObject } from "@/lib/utils/sanitization";
+
 
 const springTransition = {
   type: "spring" as const,
@@ -46,9 +48,14 @@ export function ContactSection({ onWaClick }: ContactSectionProps) {
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const message = `*Website Contact Form*\n\n*Name:* ${formData.name}\n*Interested In:* ${formData.service}\n*Travel Date:* ${formData.date || "Not decided yet"}\n*Message:* ${formData.message || "-"}`;
+    
+    // Sanitize data before generating message
+    const sanitizedData = sanitizeObject(formData);
+    
+    const message = `*Website Contact Form*\n\n*Name:* ${sanitizedData.name}\n*Interested In:* ${sanitizedData.service}\n*Travel Date:* ${sanitizedData.date || "Not decided yet"}\n*Message:* ${sanitizedData.message || "-"}`;
     onWaClick(message);
   };
+
 
   return (
     <section id="contact" className="py-24 relative overflow-hidden">
