@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { ActivityForm } from "../../ActivityForm";
 import { deleteService } from "../../actions";
-import { Trash2 } from "lucide-react";
+import { DeleteButton } from "@/components/admin/DeleteButton";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -37,26 +37,7 @@ export default async function EditServicePage({ params }: Props) {
             Permanently delete this service and all its images. This cannot be
             undone.
           </p>
-          <form
-            action={deleteService.bind(null, service.id)}
-          >
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl transition"
-              onClick={(e) => {
-                if (
-                  !confirm(
-                    `Delete "${service.name}"? This action cannot be undone.`
-                  )
-                ) {
-                  e.preventDefault();
-                }
-              }}
-            >
-              <Trash2 className="w-4 h-4" />
-              Delete Service
-            </button>
-          </form>
+          <DeleteButton action={deleteService} id={service.id} name={service.name} />
         </div>
       </div>
     </div>

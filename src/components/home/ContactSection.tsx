@@ -130,7 +130,7 @@ export function ContactSection({ onWaClick }: ContactSectionProps) {
           {/* Right: Contact Form */}
           <motion.div variants={fadeUpVariants} className="bg-[#FDFBF7] p-8 sm:p-10 border border-zinc-200">
             <h4 className="text-2xl font-medium text-zinc-900 mb-6">
-              Send an Inquiry
+              Send a Message
             </h4>
             <form className="space-y-5" onSubmit={handleFormSubmit}>
               <div className="space-y-2">

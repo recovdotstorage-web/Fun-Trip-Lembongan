@@ -357,12 +357,7 @@ export default function ServiceDetailContent({ activity }: ServiceDetailContentP
                     <Phone className="w-4 h-4" />
                     Book on WhatsApp
                   </a>
-                  <Link
-                    href="/#contact"
-                    className="w-full flex items-center justify-center px-8 py-5 bg-transparent text-zinc-900 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-zinc-50 transition-all border border-zinc-200"
-                  >
-                    Send Inquiry
-                  </Link>
+
                 </div>
 
                 <div className="mt-8 text-center">

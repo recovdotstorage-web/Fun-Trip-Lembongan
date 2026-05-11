@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HelpCircle, ChevronDown, Compass, MapPin, Wallet, Calendar, Backpack, Car } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CONTACT_INFO } from "@/constants/contact";
 
 const faqs = [
   {
@@ -146,7 +147,7 @@ export function FaqSection() {
         >
           <p className="text-gray-500 mb-4">Still have more questions?</p>
           <a
-            href="https://wa.me/YOUR_WHATSAPP_NUMBER" // Replace with actual number if known
+            href={`https://wa.me/${CONTACT_INFO.whatsapp}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-all hover:scale-105 shadow-lg shadow-emerald-200"

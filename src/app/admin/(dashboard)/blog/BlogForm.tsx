@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Loader2, ImagePlus, X } from "lucide-react";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 import { createBlogPost, updateBlogPost } from "./actions";
 import type { BlogPost } from "@prisma/client";
 
@@ -45,21 +46,60 @@ export function BlogForm({ post }: Props) {
     "w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition bg-white";
   const labelCls = "block text-sm font-semibold text-gray-700 mb-1.5";
 
+  function fillDummyData() {
+    const form = document.querySelector("form") as HTMLFormElement;
+    if (!form) return;
+
+    const dummyData: Record<string, string> = {
+      title: "Discover the Hidden Gems of Nusa Lembongan",
+      status: "PUBLISHED",
+      content: `Nusa Lembongan is more than just a day trip from Bali. It's a sanctuary of tranquility and natural beauty.
+
+In this guide, we'll explore:
+1. Devil's Tears - Nature's Raw Power
+2. Dream Beach - The Ultimate Relaxation
+3. Mangrove Forest - A Serene Escape
+4. Yellow Bridge - The Iconic Landmark
+
+Make sure to bring your camera and your sense of adventure!`,
+      metaTitle: "Hidden Gems of Nusa Lembongan | Fun Trip Guide",
+      metaDescription: "Explore the best-kept secrets of Nusa Lembongan. From Devil's Tears to the Mangrove Forest, discover why this island is a must-visit.",
+    };
+
+    Object.entries(dummyData).forEach(([key, val]) => {
+      const input = form.querySelector(`[name="${key}"]`) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+      if (input) {
+        input.value = val;
+      }
+    });
+  }
+
   return (
     <div className="p-6 lg:p-8 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {post ? "Edit Post" : "New Blog Post"}
-          </h1>
-          {post && <p className="text-sm text-gray-400 mt-0.5">/{post.slug}</p>}
-        </div>
-        {feedback && (
-          <span className="text-sm font-medium text-indigo-600 bg-indigo-50 px-4 py-1.5 rounded-full">
-            {feedback}
-          </span>
+      <AdminHeader
+        title={post ? "Edit" : "New"}
+        highlight={post ? "Post" : "Blog Post"}
+        subtitle={post ? `Currently editing: /${post.slug}` : "Create a new story for your audience. Share insights, updates, and more."}
+        category="Blog Management"
+        backButton={{ href: "/admin/blog" }}
+      >
+        {!post && (
+          <button
+            type="button"
+            onClick={fillDummyData}
+            className="text-xs font-bold text-zinc-400 hover:text-zinc-900 uppercase tracking-widest border border-zinc-200 px-4 py-2 rounded-xl hover:bg-zinc-50 transition-all active:scale-95 h-fit self-end mb-1"
+          >
+            Fill Dummy
+          </button>
         )}
-      </div>
+        {feedback && (
+          <div className="self-end mb-1">
+            <span className="text-sm font-medium text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              {feedback}
+            </span>
+          </div>
+        )}
+      </AdminHeader>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Main content */}

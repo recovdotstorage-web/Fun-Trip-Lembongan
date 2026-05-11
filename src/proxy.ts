@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export const proxy = auth((req: NextRequest & { auth: any }) => {
+export default auth((req: NextRequest & { auth: any }) => {
   const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
   const isLoginPage = req.nextUrl.pathname === "/admin/login";
 
@@ -20,9 +20,20 @@ export const proxy = auth((req: NextRequest & { auth: any }) => {
     }
   }
 
+  // Redirect to dashboard if already logged in as ADMIN and accessing login page
+  if (isLoginPage && req.auth) {
+    const role = (req.auth?.user as any)?.role;
+    if (role === "ADMIN") {
+      return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+    } else {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+  }
+
   return NextResponse.next();
 });
 
 export const config = {
   matcher: ["/admin/:path*"],
 };
+

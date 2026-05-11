@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import * as dotenv from "dotenv";
+import bcrypt from "bcryptjs";
 
 dotenv.config();
 
@@ -21,7 +22,7 @@ async function main() {
   await prisma.activityImage.deleteMany();
   await prisma.activity.deleteMany();
   await prisma.category.deleteMany();
-  await prisma.setting.deleteMany();
+  // Setting table removed
 
   // Create Categories
   const snorkeling = await prisma.category.create({
@@ -50,7 +51,7 @@ async function main() {
     data: {
       name: "Buggy Car Rental",
       slug: "buggy-car-rental",
-      categoryId: waterSports.id, // Using water sports for now or maybe create a new category
+      categoryId: waterSports.id,
       price: 150000,
       duration: "Full Day",
       shortDescription: "Explore Nusa Lembongan comfortably with our premium buggy cars. Perfect for families and groups.",
@@ -263,18 +264,7 @@ async function main() {
   });
 
 
-  // Create Settings
-  await prisma.setting.createMany({
-    data: [
-      { key: "siteName", value: "Fun Trip Lembongan" },
-      { key: "siteDescription", value: "Your best travel partner for exploring Nusa Lembongan and Nusa Penida." },
-      { key: "contactPhone", value: "+6281234567890" },
-      { key: "contactEmail", value: "info@funtriplembongan.com" },
-      { key: "contactAddress", value: "Jungutbatu, Nusa Lembongan, Bali, Indonesia" },
-      { key: "instagramUrl", value: "https://instagram.com/funtriplembongan" },
-      { key: "facebookUrl", value: "https://facebook.com/funtriplembongan" },
-    ]
-  });
+
 
   // Create Blog Posts
   await prisma.blogPost.deleteMany();
@@ -302,6 +292,23 @@ async function main() {
         status: "PUBLISHED"
       }
     ]
+  });
+
+  // Create Admin User
+  console.log("Seeding admin user...");
+  const hashedPassword = await bcrypt.hash("admin123", 10);
+  await prisma.user.upsert({
+    where: { email: "admin@funtrip.com" },
+    update: {
+      password: hashedPassword,
+      role: "ADMIN",
+    },
+    create: {
+      email: "admin@funtrip.com",
+      name: "Admin Vanguard",
+      password: hashedPassword,
+      role: "ADMIN",
+    },
   });
 
   console.log("Seeding finished.");

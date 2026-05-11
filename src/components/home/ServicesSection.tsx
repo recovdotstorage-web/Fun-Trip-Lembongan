@@ -159,7 +159,7 @@ function ServiceCard({
   const handleBook = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const message = `*Service Inquiry*\n*Item:* ${service.title}\n\nHi Funtrip Lembongan, I want to book this. How much is it?`;
+    const message = `*Service Booking*\n*Item:* ${service.title}\n\nHi Funtrip Lembongan, I want to book this. How much is it?`;
     onWaClick(message);
   };
 

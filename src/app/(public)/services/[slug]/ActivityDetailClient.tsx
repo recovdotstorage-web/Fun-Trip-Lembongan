@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { motion, Variants } from "framer-motion";
 import { formatCurrency } from "@/lib/utils";
+import { CONTACT_INFO } from "@/constants/contact";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -309,7 +310,7 @@ export default function ActivityDetailClient({ activity }: ActivityDetailClientP
 
                 <div className="space-y-3">
                   <a
-                    href={`https://wa.me/6281234567890?text=${waMessage}`}
+                    href={`https://wa.me/${CONTACT_INFO.whatsapp}?text=${waMessage}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full flex items-center justify-center gap-3 px-8 py-5 bg-zinc-900 text-white text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-zinc-800 transition-all border border-zinc-900"
@@ -317,12 +318,7 @@ export default function ActivityDetailClient({ activity }: ActivityDetailClientP
                     <Phone className="w-4 h-4" />
                     Book on WhatsApp
                   </a>
-                  <Link
-                    href="/#contact"
-                    className="w-full flex items-center justify-center px-8 py-5 bg-transparent text-zinc-900 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-zinc-50 transition-all border border-zinc-200"
-                  >
-                    Send Inquiry
-                  </Link>
+
                 </div>
 
                 <div className="mt-8 text-center">

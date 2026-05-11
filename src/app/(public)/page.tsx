@@ -1,5 +1,6 @@
 import { HomePageClient } from "@/components/home/HomePageClient";
 import { Metadata } from "next";
+import { CONTACT_INFO } from "@/constants/contact";
 
 export const metadata: Metadata = {
   title: "Fun Trip Lembongan — Best Nusa Lembongan Tours & Rentals",
@@ -18,7 +19,7 @@ const jsonLd = {
   "image": "https://funtriplembongan.com/images/hero.png",
   "@id": "https://funtriplembongan.com",
   "url": "https://funtriplembongan.com",
-  "telephone": "+6281234567890",
+  "telephone": CONTACT_INFO.phone,
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Nusa Lembongan",

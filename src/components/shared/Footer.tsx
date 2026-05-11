@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MapPin, Phone, Mail, ArrowRight } from "lucide-react";
+import { CONTACT_INFO } from "@/constants/contact";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -117,8 +118,8 @@ export function Footer() {
                 </div>
                 <div className="space-y-1">
                   <span className="block text-[10px] uppercase tracking-tighter text-zinc-600 font-bold">Contact</span>
-                  <a href="tel:+6281234567890" className="text-sm font-light hover:text-zinc-200 transition-colors block">
-                    +62 812 3456 7890
+                  <a href={`tel:${CONTACT_INFO.whatsapp}`} className="text-sm font-light hover:text-zinc-200 transition-colors block">
+                    {CONTACT_INFO.phone}
                   </a>
                 </div>
               </div>
@@ -129,8 +130,8 @@ export function Footer() {
                 </div>
                 <div className="space-y-1">
                   <span className="block text-[10px] uppercase tracking-tighter text-zinc-600 font-bold">Email</span>
-                  <a href="mailto:hello@funtriplembongan.com" className="text-sm font-light hover:text-zinc-200 transition-colors block">
-                    hello@funtriplembongan.com
+                  <a href={`mailto:${CONTACT_INFO.email}`} className="text-sm font-light hover:text-zinc-200 transition-colors block">
+                    {CONTACT_INFO.email}
                   </a>
                 </div>
               </div>

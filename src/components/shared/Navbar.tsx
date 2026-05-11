@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Send, Menu, X } from "lucide-react";
+import { CONTACT_INFO } from "@/constants/contact";
 
-const WA_NUMBER = "6281234567890";
+const WA_NUMBER = CONTACT_INFO.whatsapp;
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -21,7 +22,7 @@ export function Navbar() {
 
   const handleWaClick = () => {
     const msg = encodeURIComponent(
-      "Hello Funtrip Lembongan, I would like to inquire about your services."
+      "Hello Funtrip Lembongan, I would like to book a service."
     );
     window.open(`https://wa.me/${WA_NUMBER}?text=${msg}`, "_blank");
   };
