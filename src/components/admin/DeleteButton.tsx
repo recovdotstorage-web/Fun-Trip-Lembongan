@@ -1,88 +1,119 @@
 "use client";
 
-import { Trash2, Loader2 } from "lucide-react";
 import { useState, useTransition } from "react";
+import { Trash2, Loader2 } from "lucide-react";
 import { ConfirmationModal } from "./ConfirmationModal";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export interface DeleteButtonProps {
-  action: (id: string) => Promise<void>;
   id: string;
   name: string;
-  variant?: "icon" | "full";
-  className?: string;
+  title?: string;
+  action: (id: string) => Promise<any>;
   onSuccess?: () => void;
+  redirectTo?: string;
+  className?: string;
+  variant?: "icon" | "button" | "full" | "outline";
+  label?: string;
+  confirmMessage?: string;
 }
 
 /**
- * Standard Delete Button with Confirmation for all Admin Pages
+ * A generic delete button with confirmation modal.
+ * Used across all admin CRUD modules.
  */
-export function DeleteButton({ 
-  action, 
-  id, 
-  name, 
-  variant = "full", 
+export function DeleteButton({
+  id,
+  name,
+  title = "Item",
+  action,
+  onSuccess,
+  redirectTo,
   className = "",
-  onSuccess 
+  variant = "icon",
+  label = "Delete",
+  confirmMessage,
 }: DeleteButtonProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
 
-  async function handleConfirmDelete() {
+  const handleDelete = () => {
     startTransition(async () => {
       try {
-        await action(id);
-        setIsModalOpen(false);
-        if (onSuccess) onSuccess();
-      } catch (error: any) {
-        // Next.js redirect() throws a special error that should not be caught as a real error
-        if (error.message?.includes("NEXT_REDIRECT")) {
+        const result = await action(id);
+        
+        if (result?.error) {
+          toast.error(result.error);
           return;
         }
-        alert(error.message || "Failed to delete item");
+
+        toast.success(`${title} deleted successfully`);
+        setIsOpen(false);
+        
+        if (onSuccess) {
+          onSuccess();
+        } else if (redirectTo) {
+          router.push(redirectTo);
+          router.refresh();
+        } else {
+          router.refresh();
+        }
+      } catch (error) {
+        console.error("Delete error:", error);
+        toast.error(`Failed to delete ${title.toLowerCase()}`);
       }
     });
-  }
+  };
+
+  const getButtonClass = () => {
+    if (className) return className;
+    
+    switch (variant) {
+      case "full":
+        return "flex-1 flex items-center justify-center gap-2 py-3 bg-rose-50 text-rose-600 text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-rose-100 active:scale-95 transition-all";
+      case "button":
+        return "px-4 py-2 bg-rose-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-rose-700 active:scale-95 transition-all flex items-center gap-2";
+      case "outline":
+        return "px-4 py-2 border border-rose-200 text-rose-600 text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-rose-50 active:scale-95 transition-all flex items-center gap-2";
+      case "icon":
+      default:
+        return "p-2.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-transparent hover:border-rose-100 transition-all";
+    }
+  };
 
   return (
     <>
-      {variant === "icon" ? (
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          disabled={isPending}
-          className={`p-2.5 text-zinc-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-transparent hover:border-rose-100 transition-all group active:scale-95 disabled:opacity-50 ${className}`}
-          title={`Delete ${name}`}
-        >
-          {isPending ? (
-            <Loader2 className="w-4 h-4 animate-spin text-rose-500" />
-          ) : (
-            <Trash2 className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
-          )}
-        </button>
-      ) : (
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={() => setIsModalOpen(true)}
-          className={`inline-flex items-center gap-2 px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold uppercase tracking-widest rounded-xl transition shadow-lg shadow-rose-500/20 disabled:opacity-60 active:scale-95 ${className}`}
-        >
-          {isPending ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Trash2 className="w-4 h-4" />
-          )}
-          {isPending ? "Deleting..." : "Delete Item"}
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        disabled={isPending}
+        className={getButtonClass()}
+        title={`Delete ${title}`}
+      >
+        {isPending ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <Trash2 className="w-4 h-4" />
+        )}
+        {(variant === "button" || variant === "full" || variant === "outline") && (
+          <span>{isPending ? "Deleting..." : label}</span>
+        )}
+      </button>
 
       <ConfirmationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleConfirmDelete}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        onConfirm={handleDelete}
         isPending={isPending}
-        title="Delete Confirmation"
-        message={`Are you sure you want to delete "${name}"? This action cannot be undone and will permanently remove the data.`}
-        confirmText="Yes, Delete"
+        title={`Delete ${title}`}
+        message={
+          confirmMessage || 
+          `Are you sure you want to delete "${name}"? This action is permanent and cannot be undone.`
+        }
+        confirmText="Confirm Delete"
+        variant="danger"
       />
     </>
   );

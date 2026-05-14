@@ -3,8 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { Plus, Compass, Search, Pencil, Eye } from "lucide-react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
-import { EditButton, ViewButton } from "@/components/admin/AdminButtons";
+import { EditButton, ViewButton, DeleteButton } from "@/components/admin/AdminButtons";
 import * as motion from "framer-motion/client";
+import { deleteService } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -187,6 +188,12 @@ export default async function AdminServicesPage({
                         <div className="flex items-center gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                           <ViewButton href={`/services/${act.slug}`} />
                           <EditButton href={`/admin/services/${act.id}/edit`} />
+                          <DeleteButton 
+                            id={act.id} 
+                            name={act.name} 
+                            title="Service" 
+                            action={deleteService} 
+                          />
                         </div>
                       </td>
                     </tr>
@@ -232,6 +239,13 @@ export default async function AdminServicesPage({
                   <div className="flex items-center gap-3">
                     <EditButton href={`/admin/services/${act.id}/edit`} variant="full" />
                     <ViewButton href={`/services/${act.slug}`} variant="full" />
+                    <DeleteButton 
+                      id={act.id} 
+                      name={act.name} 
+                      title="Service" 
+                      action={deleteService} 
+                      variant="full"
+                    />
                   </div>
                 </div>
               ))}

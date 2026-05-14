@@ -7,6 +7,7 @@ import { Loader2, ImagePlus, X } from "lucide-react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { createBlogPost, updateBlogPost } from "./actions";
 import type { BlogPost } from "@prisma/client";
+import React from "react";
 
 type Props = {
   post?: BlogPost;
@@ -19,18 +20,30 @@ export function BlogForm({ post }: Props) {
   const [preview, setPreview] = useState<string | null>(
     post?.thumbnailUrl ?? null
   );
+  const [removeImage, setRemoveImage] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
       setPreview(url);
+      setRemoveImage(false);
+    }
+  }
+
+  function handleRemoveImage() {
+    setPreview(null);
+    setRemoveImage(true);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
+    fd.set("removeThumbnail", removeImage.toString());
     startTransition(async () => {
       if (post) {
         await updateBlogPost(post.id, fd);
@@ -111,9 +124,18 @@ Make sure to bring your camera and your sense of adventure!`,
           {/* Thumbnail */}
           <div>
             <label className={labelCls}>Thumbnail Image</label>
+            {/* File input always in DOM so FormData includes it */}
+            <input
+              name="thumbnail"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+              ref={fileInputRef}
+            />
             <div className="flex gap-4 items-start">
               {preview ? (
-                <div className="relative rounded-xl overflow-hidden w-40 h-28 shrink-0 bg-gray-100">
+                <div className="relative rounded-xl overflow-hidden w-40 h-28 shrink-0 bg-gray-100 group/thumb">
                   <Image
                     src={preview}
                     alt="Thumbnail preview"
@@ -121,28 +143,32 @@ Make sure to bring your camera and your sense of adventure!`,
                     className="object-cover"
                     sizes="160px"
                   />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPreview(null);
-                    }}
-                    className="absolute top-1 right-1 p-1 bg-black/50 hover:bg-black/70 rounded-md text-white transition"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/40 transition-colors flex items-center justify-center gap-1.5 opacity-0 group-hover/thumb:opacity-100">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="p-1.5 bg-white/90 hover:bg-white rounded-lg text-zinc-700 transition text-xs font-medium px-2.5"
+                    >
+                      Change
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="p-1.5 bg-black/50 hover:bg-black/70 rounded-lg text-white transition"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center w-40 h-28 shrink-0 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/50 transition">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex flex-col items-center justify-center w-40 h-28 shrink-0 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/50 transition"
+                >
                   <ImagePlus className="w-6 h-6 text-gray-300 mb-1" />
                   <span className="text-xs text-gray-400">Choose image</span>
-                  <input
-                    name="thumbnail"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
-                </label>
+                </button>
               )}
               <div className="flex-1">
                 <p className="text-xs text-gray-400">

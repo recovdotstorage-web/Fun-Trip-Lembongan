@@ -128,7 +128,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-sans antialiased bg-white text-gray-900">
+      <body className="font-sans antialiased bg-[#FDFBF7] text-gray-900">
         <LoadingProvider>
           {children}
           <VisitorTracker />

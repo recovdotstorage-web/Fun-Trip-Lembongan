@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { UserForm } from "../../UserForm";
 import { deleteUser } from "../../actions";
-import { DeleteButton } from "@/components/admin/DeleteButton";
+import { DangerZone } from "@/components/admin/DangerZone";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -23,20 +23,14 @@ export default async function EditUserPage({ params }: Props) {
         }}
       />
 
-      {/* Danger zone */}
-      <div className="px-4 md:px-8 lg:px-12 pb-12 max-w-7xl mx-auto">
-        <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-6">
-          <h3 className="text-base font-semibold text-red-800 mb-1">Danger Zone</h3>
-          <p className="text-sm text-red-600 mb-4">
-            Permanently delete this user account. This cannot be undone.
-          </p>
-          <DeleteButton
-            action={deleteUser}
-            id={user.id}
-            name={user.name || user.email || "this user"}
-          />
-        </div>
-      </div>
+      <DangerZone 
+        action={deleteUser} 
+        id={user.id} 
+        name={user.name || user.email || "this user"} 
+        title="User"
+        redirectTo="/admin/users"
+        containerClassName="max-w-7xl px-4 md:px-8 lg:px-12 mx-auto mb-12"
+      />
     </div>
   );
 }

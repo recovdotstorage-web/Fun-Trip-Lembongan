@@ -154,6 +154,7 @@ export default async function UsersManagementPage({
                           action={deleteUser}
                           id={user.id}
                           name={user.name || user.email || "this user"}
+                          title="User"
                           variant="icon"
                         />
                       </div>
@@ -184,6 +185,8 @@ export default async function UsersManagementPage({
                     action={deleteUser}
                     id={user.id}
                     name={user.name || user.email || "this user"}
+                    title="User"
+                    variant="full"
                     className="flex-1 justify-center"
                   />
                 </div>

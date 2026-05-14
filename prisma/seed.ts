@@ -23,6 +23,7 @@ async function main() {
   await prisma.activityImage.deleteMany();
   await prisma.activity.deleteMany();
   await prisma.category.deleteMany();
+  await prisma.testimonial.deleteMany();
   // Setting table removed
 
   // Create Categories
@@ -108,7 +109,7 @@ async function main() {
       name: "Scooter Rental",
       slug: "scooter-rental",
       categoryId: vehicles.id,
-      price: 75000,
+      price: 100000,
       duration: "24 Hours",
       shortDescription: "The most flexible way to explore both Nusa Lembongan and Nusa Ceningan. High-quality scooters available.",
       description: "Rent a scooter to enjoy total freedom on the islands. Our scooters are well-maintained and come with helmets. Unlike buggy cars, scooters can cross the Yellow Bridge, allowing you to explore the rugged beauty of Nusa Ceningan as well.",
@@ -124,8 +125,9 @@ async function main() {
       },
       includes: {
         create: [
+          { item: "Full Petrol" },
+          { item: "Free Drop off & Pick up" },
           { item: "2 Helmets" },
-          { item: "Full Tank of Fuel" },
           { item: "Lembongan & Ceningan Access" }
         ]
       },
@@ -133,6 +135,13 @@ async function main() {
         create: [
           { item: "Insurance" },
           { item: "Flat Tire Repair" }
+        ]
+      },
+      priceTiers: {
+        create: [
+          { tierGroup: "Scoopy", tierLabel: "1 Day", price: 100000, sortOrder: 1 },
+          { tierGroup: "Nmax", tierLabel: "1 Day", price: 150000, sortOrder: 2 },
+          { tierGroup: "Scooter Island Tour", tierLabel: "3-4 Hours (with driver)", price: 400000, sortOrder: 3 },
         ]
       },
       itineraries: {
@@ -144,6 +153,8 @@ async function main() {
       }
     }
   });
+
+
 
   await prisma.activity.create({
     data: {
@@ -322,6 +333,57 @@ async function main() {
       password: hashedPassword,
     },
   });
+
+  // Create Testimonials
+  console.log("Seeding testimonials...");
+  const testimonials = [
+    {
+      name: "axfordfamily",
+      content: "The buggy car rental was a game changer for our family. It was so easy to drive and allowed us to explore the island's beaches comfortably with our 7 year old daughter. Great service!",
+      imageUrl: "/images/testi-1.jpg",
+      rating: 5,
+      status: "PUBLISHED",
+    },
+    {
+      name: "Amanda C",
+      content: "What an amazing day! The views around Nusa Lembongan are simply breathtaking. We visited the cliff points and the scenery was so beautiful. Highly recommend for the photos alone!",
+      imageUrl: "/images/testi-2.jpg",
+      rating: 5,
+      status: "PUBLISHED",
+    },
+    {
+      name: "Alicia Martin",
+      content: "Incredible scenery! Every stop on the tour offered a new, stunning perspective of the island. The operation is well run with excellent, prompt communication and friendly local guides.",
+      imageUrl: "/images/testi-3.JPG",
+      rating: 5,
+      status: "PUBLISHED",
+    },
+    {
+      name: "Tenaya Reddish",
+      content: "We had such an amazing time exploring the island. The landscape is so unique and photogenic, especially the hidden spots and cliff views. A must-do if you want to see the best of the island.",
+      imageUrl: "/images/testi-4.JPG",
+      rating: 5,
+      status: "PUBLISHED",
+    },
+    {
+      name: "Mandy Burns",
+      content: "Renting a scooter was the best way to get around! The bikes were in great condition and very reliable. It gave us the freedom to explore every corner of Lembongan and Ceningan at our own pace.",
+      imageUrl: "/images/testi-5.JPG",
+      rating: 5,
+      status: "PUBLISHED",
+    },
+    {
+      name: "Trish",
+      content: "Had so much fun on this trip! The island's natural beauty is surreal. From the turquoise waters to the dramatic cliff views, everything was absolutely stunning! A truly memorable experience.",
+      imageUrl: "/images/testi-6.JPG",
+      rating: 5,
+      status: "PUBLISHED",
+    },
+  ];
+
+  for (const t of testimonials) {
+    await prisma.testimonial.create({ data: t });
+  }
 
   console.log("Seeding finished.");
 }

@@ -70,25 +70,32 @@ export async function updateUser(id: string, formData: FormData) {
 
 
 export async function deleteUser(userId: string) {
-  const session = await requireAdmin();
+  try {
+    const session = await requireAdmin();
 
-  if (session.user.id === userId) {
-    throw new Error("You cannot delete your own account.");
+    if (session.user.id === userId) {
+      return { error: "You cannot delete your own account." };
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return { error: "User not found" };
+    }
+
+    await prisma.user.delete({ where: { id: userId } });
+
+    await recordAuditLog({
+      action: "DELETE",
+      entity: "User",
+      entityId: userId,
+      entityName: user.email || user.name || "Unknown",
+    });
+
+    revalidatePath("/admin/users");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error in deleteUser:", error);
+    return { error: error.message || "Failed to delete user" };
   }
-
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) return;
-
-  await prisma.user.delete({ where: { id: userId } });
-
-  await recordAuditLog({
-    action: "DELETE",
-    entity: "User",
-    entityId: userId,
-    entityName: user.email || user.name || "Unknown",
-  });
-
-  revalidatePath("/admin/users");
-  redirect("/admin/users");
 }
 

@@ -12,6 +12,7 @@ import {
   Share2,
   Calendar,
   Info,
+  Users,
 } from "lucide-react";
 import { motion, Variants } from "framer-motion";
 import { formatCurrency, formatUSD } from "@/lib/utils";
@@ -39,7 +40,7 @@ export default function ActivityDetailClient({ activity, exchangeRate = 16000 }:
   );
 
   return (
-    <div className="pt-24 lg:pt-32 pb-24 bg-[#FDFBF7]">
+    <div className="pt-24 lg:pt-32">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb & Navigation */}
         <motion.div 
@@ -257,6 +258,12 @@ export default function ActivityDetailClient({ activity, exchangeRate = 16000 }:
                   <span className="text-zinc-600">•</span>
                   <span>Buggy car cannot cross the bridge to Nusa Ceningan</span>
                 </li>
+                {activity.slug === "buggy-car-rental" && (
+                  <li className="flex items-start gap-3">
+                    <span className="text-zinc-600">•</span>
+                    <span className="text-white font-medium">Optional: Driver available for an additional IDR 250,000</span>
+                  </li>
+                )}
                 <li className="flex items-start gap-3">
                   <span className="text-zinc-600">•</span>
                   <span>Motor/scooter can reach Nusa Ceningan via the Yellow Bridge</span>
@@ -311,6 +318,18 @@ export default function ActivityDetailClient({ activity, exchangeRate = 16000 }:
                     </div>
                   </div>
                 </div>
+
+                {activity.slug === "buggy-car-rental" && (
+                  <div className="mb-8 p-4 bg-zinc-50 border border-zinc-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Users className="w-4 h-4 text-zinc-900" />
+                      <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-900">Need a Driver?</span>
+                    </div>
+                    <p className="text-[11px] text-zinc-500 font-light leading-relaxed">
+                      Want to relax and enjoy the view? Professional drivers are available for an additional <span className="font-medium text-zinc-900">{formatCurrency(250000)}</span>.
+                    </p>
+                  </div>
+                )}
 
                 <div className="space-y-3">
                   <a

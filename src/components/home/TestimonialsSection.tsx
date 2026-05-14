@@ -70,7 +70,9 @@ const testimonials = [
 
 ];
 
-export function TestimonialsSection() {
+export function TestimonialsSection({ testimonials: dbTestimonials }: { testimonials?: any[] }) {
+  const displayTestimonials = dbTestimonials && dbTestimonials.length > 0 ? dbTestimonials : testimonials;
+
   return (
     <section id="reviews" className="py-24 bg-[#FAFAFA] overflow-hidden border-b border-zinc-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
@@ -101,7 +103,7 @@ export function TestimonialsSection() {
           variants={staggerContainer}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10"
         >
-          {testimonials.map((t) => (
+          {displayTestimonials.map((t) => (
             <motion.div
               key={t.id}
               variants={fadeUpVariants}
@@ -109,7 +111,7 @@ export function TestimonialsSection() {
             >
               <div className="relative aspect-square w-full overflow-hidden">
                 <Image
-                  src={t.image}
+                  src={t.image || t.imageUrl || "/images/placeholder-testi.jpg"}
                   alt={t.name}
                   fill
                   className="object-cover transition-transform duration-700 group-hover/card:scale-105"
@@ -119,7 +121,7 @@ export function TestimonialsSection() {
               </div>
               <div className="p-8 md:p-10 flex flex-col flex-grow">
                 <div className="flex gap-1 mb-6">
-                  {[...Array(5)].map((_, i) => (
+                  {[...Array(t.rating || 5)].map((_, i) => (
                     <Star
                       key={i}
                       className="h-4 w-4 text-amber-500 fill-amber-500"
@@ -127,7 +129,7 @@ export function TestimonialsSection() {
                   ))}
                 </div>
                 <p className="text-zinc-600 italic mb-8 flex-grow leading-relaxed text-sm md:text-base font-light">
-                  &ldquo;{t.text}&rdquo;
+                  &ldquo;{t.text || t.content}&rdquo;
                 </p>
                 <div className="flex items-center gap-4 mt-auto pt-6 border-t border-zinc-100">
                   <div>

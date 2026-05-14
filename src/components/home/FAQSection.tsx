@@ -40,6 +40,10 @@ const faqs = [
     a: "No, the Buggy Cars are strictly for Nusa Lembongan only. The Yellow Bridge connecting the islands is too narrow for buggies. If you want to explore both islands, we highly recommend renting a scooter.",
   },
   {
+    q: "Can I hire a driver for the Buggy Car?",
+    a: "Yes! If you'd rather sit back and enjoy the scenery, we can provide a professional driver for an additional IDR 250,000. Please let us know when booking so we can arrange it for you.",
+  },
+  {
     q: "Do I need an international driving license to rent a scooter?",
     a: "No driving license is required to rent and ride a scooter here in Nusa Lembongan. However, we always provide helmets and urge you to drive safely.",
   },

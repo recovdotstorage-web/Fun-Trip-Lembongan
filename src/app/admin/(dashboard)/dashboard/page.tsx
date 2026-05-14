@@ -236,7 +236,7 @@ export default async function DashboardPage({
   ];
 
   return (
-    <div className="p-4 md:p-8 lg:p-12 max-w-7xl mx-auto bg-[#FDFBF7] min-h-screen">
+    <div className="p-4 md:p-8 lg:p-12 max-w-7xl mx-auto min-h-screen">
       <AdminHeader
         title="Dashboard"
         highlight="Control"
@@ -352,8 +352,10 @@ export default async function DashboardPage({
             stats.topVisitors.map((visitor: any) => (
               <div key={visitor.id} className="relative group bg-white border border-zinc-100 rounded-xl p-6 transition-all duration-500 hover:shadow-xl hover:shadow-black/5 hover:-translate-y-1 flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <div className="px-2 py-1 rounded-lg text-[8px] font-bold uppercase tracking-widest bg-blue-50 text-blue-600">
-                    VISITOR
+                  <div className={`px-2 py-1 rounded-lg text-[8px] font-bold uppercase tracking-widest ${
+                    visitor.countryCode === "ID" ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-blue-600"
+                  }`}>
+                    {visitor.countryCode === "ID" ? "INDONESIA" : "FOREIGN"}
                   </div>
                   <span className="text-[9px] text-zinc-300 font-bold tracking-widest">{formatWITA(visitor.createdAt)}</span>
                 </div>
@@ -364,11 +366,11 @@ export default async function DashboardPage({
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="text-[11px] font-bold text-zinc-900 truncate">{visitor.country || "Unknown Country"}</p>
+                      <p className="text-[11px] font-bold text-zinc-900 truncate">
+                        {visitor.countryCode === "ID" ? "Indonesia" : visitor.country || "Foreign Visitor"}
+                      </p>
                       {visitor.countryCode && (
-                        <span className={`text-[8px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-widest ${
-                          visitor.countryCode === "ID" ? "bg-green-50 text-green-600" : "bg-zinc-100 text-zinc-500"
-                        }`}>
+                        <span className="text-[8px] px-1.5 py-0.5 rounded-md font-bold bg-zinc-100 text-zinc-500 uppercase tracking-widest">
                           {visitor.countryCode}
                         </span>
                       )}
@@ -382,7 +384,7 @@ export default async function DashboardPage({
                 <div className="flex items-center gap-2 pt-4 border-t border-zinc-50">
                   <Compass className="w-3 h-3 text-zinc-400" />
                   <span className="text-[10px] font-medium text-zinc-400 truncate italic">
-                    Path: {visitor.path}
+                    {visitor.path}
                   </span>
                 </div>
               </div>

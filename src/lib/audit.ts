@@ -2,7 +2,7 @@ import { prisma } from "./prisma";
 import { auth } from "@/auth";
 
 export type AuditAction = "CREATE" | "UPDATE" | "DELETE";
-export type AuditEntity = "Activity" | "BlogPost" | "Category" | "User";
+export type AuditEntity = "Activity" | "BlogPost" | "Category" | "User" | "Testimonial";
 
 export async function recordAuditLog({
   action,

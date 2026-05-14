@@ -17,6 +17,7 @@ import {
   History,
   HelpCircle,
   FileLock,
+  Quote,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,6 +37,11 @@ const navItems = [
     label: "Blog & Stories",
     href: "/admin/blog",
     icon: BookOpen,
+  },
+  {
+    label: "Testimonials",
+    href: "/admin/testimonials",
+    icon: Users,
   },
   {
     label: "Users",
@@ -66,7 +72,7 @@ export function AdminSidebar() {
   }
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-white text-zinc-900">
+    <div className="flex flex-col h-full bg-[#FDFBF7] text-zinc-900">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -188,7 +194,7 @@ export function AdminSidebar() {
 
   return (
     <>
-      <aside className="hidden lg:flex flex-col w-80 bg-white h-screen sticky top-0 border-r border-zinc-200">
+      <aside className="hidden lg:flex flex-col w-80 bg-[#FDFBF7] h-screen sticky top-0 border-r border-zinc-200">
         {sidebarContent}
       </aside>
 

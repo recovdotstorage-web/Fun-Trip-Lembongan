@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { CONTACT_INFO } from "@/constants/contact";
 import { activityRepo } from "@/repositories/activity.repo";
 import { blogPostRepo } from "@/repositories/blog-post.repo";
+import { testimonialRepo } from "@/repositories/testimonial.repo";
 import { getIDRtoUSDRate } from "@/lib/exchange-rate";
 
 export const metadata: Metadata = {
@@ -11,14 +12,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Fun Trip Lembongan — Best Nusa Lembongan Tours & Rentals",
     description: "Experience Nusa Lembongan with the most trusted local tour operator. Buggy, Scooter, Snorkeling & Tours.",
-    images: ["/images/hero.png"],
   },
 };
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [servicesData, blogData, rate] = await Promise.all([
+  const [servicesData, blogData, testimonialsData, rate] = await Promise.all([
     activityRepo.findMany({
       where: { status: "PUBLISHED" },
       orderBy: { createdAt: "asc" },
@@ -29,11 +29,17 @@ export default async function HomePage() {
       orderBy: { createdAt: "desc" },
       take: 3,
     }),
+    testimonialRepo.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+    }),
     getIDRtoUSDRate(),
   ]);
   
   const { data: services } = servicesData;
   const { data: posts } = blogData;
+  const { data: testimonials } = testimonialsData;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -82,7 +88,7 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <HomePageClient services={services} posts={posts} exchangeRate={rate} />
+      <HomePageClient services={services} posts={posts} testimonials={testimonials} exchangeRate={rate} />
     </>
   );
 }
