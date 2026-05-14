@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BlogPost } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import BlogPageClient from "@/components/blog/BlogPageClient";
 
@@ -29,7 +30,7 @@ export default async function BlogPage() {
         "url": "https://funtriplembongan.com/images/hero.png"
       }
     },
-    "blogPost": posts.map((post) => ({
+    "blogPost": posts.map((post: BlogPost) => ({
       "@type": "BlogPosting",
       "headline": post.title,
       "url": `https://funtriplembongan.com/blog/${post.slug}`,
