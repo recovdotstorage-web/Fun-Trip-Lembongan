@@ -23,7 +23,6 @@ async function getStats(timeframe: "week" | "month" | "all" = "week") {
       if (!model) return 0;
       return await model.count({ where });
     } catch (e) {
-      console.error("Count failed:", e);
       return 0;
     }
   };

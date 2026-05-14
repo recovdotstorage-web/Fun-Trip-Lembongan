@@ -22,7 +22,7 @@ export function VisitorTracker() {
           body: JSON.stringify({ path: pathname }),
         });
       } catch (error) {
-        console.error("Failed to track visitor:", error);
+        // Silent fail for tracking
       }
     };
 

@@ -29,7 +29,6 @@ export async function recordAuditLog({
       },
     });
   } catch (error) {
-    console.error("Failed to record audit log:", error);
-    // Don't throw error to avoid breaking the main operation
+    // Silent fail for production audit logging
   }
 }

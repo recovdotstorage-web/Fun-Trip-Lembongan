@@ -18,6 +18,7 @@ export const activityRepo = {
         include: {
           category: true,
           images: { where: { isPrimary: true }, take: 1 },
+          includes: true,
         },
       }),
       prisma.activity.count({ where }),

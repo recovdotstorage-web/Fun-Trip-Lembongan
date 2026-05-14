@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, Variants, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -55,6 +55,28 @@ export default function ServiceDetailContent({ activity, exchangeRate }: Service
   );
 
   const [selectedTierId, setSelectedTierId] = useState(groupTiers[0]?.id ?? "");
+  const [shareLabel, setShareLabel] = useState("Share");
+  const [isYoutubeAvailable, setIsYoutubeAvailable] = useState<boolean | null>(null);
+
+  // YouTube validation on front-end
+  useEffect(() => {
+    if (!activity.youtubeVideoId) {
+      setIsYoutubeAvailable(false);
+      return;
+    }
+
+    const img = new window.Image();
+    img.src = `https://img.youtube.com/vi/${activity.youtubeVideoId}/mqdefault.jpg`;
+    img.onload = () => {
+      // YouTube returns a 120px width placeholder if the video ID is invalid
+      if (img.width === 120) {
+        setIsYoutubeAvailable(false);
+      } else {
+        setIsYoutubeAvailable(true);
+      }
+    };
+    img.onerror = () => setIsYoutubeAvailable(false);
+  }, [activity.youtubeVideoId]);
 
   // When group changes, reset to first duration of that group
   const handleGroupChange = (group: string) => {
@@ -108,7 +130,26 @@ export default function ServiceDetailContent({ activity, exchangeRate }: Service
             Back to All Services
           </Link>
           <div className="flex items-center gap-6">
-            <button className="text-zinc-400 hover:text-zinc-900 transition-colors">
+            <button 
+              onClick={() => {
+                const url = window.location.href;
+                if (navigator.share) {
+                  navigator.share({
+                    title: activity.name,
+                    text: activity.shortDescription,
+                    url: url,
+                  }).catch(() => {});
+                } else {
+                  navigator.clipboard.writeText(url);
+                  setShareLabel("Copied!");
+                  setTimeout(() => setShareLabel("Share"), 2000);
+                }
+              }}
+              className="group flex items-center gap-2 text-zinc-400 hover:text-zinc-900 transition-colors"
+            >
+              <span className="text-[10px] uppercase tracking-widest font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                {shareLabel}
+              </span>
               <Share2 className="w-4 h-4" />
             </button>
           </div>
@@ -280,7 +321,7 @@ export default function ServiceDetailContent({ activity, exchangeRate }: Service
             </motion.div>
 
             {/* YouTube Video */}
-            {activity.youtubeVideoId && (
+            {activity.youtubeVideoId && isYoutubeAvailable && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -441,49 +482,25 @@ export default function ServiceDetailContent({ activity, exchangeRate }: Service
 
                     {/* Duration Selector */}
                     <div className="mb-6">
-                      <p className="text-[10px] text-zinc-400 uppercase tracking-widest mb-3">
+                      <label htmlFor="duration-select" className="text-[10px] text-zinc-400 uppercase tracking-widest mb-3 block">
                         Select Duration
-                      </p>
-                      <div className="space-y-2">
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={selectedGroup}
-                            initial={{ opacity: 0, y: 5 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -5 }}
-                            transition={{ duration: 0.2 }}
-                            className="space-y-2"
-                          >
-                            {groupTiers.map((tier) => (
-                              <button
-                                key={tier.id}
-                                onClick={() => setSelectedTierId(tier.id)}
-                                className={`
-                                  w-full flex items-center justify-between px-4 py-3 text-sm transition-all border
-                                  ${selectedTierId === tier.id
-                                    ? "bg-zinc-50 border-zinc-900 ring-1 ring-zinc-900"
-                                    : "bg-white border-zinc-200 hover:border-zinc-300"
-                                  }
-                                `}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <Clock className="w-3.5 h-3.5 text-zinc-400" />
-                                  <span className={`text-[11px] uppercase tracking-wider font-medium ${selectedTierId === tier.id ? "text-zinc-900" : "text-zinc-500"}`}>
-                                    {tier.tierLabel}
-                                  </span>
-                                </div>
-                                <div className="text-right">
-                                  <span className={`font-medium font-(family-name:--font-outfit) block ${selectedTierId === tier.id ? "text-zinc-900" : "text-zinc-400"}`}>
-                                    {formatCurrency(tier.price)}
-                                  </span>
-                                  <span className="text-[10px] text-zinc-400 font-light">
-                                    ≈ {formatUSD(tier.price, exchangeRate)}
-                                  </span>
-                                </div>
-                              </button>
-                            ))}
-                          </motion.div>
-                        </AnimatePresence>
+                      </label>
+                      <div className="relative group">
+                        <select
+                          id="duration-select"
+                          value={selectedTierId}
+                          onChange={(e) => setSelectedTierId(e.target.value)}
+                          className="w-full appearance-none bg-white border border-zinc-200 px-5 py-4 text-[11px] uppercase tracking-[0.15em] font-bold text-zinc-900 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition-all cursor-pointer hover:border-zinc-400 rounded-none"
+                        >
+                          {groupTiers.map((tier) => (
+                            <option key={tier.id} value={tier.id}>
+                              {tier.tierLabel} — {formatCurrency(tier.price)}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 group-hover:text-zinc-900 transition-colors">
+                          <Clock className="w-4 h-4" />
+                        </div>
                       </div>
                     </div>
 

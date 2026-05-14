@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { ActivityForm } from "../ActivityForm";
 import { notFound } from "next/navigation";
+import { getIDRtoUSDRate } from "@/lib/exchange-rate";
 
 export const dynamic = "force-dynamic";
 
@@ -25,5 +26,6 @@ export default async function NewServicePage() {
     );
   }
 
-  return <ActivityForm categories={categories} />;
+  const rate = await getIDRtoUSDRate();
+  return <ActivityForm categories={categories} exchangeRate={rate} />;
 }

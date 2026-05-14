@@ -4,7 +4,7 @@ import { activityRepo } from "@/repositories/activity.repo";
 import { getIDRtoUSDRate } from "@/lib/exchange-rate";
 import ServiceDetailContent from "./ServiceDetailContent";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ slug: string }> };
 

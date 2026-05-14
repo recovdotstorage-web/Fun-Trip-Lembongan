@@ -11,6 +11,7 @@ interface ActivityCardProps {
   duration: string;
   imageUrl?: string;
   categoryName: string;
+  exchangeRate?: number;
 }
 
 export function ActivityCard({
@@ -21,6 +22,7 @@ export function ActivityCard({
   duration,
   imageUrl,
   categoryName,
+  exchangeRate,
 }: ActivityCardProps) {
   return (
     <Link
@@ -74,7 +76,7 @@ export function ActivityCard({
                 {formatCurrency(price)}
               </span>
               <span className="text-[11px] text-zinc-400 font-light">
-                ≈ {formatUSD(price)}
+                ≈ {formatUSD(price, exchangeRate)}
               </span>
             </div>
             <div className="flex items-center gap-2 text-zinc-400">

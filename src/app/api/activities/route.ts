@@ -22,7 +22,6 @@ export async function GET(request: NextRequest) {
       meta: result.meta,
     });
   } catch (error) {
-    console.error("GET /api/activities error:", error);
     return NextResponse.json(
       { success: false, message: "Internal Server Error" },
       { status: 500 }

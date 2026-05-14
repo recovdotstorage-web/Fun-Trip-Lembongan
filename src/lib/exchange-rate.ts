@@ -24,7 +24,6 @@ export async function getIDRtoUSDRate(): Promise<number> {
 
     return idrPerUsd;
   } catch (error) {
-    console.error("Failed to fetch exchange rate, using fallback:", error);
     return FALLBACK_RATE;
   }
 }

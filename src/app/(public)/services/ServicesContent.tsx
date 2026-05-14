@@ -7,9 +7,10 @@ import { CONTACT_INFO } from "@/constants/contact";
 
 interface ServicesContentProps {
   services: any[];
+  exchangeRate: number;
 }
 
-export default function ServicesContent({ services }: ServicesContentProps) {
+export default function ServicesContent({ services, exchangeRate }: ServicesContentProps) {
   const waMessage = encodeURIComponent("Hi Fun Trip Lembongan, I'd like to plan a custom trip.");
 
   return (
@@ -79,6 +80,7 @@ export default function ServicesContent({ services }: ServicesContentProps) {
                     duration={service.duration}
                     imageUrl={service.images[0]?.imageUrl}
                     categoryName={service.category.name}
+                    exchangeRate={exchangeRate}
                   />
                 </motion.div>
               ))}

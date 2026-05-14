@@ -32,7 +32,7 @@ export async function createService(formData: FormData) {
 
   const name = sanitizeString(formData.get("name") as string);
   const categoryId = formData.get("categoryId") as string;
-  const price = Math.round(parseFloat(formData.get("price") as string) * 100);
+  const price = Math.round(parseFloat(formData.get("price") as string));
   const duration = sanitizeString(formData.get("duration") as string);
   const shortDescription = sanitizeString(formData.get("shortDescription") as string);
   const description = sanitizeString(formData.get("description") as string);
@@ -114,8 +114,11 @@ export async function createService(formData: FormData) {
     entityName: activity.name,
   });
 
-  revalidatePath("/admin/services");
-  revalidatePath("/services", "layout");
+  // Aggressive revalidation
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/services", "page");
+  revalidatePath("/services", "page");
+
   redirect("/admin/services");
 }
 
@@ -124,7 +127,7 @@ export async function updateService(id: string, formData: FormData) {
 
   const name = sanitizeString(formData.get("name") as string);
   const categoryId = formData.get("categoryId") as string;
-  const price = Math.round(parseFloat(formData.get("price") as string) * 100);
+  const price = Math.round(parseFloat(formData.get("price") as string));
   const duration = sanitizeString(formData.get("duration") as string);
   const shortDescription = sanitizeString(formData.get("shortDescription") as string);
   const description = sanitizeString(formData.get("description") as string);
@@ -183,12 +186,13 @@ export async function updateService(id: string, formData: FormData) {
   // Fetch slug for revalidation of the detail page
   const updated = await prisma.activity.findUnique({ where: { id }, select: { slug: true } });
 
-  revalidatePath("/admin/services");
-  revalidatePath(`/admin/services/${id}/edit`);
-  revalidatePath("/services", "layout");
-  if (updated?.slug) {
-    revalidatePath(`/services/${updated.slug}`);
-  }
+  // Aggressive revalidation to fix "refresh 2x" and stale public pages
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/services", "page");
+  revalidatePath(`/admin/services/${id}/edit`, "page");
+  revalidatePath("/services", "page");
+  revalidatePath("/services/[slug]", "page");
+
   redirect("/admin/services");
 }
 
@@ -212,10 +216,13 @@ export async function deleteService(id: string) {
     entityName: existing.name,
   });
 
-  revalidatePath("/admin/services");
-  revalidatePath("/services", "layout");
+  // Aggressive revalidation
+  revalidatePath("/admin/services", "page");
+  revalidatePath("/services", "page");
+  revalidatePath("/", "layout");
+
   if (existing.slug) {
-    revalidatePath(`/services/${existing.slug}`);
+    revalidatePath(`/services/${existing.slug}`, "page");
   }
   redirect("/admin/services");
 }
@@ -252,7 +259,7 @@ export async function uploadServiceImage(
     });
   }
 
-  await prisma.activityImage.create({
+  const image = await prisma.activityImage.create({
     data: {
       activityId: serviceId,
       publicId: result.public_id,
@@ -265,6 +272,8 @@ export async function uploadServiceImage(
   revalidatePath(`/admin/services/${serviceId}/edit`);
   revalidatePath("/services", "layout");
   if (svc?.slug) revalidatePath(`/services/${svc.slug}`);
+
+  return image;
 }
 
 export async function deleteServiceImage(imageId: string, serviceId: string) {

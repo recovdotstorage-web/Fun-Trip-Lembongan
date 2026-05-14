@@ -4,6 +4,7 @@ import { Car, Bike, Ship, MapPin, CheckCircle, Send, ArrowRight } from "lucide-r
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { formatUSD } from "@/lib/utils";
 
 const springTransition = {
   type: "spring" as const,
@@ -33,69 +34,22 @@ const staggerContainer = {
 
 interface ServicesSectionProps {
   onWaClick: (message?: string) => void;
+  services: any[];
+  exchangeRate: number;
 }
 
-const services = [
-  {
-    id: 1,
-    title: "Buggy Car Rental",
-    slug: "buggy-car-rental",
-    price: "Best Price",
-    icon: <Car className="h-6 w-6 text-zinc-900" />,
-    image: "/images/surfing.png",
-    features: [
-      "Comfortable seating for groups",
-      "Explore Lembongan easily",
-      "No access to Nusa Ceningan (Bridge limit)",
-      "Fuel included",
-    ],
-  },
-  {
-    id: 2,
-    title: "Scooter Rental",
-    slug: "scooter-rental",
-    price: "Best Price",
-    icon: <Bike className="h-6 w-6 text-zinc-900" />,
-    image: "/images/diving.png",
-    features: [
-      "No driving license required",
-      "Helmets provided",
-      "Full island access (Lembongan & Ceningan)",
-      "Note: No damage guarantee",
-    ],
-    popular: true,
-  },
-  {
-    id: 3,
-    title: "Snorkeling Safari",
-    slug: "snorkeling-safari",
-    price: "Best Price",
-    icon: <Ship className="h-6 w-6 text-zinc-900" />,
-    image: "/images/snorkeling.png",
-    features: [
-      "Swim with Manta Rays",
-      "Visit Crystal Bay & Mangrove Point",
-      "Snorkeling Equipment provided",
-      "Professional Guide & Boat",
-    ],
-  },
-  {
-    id: 4,
-    title: "Lembongan Island Tour",
-    slug: "lembongan-island-tour",
-    price: "Best Price",
-    icon: <MapPin className="h-6 w-6 text-zinc-900" />,
-    image: "/images/island-tour.png",
-    features: [
-      "Dream Beach & Devil's Tear",
-      "Yellow Bridge & Panorama Point",
-      "Mangrove Forest Tour",
-      "Local Expert Driver",
-    ],
-  },
-];
+const ICON_MAP: Record<string, React.ReactNode> = {
+  "buggy-car-rental": <Car className="h-6 w-6 text-zinc-900" />,
+  "scooter-rental": <Bike className="h-6 w-6 text-zinc-900" />,
+  "snorkeling-safari": <Ship className="h-6 w-6 text-zinc-900" />,
+  "lembongan-island-tour": <MapPin className="h-6 w-6 text-zinc-900" />,
+};
 
-export function ServicesSection({ onWaClick }: ServicesSectionProps) {
+export function ServicesSection({ onWaClick, services: dynamicServices, exchangeRate }: ServicesSectionProps) {
+  // If no dynamic services, use hardcoded ones as fallback (optional, but good for safety)
+  // or just use dynamic ones.
+  const displayServices = dynamicServices.length > 0 ? dynamicServices : [];
+
   return (
     <section id="services" className="py-24 bg-[#FDFBF7]">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -125,8 +79,21 @@ export function ServicesSection({ onWaClick }: ServicesSectionProps) {
           variants={staggerContainer}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
-          {services.map((srv) => (
-            <ServiceCard key={srv.id} service={srv} onWaClick={onWaClick} />
+          {displayServices.map((srv) => (
+            <ServiceCard 
+              key={srv.id} 
+              service={{
+                ...srv,
+                title: srv.name,
+                icon: ICON_MAP[srv.slug] || <Ship className="h-6 w-6 text-zinc-900" />,
+                image: srv.images?.find((img: any) => img.isPrimary)?.imageUrl || srv.images?.[0]?.imageUrl || "/images/placeholder.png",
+                features: srv.includes?.map((inc: any) => inc.item).slice(0, 4) || [],
+                price: srv.price > 0 ? `From Rp ${srv.price.toLocaleString()}` : "Best Price",
+                rawPrice: srv.price
+              }} 
+              onWaClick={onWaClick} 
+              exchangeRate={exchangeRate}
+            />
           ))}
         </motion.div>
         <motion.div 
@@ -152,9 +119,11 @@ export function ServicesSection({ onWaClick }: ServicesSectionProps) {
 function ServiceCard({
   service,
   onWaClick,
+  exchangeRate,
 }: {
-  service: (typeof services)[0];
+  service: any;
   onWaClick: (message?: string) => void;
+  exchangeRate: number;
 }) {
   const handleBook = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -191,11 +160,18 @@ function ServiceCard({
             <div className="bg-zinc-50 p-2 shrink-0 group-hover:bg-zinc-100 transition-colors">{service.icon}</div>
             <h4 className="text-lg font-medium text-zinc-900 leading-tight group-hover:text-zinc-900">{service.title}</h4>
           </div>
-          <div className="text-lg font-medium text-zinc-900 mb-4 border-b border-zinc-100 pb-4">
-            {service.price}{" "}
-            <span className="text-[10px] font-light text-zinc-500 uppercase tracking-widest ml-1">
+          <div className="flex flex-col mb-4 border-b border-zinc-100 pb-4">
+            <div className="text-lg font-medium text-zinc-900">
+              {service.price}
+            </div>
+            {service.rawPrice > 0 && (
+              <div className="text-xs text-emerald-600 font-bold">
+                ≈ {formatUSD(service.rawPrice, exchangeRate)}
+              </div>
+            )}
+            <div className="text-[10px] font-light text-zinc-500 uppercase tracking-widest mt-1">
               Via WhatsApp
-            </span>
+            </div>
           </div>
 
           <ul className="space-y-3 mb-6 flex-grow">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { activityRepo } from "@/repositories/activity.repo";
 import ServicesContent from "./ServicesContent";
+import { getIDRtoUSDRate } from "@/lib/exchange-rate";
 
 export const metadata: Metadata = {
   title: "Our Services | Fun Trip Lembongan",
@@ -8,14 +9,19 @@ export const metadata: Metadata = {
     "Explore our premium tours and activities in Nusa Lembongan. From snorkeling to buggy car rentals, we provide the best island experiences.",
 };
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function ServicesPage() {
-  const { data: services } = await activityRepo.findMany({
-    where: { status: "PUBLISHED" },
-    orderBy: { createdAt: "asc" },
-    take: 50,
-  });
+  const [servicesData, rate] = await Promise.all([
+    activityRepo.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: { createdAt: "asc" },
+      take: 50,
+    }),
+    getIDRtoUSDRate(),
+  ]);
+  
+  const { data: services } = servicesData;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -35,7 +41,7 @@ export default async function ServicesPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ServicesContent services={services} />
+      <ServicesContent services={services} exchangeRate={rate} />
     </>
   );
 }
