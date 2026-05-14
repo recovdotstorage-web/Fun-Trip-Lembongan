@@ -175,7 +175,7 @@ function ServiceCard({
           </div>
 
           <ul className="space-y-3 mb-6 flex-grow">
-            {service.features.map((feature, idx) => (
+            {service.features.map((feature: string, idx: number) => (
               <li key={idx} className="flex items-start text-zinc-600 text-sm font-light">
                 <CheckCircle className="h-4 w-4 text-zinc-900 mr-3 shrink-0 mt-0.5" />
                 <span>{feature}</span>
