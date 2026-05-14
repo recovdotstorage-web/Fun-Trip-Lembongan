@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Send, Menu, X } from "lucide-react";
 import { CONTACT_INFO } from "@/constants/contact";
+import { motion, AnimatePresence } from "framer-motion";
 
 const WA_NUMBER = CONTACT_INFO.whatsapp;
 
@@ -32,10 +33,15 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 cursor-pointer">
-            <span className="font-semibold text-2xl tracking-tight text-zinc-900">
-              FUN TRIP{" "}
-              <span className="text-zinc-500 font-light">LEMBONGAN</span>
+          <Link href="/" className="flex items-center gap-3 cursor-pointer">
+            <img 
+              src="/images/logo.jpg" 
+              alt="Fun Trip Lembongan Logo" 
+              className="h-14 w-14 object-contain"
+            />
+            <span className="font-semibold text-xl tracking-tight text-zinc-900 leading-tight">
+              FUN TRIP<br />
+              <span className="text-zinc-500 font-light text-sm tracking-[0.2em] uppercase">LEMBONGAN</span>
             </span>
           </Link>
 
@@ -75,29 +81,66 @@ export function Navbar() {
         </div>
       </div>
 
-      {isMobileMenuOpen && (
-        <div className="md:hidden bg-[#FDFBF7] border-b border-zinc-200 px-4 pt-2 pb-6 space-y-3 shadow-lg absolute w-full">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="block px-3 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 uppercase tracking-widest"
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[-1]"
+            />
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="md:hidden bg-white border-b border-zinc-200 px-6 pt-4 pb-12 shadow-2xl absolute w-full overflow-hidden"
             >
-              {link.label}
-            </Link>
-          ))}
-          <button
-            onClick={() => {
-              handleWaClick();
-              setIsMobileMenuOpen(false);
-            }}
-            className="w-full mt-4 bg-zinc-900 text-white px-6 py-3 font-medium tracking-wide flex justify-center items-center gap-2"
-          >
-            <Send className="h-4 w-4" /> Book via WhatsApp
-          </button>
-        </div>
-      )}
+              <div className="flex flex-col space-y-2">
+                {navLinks.map((link, idx) => (
+                  <motion.div
+                    key={link.label}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ 
+                      delay: 0.1 + (idx * 0.05),
+                      duration: 0.4,
+                      ease: "easeOut"
+                    }}
+                  >
+                    <Link
+                      href={link.href}
+                      className="block py-4 text-sm font-medium text-zinc-500 hover:text-zinc-900 border-b border-zinc-50 uppercase tracking-[0.2em] transition-all active:pl-4"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.div>
+                ))}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4, duration: 0.5 }}
+                  className="pt-6"
+                >
+                  <button
+                    onClick={() => {
+                      handleWaClick();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full bg-zinc-900 text-white px-6 py-5 font-medium tracking-[0.2em] uppercase text-xs flex justify-center items-center gap-3 shadow-xl hover:bg-zinc-800 transition-all"
+                  >
+                    <Send className="h-4 w-4" /> Book via WhatsApp
+                  </button>
+                </motion.div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
     </nav>
   );
 }

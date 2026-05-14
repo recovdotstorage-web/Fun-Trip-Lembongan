@@ -33,46 +33,41 @@ const staggerContainer = {
 const testimonials = [
   {
     id: 1,
-    text: "We had an incredible morning snorkeling with the team. We took our 7 year old daughter along and the guides were great - they made sure she felt safe and comfortable the entire time.",
+    text: "The buggy car rental was a game changer for our family. It was so easy to drive and allowed us to explore the island's beaches comfortably with our 7 year old daughter. Great service!",
     name: "axfordfamily",
-    image:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80",
+    image: "/images/testi-1.jpg",
   },
   {
     id: 2,
-    text: "What an amazing day! The snorkelling was so beautiful, we were so excited to swim with 4 beautiful Manta Rays. The guides on the trip were all very helpful.",
+    text: "What an amazing day! The views around Nusa Lembongan are simply breathtaking. We visited the cliff points and the scenery was so beautiful. Highly recommend for the photos alone!",
     name: "Amanda C",
-    image:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80",
+    image: "/images/testi-2.jpg",
   },
   {
     id: 3,
-    text: "Amazing experience. Seeing it all (the Manta Rays, tropical fish and coral, and the scenery) with our own eyes was incredible. The operation is well run with excellent, prompt communication.",
+    text: "Incredible scenery! Every stop on the tour offered a new, stunning perspective of the island. The operation is well run with excellent, prompt communication and friendly local guides.",
     name: "Alicia Martin",
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
+    image: "/images/testi-3.JPG",
   },
   {
     id: 4,
-    text: "We had such an amazing time yesterday snorkeling and seeing turtles, Manta Rays, Dolphins and all the colourful and beautiful fish in the sea. Highly recommended.",
+    text: "We had such an amazing time exploring the island. The landscape is so unique and photogenic, especially the hidden spots and cliff views. A must-do if you want to see the best of the island.",
     name: "Tenaya Reddish",
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+    image: "/images/testi-4.JPG",
   },
   {
     id: 5,
-    text: "Each of the 3 snorkelling spots was unique and beautiful. The staff were friendly, professional and helpful of all skill levels. We also enjoyed being part of a small group.",
+    text: "Renting a scooter was the best way to get around! The bikes were in great condition and very reliable. It gave us the freedom to explore every corner of Lembongan and Ceningan at our own pace.",
     name: "Mandy Burns",
-    image:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+    image: "/images/testi-5.JPG",
   },
   {
     id: 6,
-    text: "Had so much fun on this trip - got to see a Manta Ray swim right beneath me which was surreal! The coral reefs and fish were absolutely stunning! We also went through the Mangrove.",
+    text: "Had so much fun on this trip! The island's natural beauty is surreal. From the turquoise waters to the dramatic cliff views, everything was absolutely stunning! A truly memorable experience.",
     name: "Trish",
-    image:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80",
+    image: "/images/testi-6.JPG",
   },
+
 ];
 
 export function TestimonialsSection() {
@@ -98,65 +93,66 @@ export function TestimonialsSection() {
         </motion.div>
       </div>
 
-      {/* Marquee Container */}
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={springTransition}
-        className="relative flex overflow-x-hidden group"
-      >
-        <div className="animate-marquee-unlimited flex">
-          {[1, 2, 3, 4].map((blockIndex) => (
-            <div key={`block-${blockIndex}`} className="flex gap-6 pr-6 shrink-0">
-              {testimonials.map((t) => (
-                <div
-                  key={`${blockIndex}-${t.id}`}
-                  className="w-[320px] md:w-[400px] shrink-0 bg-[#FDFBF7] p-8 shadow-sm transition-shadow duration-300 border border-zinc-200 flex flex-col cursor-pointer"
-                >
-                  <div className="flex gap-1 mb-6">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-4 w-4 text-amber-500 fill-amber-500"
-                      />
-                    ))}
-                  </div>
-                  <p className="text-zinc-600 italic mb-8 flex-grow leading-relaxed text-[15px] font-light">
-                    &ldquo;{t.text}&rdquo;
-                  </p>
-                  <div className="flex items-center gap-4 mt-auto">
-                    <Image
-                      src={t.image}
-                      alt={t.name}
-                      width={48}
-                      height={48}
-                      className="w-12 h-12 object-cover border border-zinc-200"
-                      unoptimized
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainer}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10"
+        >
+          {testimonials.map((t) => (
+            <motion.div
+              key={t.id}
+              variants={fadeUpVariants}
+              className="bg-white border border-zinc-200 flex flex-col group/card"
+            >
+              <div className="relative aspect-square w-full overflow-hidden">
+                <Image
+                  src={t.image}
+                  alt={t.name}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover/card:scale-105"
+                  unoptimized
+                />
+                <div className="absolute inset-0 bg-black/5 group-hover/card:bg-transparent transition-colors duration-500" />
+              </div>
+              <div className="p-8 md:p-10 flex flex-col flex-grow">
+                <div className="flex gap-1 mb-6">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="h-4 w-4 text-amber-500 fill-amber-500"
                     />
-                    <div>
-                      <h4 className="font-medium text-zinc-900 text-sm">
-                        {t.name}
-                      </h4>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-                          alt="Google"
-                          className="w-3.5 h-3.5"
-                        />
-                        <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-light">
-                          Google Review
-                        </p>
-                      </div>
+                  ))}
+                </div>
+                <p className="text-zinc-600 italic mb-8 flex-grow leading-relaxed text-sm md:text-base font-light">
+                  &ldquo;{t.text}&rdquo;
+                </p>
+                <div className="flex items-center gap-4 mt-auto pt-6 border-t border-zinc-100">
+                  <div>
+                    <h4 className="font-semibold text-zinc-900 text-sm md:text-base uppercase tracking-wider">
+                      {t.name}
+                    </h4>
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                        alt="Google"
+                        className="w-3.5 h-3.5"
+                      />
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-400 font-light">
+                        Google Review
+                      </p>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            </motion.div>
           ))}
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
+
+
     </section>
   );
 }

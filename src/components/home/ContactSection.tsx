@@ -172,7 +172,7 @@ export function ContactSection({ onWaClick }: ContactSectionProps) {
                     <option>Buggy Car Rental</option>
                     <option>Scooter Rental</option>
                     <option>Snorkeling Trip</option>
-                    <option>Island Tour</option>
+                    <option>Island Tours</option>
                     <option>Other / General</option>
                   </select>
                 </div>

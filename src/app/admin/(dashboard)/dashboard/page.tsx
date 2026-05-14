@@ -67,10 +67,10 @@ async function getStats(timeframe: "week" | "month" | "all" = "week") {
     take: 50, // Increase for pagination
   }).catch(() => []);
 
-  // Fetch Top 5 Visitor Logs safely
+  // Fetch Top 6 Visitor Logs safely
   const topVisitors = await prisma.visitorLog.findMany({
     orderBy: { createdAt: "desc" },
-    take: 5,
+    take: 6,
   }).catch(() => []);
 
   // ... existing chart data logic ...
@@ -339,7 +339,7 @@ export default async function DashboardPage({
         <div className="flex items-center justify-between mb-8 px-2">
           <h2 className="text-[11px] font-bold uppercase tracking-[0.3em] text-zinc-400 flex items-center gap-3">
             <Globe className="w-3.5 h-3.5" />
-            Top 5 Recent Visitors
+            Top 6 Recent Visitors
           </h2>
         </div>
 
@@ -364,10 +364,10 @@ export default async function DashboardPage({
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="text-[11px] font-bold text-zinc-900 truncate">{visitor.ip}</p>
+                      <p className="text-[11px] font-bold text-zinc-900 truncate">{visitor.country || "Unknown Country"}</p>
                       {visitor.countryCode && (
                         <span className={`text-[8px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-widest ${
-                          visitor.countryCode === "ID" ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-500"
+                          visitor.countryCode === "ID" ? "bg-green-50 text-green-600" : "bg-zinc-100 text-zinc-500"
                         }`}>
                           {visitor.countryCode}
                         </span>

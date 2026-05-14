@@ -33,17 +33,17 @@ async function main() {
     },
   });
 
-  const islandTour = await prisma.category.create({
+  const islandTours = await prisma.category.create({
     data: {
-      name: "Island Tour",
-      slug: "island-tour",
+      name: "Island Tours",
+      slug: "island-tours",
     },
   });
 
-  const waterSports = await prisma.category.create({
+  const vehicles = await prisma.category.create({
     data: {
-      name: "Water Sports",
-      slug: "water-sports",
+      name: "Vehicles",
+      slug: "vehicles",
     },
   });
 
@@ -52,7 +52,7 @@ async function main() {
     data: {
       name: "Buggy Car Rental",
       slug: "buggy-car-rental",
-      categoryId: waterSports.id,
+      categoryId: vehicles.id,
       price: 600000, // Base "from" price (lowest tier)
       duration: "Flexible (4 Hours to 24 Hours)",
       shortDescription: "Explore Nusa Lembongan comfortably with our premium 4-seater and 7-seater buggy cars. Perfect for families and groups.",
@@ -62,7 +62,7 @@ async function main() {
         create: [
           {
             publicId: "funtrip-lembongan/buggy-car",
-            imageUrl: "https://images.unsplash.com/photo-1544923246-77307dd654ca?q=80&w=2070",
+            imageUrl: "/images/buggy.JPG",
             isPrimary: true,
           }
         ]
@@ -107,7 +107,7 @@ async function main() {
     data: {
       name: "Scooter Rental",
       slug: "scooter-rental",
-      categoryId: waterSports.id,
+      categoryId: vehicles.id,
       price: 75000,
       duration: "24 Hours",
       shortDescription: "The most flexible way to explore both Nusa Lembongan and Nusa Ceningan. High-quality scooters available.",
@@ -117,7 +117,7 @@ async function main() {
         create: [
           {
             publicId: "funtrip-lembongan/scooter-rental",
-            imageUrl: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=2070",
+            imageUrl: "/images/scooter.JPG",
             isPrimary: true,
           }
         ]
@@ -159,7 +159,7 @@ async function main() {
         create: [
           {
             publicId: "funtrip-lembongan/manta-snorkeling",
-            imageUrl: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=2070",
+            imageUrl: "/images/snorkeling.png",
             isPrimary: true,
           }
         ]
@@ -192,7 +192,7 @@ async function main() {
     data: {
       name: "Lembongan Island Tour",
       slug: "lembongan-island-tour",
-      categoryId: islandTour.id,
+      categoryId: islandTours.id,
       price: 450000,
       duration: "4-5 Hours",
       shortDescription: "A comprehensive guided tour of Nusa Lembongan's most iconic landmarks.",
@@ -202,7 +202,7 @@ async function main() {
         create: [
           {
             publicId: "funtrip-lembongan/island-tour",
-            imageUrl: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?q=80&w=1200",
+            imageUrl: "/images/tour.JPG",
             isPrimary: true,
           }
         ]
@@ -235,7 +235,7 @@ async function main() {
     data: {
       name: "Nusa Penida West Day Tour",
       slug: "nusa-penida-west-day-tour",
-      categoryId: islandTour.id,
+      categoryId: islandTours.id,
       price: 600000,
       duration: "Full Day (8 Hours)",
       shortDescription: "Discover the iconic Kelingking Beach, Broken Beach, and Angel's Billabong on the West side of Nusa Penida.",
@@ -245,7 +245,7 @@ async function main() {
         create: [
           {
             publicId: "funtrip-lembongan/kelingking-beach",
-            imageUrl: "https://images.unsplash.com/photo-1559628233-eb1b1a45564b?q=80&w=1964",
+            imageUrl: "/images/island2.jpg",
             isPrimary: true,
           }
         ]

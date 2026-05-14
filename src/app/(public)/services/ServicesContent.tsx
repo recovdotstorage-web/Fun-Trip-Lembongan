@@ -14,7 +14,7 @@ export default function ServicesContent({ services, exchangeRate }: ServicesCont
   const waMessage = encodeURIComponent("Hi Fun Trip Lembongan, I'd like to plan a custom trip.");
 
   return (
-    <div className="bg-[#FDFBF7] min-h-screen pt-24 pb-24">
+    <div className="bg-[#FDFBF7] min-h-screen pt-24">
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden border-b border-zinc-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -90,7 +90,7 @@ export default function ServicesContent({ services, exchangeRate }: ServicesCont
       </section>
 
       {/* Booking CTA */}
-      <section className="bg-zinc-900 py-24">
+      <section className="bg-zinc-950 py-24">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl text-white font-medium mb-8 font-[family-name:var(--font-outfit)] leading-tight">
             Want a Custom Itinerary?

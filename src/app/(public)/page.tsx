@@ -2,6 +2,7 @@ import { HomePageClient } from "@/components/home/HomePageClient";
 import { Metadata } from "next";
 import { CONTACT_INFO } from "@/constants/contact";
 import { activityRepo } from "@/repositories/activity.repo";
+import { blogPostRepo } from "@/repositories/blog-post.repo";
 import { getIDRtoUSDRate } from "@/lib/exchange-rate";
 
 export const metadata: Metadata = {
@@ -17,16 +18,22 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [servicesData, rate] = await Promise.all([
+  const [servicesData, blogData, rate] = await Promise.all([
     activityRepo.findMany({
       where: { status: "PUBLISHED" },
       orderBy: { createdAt: "asc" },
       take: 8,
     }),
+    blogPostRepo.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+    }),
     getIDRtoUSDRate(),
   ]);
   
   const { data: services } = servicesData;
+  const { data: posts } = blogData;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -75,7 +82,7 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <HomePageClient services={services} exchangeRate={rate} />
+      <HomePageClient services={services} posts={posts} exchangeRate={rate} />
     </>
   );
 }

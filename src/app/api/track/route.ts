@@ -14,11 +14,21 @@ export async function POST(req: Request) {
     }
 
     const userAgent = req.headers.get("user-agent") || "Unknown";
-    
+
     // Country detection from common headers (Vercel, Cloudflare, etc.)
-    const countryCode = req.headers.get("x-vercel-ip-country") || 
-                       req.headers.get("cf-ipcountry") || 
-                       "ID";
+    const countryCode = req.headers.get("x-vercel-ip-country") ||
+      req.headers.get("cf-ipcountry") ||
+      "ID";
+
+    // Resolve country name from code
+    let countryName = "Indonesia";
+    try {
+      if (countryCode !== "ID") {
+        countryName = new Intl.DisplayNames(['en'], { type: 'region' }).of(countryCode) || "Foreign";
+      }
+    } catch (e) {
+      countryName = countryCode === "ID" ? "Indonesia" : "Foreign";
+    }
 
     // Insert visitor log
     await prisma.visitorLog.create({
@@ -27,7 +37,7 @@ export async function POST(req: Request) {
         userAgent,
         path: path || "/",
         countryCode: countryCode,
-        country: countryCode === "ID" ? "Indonesia" : "Foreign",
+        country: countryName,
       },
     });
 
