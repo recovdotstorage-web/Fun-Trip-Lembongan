@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Fun Trip Lembongan — Best Tours & Snorkeling Nusa Lembongan",
+    title: "Fun Trip Lembongan - Best Tours & Snorkeling Nusa Lembongan",
     description: "Discover premium snorkeling, mangrove tours, and island hopping in Nusa Lembongan. Book your Bali adventure today!",
     url: baseUrl,
     siteName: "Fun Trip Lembongan",
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Fun Trip Lembongan — Best Tours & Snorkeling Nusa Lembongan",
+    title: "Fun Trip Lembongan - Best Tours & Snorkeling Nusa Lembongan",
     description: "Discover premium snorkeling, mangrove tours, and island hopping in Nusa Lembongan.",
     images: [`${baseUrl}/images/hero.png`],
   },
@@ -72,6 +72,7 @@ export const metadata: Metadata = {
 
 import { LoadingProvider } from "@/components/ui/LoadingProvider";
 import { Analytics } from "@vercel/analytics/react";
+import { VisitorTracker } from "@/components/VisitorTracker";
 
 export default function RootLayout({
   children,
@@ -91,7 +92,7 @@ export default function RootLayout({
               "image": `${baseUrl}/images/hero.png`,
               "@id": baseUrl,
               "url": baseUrl,
-              "telephone": "+6281234567890", // Placeholder, check if real one exists later
+              "telephone": "+6281234567890",
               "address": {
                 "@type": "PostalAddress",
                 "streetAddress": "Nusa Lembongan",
@@ -102,8 +103,8 @@ export default function RootLayout({
               },
               "geo": {
                 "@type": "GeoCoordinates",
-                "latitude": -8.6757,
-                "longitude": 115.4468
+                "latitude": -8.6673,
+                "longitude": 115.4497
               },
               "description": "Premium tours and snorkeling services in Nusa Lembongan, Bali.",
               "openingHoursSpecification": {
@@ -130,6 +131,7 @@ export default function RootLayout({
       <body className="font-sans antialiased bg-white text-gray-900">
         <LoadingProvider>
           {children}
+          <VisitorTracker />
           <Analytics />
         </LoadingProvider>
       </body>

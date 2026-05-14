@@ -16,6 +16,7 @@ async function main() {
   console.log("Seeding database...");
 
   // Clean up existing data
+  await prisma.activityPriceTier.deleteMany();
   await prisma.activityInclude.deleteMany();
   await prisma.activityExclude.deleteMany();
   await prisma.activityItinerary.deleteMany();
@@ -52,10 +53,10 @@ async function main() {
       name: "Buggy Car Rental",
       slug: "buggy-car-rental",
       categoryId: waterSports.id,
-      price: 150000,
-      duration: "Full Day",
-      shortDescription: "Explore Nusa Lembongan comfortably with our premium buggy cars. Perfect for families and groups.",
-      description: "Our Buggy Car Rental provides the ultimate comfort for island exploration. These vehicles are easy to drive and perfect for navigating the scenic roads of Nusa Lembongan. Please note that buggy cars cannot cross the Yellow Bridge to Nusa Ceningan due to weight restrictions.",
+      price: 600000, // Base "from" price (lowest tier)
+      duration: "Flexible (4 Hours to 24 Hours)",
+      shortDescription: "Explore Nusa Lembongan comfortably with our premium 4-seater and 7-seater buggy cars. Perfect for families and groups.",
+      description: "Our Buggy Car Rental provides the ultimate comfort for island exploration. These vehicles are easy to drive and perfect for navigating the scenic roads of Nusa Lembongan. We offer two types: 4-seater for couples and small families, and 7-seater for larger groups. Rental durations are flexible, ranging from 4-5 hours, 12 hours, up to a full 24 hours. Please note that buggy cars cannot cross the Yellow Bridge to Nusa Ceningan due to weight restrictions.",
       status: "PUBLISHED",
       images: {
         create: [
@@ -70,7 +71,6 @@ async function main() {
         create: [
           { item: "Fuel Included" },
           { item: "Free Delivery/Pickup" },
-          { item: "4-6 Seater Capacity" },
           { item: "Safety Instruction" }
         ]
       },
@@ -82,10 +82,22 @@ async function main() {
       },
       itineraries: {
         create: [
-          { stepOrder: 1, title: "Pickup", description: "Collect your buggy from our office or have it delivered to your hotel." },
-          { stepOrder: 2, title: "Island Exploration", description: "Drive to Dream Beach, Devil's Tear, and Panorama Point." },
+          { stepOrder: 1, title: "Pickup", description: "Collect your 4-seater or 7-seater buggy from our office or have it delivered to your hotel." },
+          { stepOrder: 2, title: "Island Exploration", description: "Drive to Dream Beach, Devil's Tear, and Panorama Point at your own pace." },
           { stepOrder: 3, title: "Lunch Break", description: "Stop at any local restaurant of your choice." },
-          { stepOrder: 4, title: "Sunset at Mushroom Bay", description: "End your day with a beautiful sunset view." }
+          { stepOrder: 4, title: "Sunset at Mushroom Bay", description: "End your day with a beautiful sunset view before returning the buggy." }
+        ]
+      },
+      priceTiers: {
+        create: [
+          // 4-Seater tiers
+          { tierGroup: "4-Seater", tierLabel: "4-5 Hours", price: 600000, sortOrder: 1 },
+          { tierGroup: "4-Seater", tierLabel: "12 Hours", price: 900000, sortOrder: 2 },
+          { tierGroup: "4-Seater", tierLabel: "24 Hours", price: 1300000, sortOrder: 3 },
+          // 7-Seater tiers
+          { tierGroup: "7-Seater", tierLabel: "4-5 Hours", price: 800000, sortOrder: 4 },
+          { tierGroup: "7-Seater", tierLabel: "12 Hours", price: 1200000, sortOrder: 5 },
+          { tierGroup: "7-Seater", tierLabel: "24 Hours", price: 1500000, sortOrder: 6 },
         ]
       }
     }
@@ -303,13 +315,11 @@ async function main() {
     where: { email: adminEmail },
     update: {
       password: hashedPassword,
-      role: "ADMIN",
     },
     create: {
       email: adminEmail,
-      name: "Admin Vanguard",
+      name: "Admin",
       password: hashedPassword,
-      role: "ADMIN",
     },
   });
 

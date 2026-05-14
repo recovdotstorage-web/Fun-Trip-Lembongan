@@ -1,23 +1,15 @@
 "use client";
 
 import { useState, Suspense, useEffect, useTransition } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Lock, Mail, Loader2, ArrowLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { sanitizeString } from "@/lib/utils/sanitization";
+import { loginAction } from "./actions";
 
-/**
- * Vanguard_UI_Architect Persona
- * Objective: $150k+ agency-level Admin Login
- * Archetype: Editorial Split + Editorial Luxury Vibe
- */
 
 function LoginForm() {
-  const router = useRouter();
   const params = useSearchParams();
-  const callbackUrl = params.get("callbackUrl") || "/admin/dashboard";
   const authError = params.get("error");
 
   const [email, setEmail] = useState("");
@@ -40,25 +32,22 @@ function LoginForm() {
     e.preventDefault();
     setError("");
 
-    const sanitizedEmail = sanitizeString(email);
-    const sanitizedPassword = sanitizeString(password);
+    const fd = new FormData();
+    fd.set("email", email.trim());
+    fd.set("password", password);
 
     startTransition(async () => {
       try {
-        const res = await signIn("credentials", {
-          email: sanitizedEmail,
-          password: sanitizedPassword,
-          redirect: false,
-        });
-
-        if (res?.error) {
-          setError("The credentials provided do not match our records.");
-        } else {
-          router.push(callbackUrl);
-          router.refresh();
+        const result = await loginAction(fd);
+        if (result?.error) {
+          setError(result.error);
         }
-      } catch (err) {
-        setError("An unexpected authentication error occurred.");
+      } catch (err: any) {
+        // NEXT_REDIRECT is expected on success — it means redirect is happening
+        if (err?.digest?.includes("NEXT_REDIRECT")) {
+          return;
+        }
+        setError("An unexpected error occurred. Please try again.");
       }
     });
   }

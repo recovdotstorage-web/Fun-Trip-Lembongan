@@ -32,6 +32,7 @@ model Activity {
   itineraries ActivityItinerary[]
   includes    ActivityInclude[]
   excludes    ActivityExclude[]
+  priceTiers  ActivityPriceTier[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -71,6 +72,16 @@ model ActivityExclude {
   item       String
 }
 
+model ActivityPriceTier {
+  id         String   @id @default(cuid())
+  activityId String
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  tierGroup  String   // e.g. "4-Seater", "7-Seater"
+  tierLabel  String   // e.g. "4-5 Hours", "12 Hours", "24 Hours"
+  price      Int
+  sortOrder  Int      @default(0)
+}
+
 
 
 
@@ -96,53 +107,9 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  role          String    @default("USER")
-  accounts      Account[]
-  sessions      Session[]
-
+  role          String    @default("ADMIN")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
-
-  @@unique([identifier, token])
 }
 
 model AuditLog {

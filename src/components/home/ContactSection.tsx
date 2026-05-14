@@ -5,6 +5,7 @@ import { MapPin, Phone, Send } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { sanitizeObject } from "@/lib/utils/sanitization";
+import { CONTACT_INFO } from "@/constants/contact";
 
 
 const springTransition = {
@@ -93,7 +94,7 @@ export function ContactSection({ onWaClick }: ContactSectionProps) {
 
             <div className="space-y-6">
               <a
-                href="https://www.google.com/maps/search/?api=1&query=Jl.+Jungutbatu,+Nusa+Lembongan,+Bali+80771"
+                href={CONTACT_INFO.maps}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-start cursor-pointer hover:bg-zinc-800/40 p-2 -ml-2 transition-colors border border-transparent hover:border-zinc-700/50 backdrop-blur-sm group"
@@ -104,7 +105,7 @@ export function ContactSection({ onWaClick }: ContactSectionProps) {
                 <div>
                   <h4 className="font-medium text-xl mb-1 text-white">Our Location</h4>
                   <p className="text-zinc-400 font-light text-sm group-hover:text-zinc-300 transition-colors">
-                    Jl. Jungutbatu, Nusa Lembongan,
+                    Jungutbatu, Nusa Lembongan,
                     <br />
                     Klungkung Regency, Bali 80771{" "}
                     <span className="text-zinc-500 text-xs font-light block mt-1">
@@ -215,6 +216,27 @@ export function ContactSection({ onWaClick }: ContactSectionProps) {
               </button>
             </form>
           </motion.div>
+        </motion.div>
+
+        {/* Map Iframe */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ ...springTransition, delay: 0.3 }}
+          className="mt-20 w-full h-[450px] relative transition-all duration-700 border border-zinc-800"
+        >
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3944.254601975966!2d115.4496539!3d-8.6673198!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd26d73334d4f53%3A0xd72eb7a6a6144340!2sD%20and%20yoga%20guesthouse!5e0!3m2!1sid!2sid!4v1778740461252!5m2!1sid!2sid"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Fun Trip Lembongan Location"
+          />
+          <div className="absolute inset-0 pointer-events-none ring-1 ring-inset ring-white/10" />
         </motion.div>
       </div>
     </section>

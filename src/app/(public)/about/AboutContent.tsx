@@ -171,8 +171,29 @@ export default function AboutContent() {
               </h2>
               <div className="space-y-6 text-lg text-zinc-600 leading-relaxed">
                 <p>
-                  Founded in 2016 by Trisna, Fun Trip Lembongan began as a humble family-run service. Initially transitioning from local craftsmanship, our founder envisioned a tourism model where visitors could explore the island&apos;s hidden gems safely while directly supporting the local community.
+                  Fun Trip Lembongan can be your perfect travel partner to enjoy the beauty of Nusa Lembongan and Nusa Penida islands in an easy and fun way. We offer various exciting tour packages designed to provide the best experience during your Nusa Lembongan and Nusa Penida tours.
                 </p>
+                <p>
+                  We provide packages ranging from relaxing activities to thrilling sea adventures. We offer various tour packages, such as snorkeling trips, island tours of Nusa Lembongan and Nusa Penida, and full-day trips, all with complete facilities throughout the tour, including the Nusa Lembongan Snorkeling Trip. Each package is carefully designed so you can enjoy the best beauty of Nusa Lembongan island.
+                </p>
+                <p>
+                  We also provide vehicle rentals such as Buggy cars, scooters, and scooter drivers, supported by our highly adequate facilities. Especially for Buggy Cars, we provide 2 types of choices: <strong>4 Seater</strong> and <strong>7 Seater</strong>, which can be tailored to the needs of your group.
+                </p>
+                
+                <div className="pt-4">
+                  <h3 className="text-xl font-[family-name:var(--font-outfit)] font-semibold text-zinc-950 mb-4">Our Location</h3>
+                  <div className="rounded-xl overflow-hidden border border-zinc-200 shadow-sm bg-zinc-100">
+                    <iframe 
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3944.254601975966!2d115.4496539!3d-8.6673198!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd26d73334d4f53%3A0xd72eb7a6a6144340!2sD%20and%20yoga%20guesthouse!5e0!3m2!1sid!2sid!4v1778740461252!5m2!1sid!2sid" 
+                      width="100%" 
+                      height="300" 
+                      style={{ border: 0 }} 
+                      allowFullScreen={true} 
+                      loading="lazy" 
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  </div>
+                </div>
               </div>
             </motion.div>
 

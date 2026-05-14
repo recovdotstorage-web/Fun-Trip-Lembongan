@@ -17,10 +17,10 @@ cloudinary.config({
 
 async function requireAdmin() {
   const session = await auth();
-  if (!session?.user || (session.user as any)?.role !== "ADMIN") {
+  if (!session?.user) {
     throw new Error("Unauthorized");
   }
-  return session as any;
+  return session;
 }
 
 function buildSlug(title: string) {

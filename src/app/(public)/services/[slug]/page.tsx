@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { activityRepo } from "@/repositories/activity.repo";
+import { getIDRtoUSDRate } from "@/lib/exchange-rate";
 import ServiceDetailContent from "./ServiceDetailContent";
 
 export const revalidate = 60;
@@ -26,7 +27,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ServiceDetailPage({ params }: Props) {
   const { slug } = await params;
-  const activity = await activityRepo.findBySlug(slug);
+  const [activity, exchangeRate] = await Promise.all([
+    activityRepo.findBySlug(slug),
+    getIDRtoUSDRate(),
+  ]);
 
   if (!activity || activity.status !== "PUBLISHED") {
     notFound();
@@ -55,7 +59,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ServiceDetailContent activity={activity} />
+      <ServiceDetailContent activity={activity} exchangeRate={exchangeRate} />
     </>
   );
 }

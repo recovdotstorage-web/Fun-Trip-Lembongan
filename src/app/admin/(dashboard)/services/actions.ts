@@ -17,10 +17,10 @@ cloudinary.config({
 
 async function requireAdmin() {
   const session = await auth();
-  if (!session?.user || (session.user as any)?.role !== "ADMIN") {
+  if (!session?.user) {
     throw new Error("Unauthorized");
   }
-  return session as any;
+  return session;
 }
 
 function buildSlug(name: string) {
@@ -42,6 +42,12 @@ export async function createService(formData: FormData) {
   const includes = (formData.getAll("includes") as string[]).map(s => sanitizeString(s)).filter(Boolean);
   const excludes = (formData.getAll("excludes") as string[]).map(s => sanitizeString(s)).filter(Boolean);
   const imageFiles = formData.getAll("images") as File[];
+
+  // Parse price tiers JSON
+  const priceTiersRaw = formData.get("priceTiers") as string | null;
+  const priceTiers: { tierGroup: string; tierLabel: string; price: number; sortOrder: number }[] = priceTiersRaw
+    ? JSON.parse(priceTiersRaw)
+    : [];
 
   let slug = buildSlug(name);
   const existing = await prisma.activity.findUnique({ where: { slug } });
@@ -90,6 +96,14 @@ export async function createService(formData: FormData) {
       images: {
         create: uploadedImages,
       },
+      priceTiers: {
+        create: priceTiers.map((tier) => ({
+          tierGroup: tier.tierGroup,
+          tierLabel: tier.tierLabel,
+          price: tier.price,
+          sortOrder: tier.sortOrder,
+        })),
+      },
     },
   });
 
@@ -101,7 +115,7 @@ export async function createService(formData: FormData) {
   });
 
   revalidatePath("/admin/services");
-  revalidatePath("/services");
+  revalidatePath("/services", "layout");
   redirect("/admin/services");
 }
 
@@ -120,9 +134,16 @@ export async function updateService(id: string, formData: FormData) {
   const includes = (formData.getAll("includes") as string[]).map(s => sanitizeString(s)).filter(Boolean);
   const excludes = (formData.getAll("excludes") as string[]).map(s => sanitizeString(s)).filter(Boolean);
 
+  // Parse price tiers JSON
+  const priceTiersRaw = formData.get("priceTiers") as string | null;
+  const priceTiers: { tierGroup: string; tierLabel: string; price: number; sortOrder: number }[] = priceTiersRaw
+    ? JSON.parse(priceTiersRaw)
+    : [];
+
   await prisma.$transaction([
     prisma.activityInclude.deleteMany({ where: { activityId: id } }),
     prisma.activityExclude.deleteMany({ where: { activityId: id } }),
+    prisma.activityPriceTier.deleteMany({ where: { activityId: id } }),
     prisma.activity.update({
       where: { id },
       data: {
@@ -140,6 +161,14 @@ export async function updateService(id: string, formData: FormData) {
         excludes: {
           create: excludes.map((item) => ({ item })),
         },
+        priceTiers: {
+          create: priceTiers.map((tier) => ({
+            tierGroup: tier.tierGroup,
+            tierLabel: tier.tierLabel,
+            price: tier.price,
+            sortOrder: tier.sortOrder,
+          })),
+        },
       },
     }),
   ]);
@@ -151,9 +180,15 @@ export async function updateService(id: string, formData: FormData) {
     entityName: name,
   });
 
+  // Fetch slug for revalidation of the detail page
+  const updated = await prisma.activity.findUnique({ where: { id }, select: { slug: true } });
+
   revalidatePath("/admin/services");
   revalidatePath(`/admin/services/${id}/edit`);
-  revalidatePath("/services");
+  revalidatePath("/services", "layout");
+  if (updated?.slug) {
+    revalidatePath(`/services/${updated.slug}`);
+  }
   redirect("/admin/services");
 }
 
@@ -178,7 +213,10 @@ export async function deleteService(id: string) {
   });
 
   revalidatePath("/admin/services");
-  revalidatePath("/services");
+  revalidatePath("/services", "layout");
+  if (existing.slug) {
+    revalidatePath(`/services/${existing.slug}`);
+  }
   redirect("/admin/services");
 }
 
@@ -223,8 +261,10 @@ export async function uploadServiceImage(
     },
   });
 
+  const svc = await prisma.activity.findUnique({ where: { id: serviceId }, select: { slug: true } });
   revalidatePath(`/admin/services/${serviceId}/edit`);
-  revalidatePath("/services");
+  revalidatePath("/services", "layout");
+  if (svc?.slug) revalidatePath(`/services/${svc.slug}`);
 }
 
 export async function deleteServiceImage(imageId: string, serviceId: string) {
@@ -236,8 +276,10 @@ export async function deleteServiceImage(imageId: string, serviceId: string) {
   await cloudinary.uploader.destroy(image.publicId).catch(() => { });
   await prisma.activityImage.delete({ where: { id: imageId } });
 
+  const svc = await prisma.activity.findUnique({ where: { id: serviceId }, select: { slug: true } });
   revalidatePath(`/admin/services/${serviceId}/edit`);
-  revalidatePath("/services");
+  revalidatePath("/services", "layout");
+  if (svc?.slug) revalidatePath(`/services/${svc.slug}`);
 }
 
 export async function setPrimaryImage(imageId: string, serviceId: string) {

@@ -10,10 +10,10 @@ import { sanitizeString } from "@/lib/utils/sanitization";
 
 async function requireAdmin() {
   const session = await auth();
-  if (!session?.user || (session.user as any)?.role !== "ADMIN") {
+  if (!session || !session.user) {
     throw new Error("Unauthorized");
   }
-  return session as any;
+  return session as { user: { id: string; email: string; name?: string | null } };
 }
 
 export async function createUser(formData: FormData) {
@@ -22,7 +22,6 @@ export async function createUser(formData: FormData) {
   const name = sanitizeString(formData.get("name") as string);
   const email = sanitizeString(formData.get("email") as string);
   const password = formData.get("password") as string;
-  const role = (formData.get("role") as string) || "USER";
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) throw new Error("Email already in use");
@@ -30,7 +29,7 @@ export async function createUser(formData: FormData) {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.create({
-    data: { name, email, password: hashedPassword, role },
+    data: { name, email, password: hashedPassword },
   });
 
   await recordAuditLog({
@@ -49,10 +48,9 @@ export async function updateUser(id: string, formData: FormData) {
 
   const name = sanitizeString(formData.get("name") as string);
   const email = sanitizeString(formData.get("email") as string);
-  const role = formData.get("role") as string;
   const newPassword = (formData.get("password") as string)?.trim();
 
-  const data: Record<string, string> = { name, email, role };
+  const data: Record<string, string> = { name, email };
   if (newPassword && newPassword.length > 0) {
     data.password = await bcrypt.hash(newPassword, 10);
   }
@@ -70,23 +68,6 @@ export async function updateUser(id: string, formData: FormData) {
   redirect("/admin/users");
 }
 
-export async function updateUserRole(userId: string, role: string) {
-  await requireAdmin();
-
-  const user = await prisma.user.update({
-    where: { id: userId },
-    data: { role },
-  });
-
-  await recordAuditLog({
-    action: "UPDATE",
-    entity: "User",
-    entityId: user.id,
-    entityName: user.email || user.name || "Unknown",
-  });
-
-  revalidatePath("/admin/users");
-}
 
 export async function deleteUser(userId: string) {
   const session = await requireAdmin();
