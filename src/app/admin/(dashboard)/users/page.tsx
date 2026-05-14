@@ -117,7 +117,6 @@ export default async function UsersManagementPage({
               <thead>
                 <tr className="border-b border-zinc-50">
                   <th className="px-10 py-6 text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">User</th>
-                  <th className="px-10 py-6 text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Role</th>
                   <th className="px-10 py-6 text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Joined</th>
                   <th className="px-10 py-6 text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] text-right">Actions</th>
                 </tr>
@@ -141,16 +140,7 @@ export default async function UsersManagementPage({
                         </div>
                       </div>
                     </td>
-                    <td className="px-10 py-6">
-                      <span className={`px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit ${
-                        user.role === "ADMIN"
-                          ? "bg-emerald-50 text-emerald-600"
-                          : "bg-zinc-50 text-zinc-400"
-                      }`}>
-                        <Shield className="w-3 h-3" />
-                        {user.role}
-                      </span>
-                    </td>
+
                     <td className="px-10 py-6 text-[10px] text-zinc-300 font-bold uppercase tracking-widest">
                       <span className="flex items-center gap-1.5">
                         <Calendar className="w-3 h-3" />
@@ -186,12 +176,6 @@ export default async function UsersManagementPage({
                     <p className="text-sm font-bold text-zinc-900 truncate">{user.name || "—"}</p>
                     <p className="text-[10px] text-zinc-400 mt-0.5 truncate">{user.email}</p>
                   </div>
-                  <span className={`px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 shrink-0 ${
-                    user.role === "ADMIN" ? "bg-emerald-50 text-emerald-600" : "bg-zinc-50 text-zinc-400"
-                  }`}>
-                    <Shield className="w-3 h-3" />
-                    {user.role}
-                  </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <EditButton href={`/admin/users/${user.id}/edit`} variant="full" label="Edit User" />

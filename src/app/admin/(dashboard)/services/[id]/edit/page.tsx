@@ -16,6 +16,7 @@ export default async function EditServicePage({ params }: Props) {
         images: { orderBy: { isPrimary: "desc" } },
         includes: true,
         excludes: true,
+        priceTiers: { orderBy: { sortOrder: "asc" } },
       },
     }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),

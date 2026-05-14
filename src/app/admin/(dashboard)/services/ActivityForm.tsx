@@ -3,7 +3,7 @@
 import { useState, useTransition, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, Loader2, ImagePlus, Star, X, Info } from "lucide-react";
+import { Plus, Trash2, Loader2, ImagePlus, Star, X, Info, Users } from "lucide-react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { ConfirmationModal } from "@/components/admin/ConfirmationModal";
 import {
@@ -13,7 +13,7 @@ import {
   deleteServiceImage,
   setPrimaryImage,
 } from "./actions";
-import type { Activity, ActivityImage, Category } from "@prisma/client";
+import type { Activity, ActivityImage, ActivityPriceTier, Category } from "@prisma/client";
 
 type Props = {
   categories: Category[];
@@ -21,6 +21,7 @@ type Props = {
     images: ActivityImage[];
     includes: { id: string; item: string }[];
     excludes: { id: string; item: string }[];
+    priceTiers: ActivityPriceTier[];
   };
 };
 
@@ -36,6 +37,22 @@ export function ActivityForm({ categories, activity }: Props) {
   );
   const [images, setImages] = useState<ActivityImage[]>(
     activity?.images ?? []
+  );
+
+  // Price Tiers state
+  interface PriceTierEntry {
+    tierGroup: string;
+    tierLabel: string;
+    price: string; // stored as string for input, converted on submit
+    sortOrder: number;
+  }
+  const [priceTiers, setPriceTiers] = useState<PriceTierEntry[]>(
+    activity?.priceTiers.map((t) => ({
+      tierGroup: t.tierGroup,
+      tierLabel: t.tierLabel,
+      price: (t.price / 100).toString(),
+      sortOrder: t.sortOrder,
+    })) ?? []
   );
   
   // Local state for new images (creation mode or adding before saving)
@@ -87,6 +104,17 @@ export function ActivityForm({ categories, activity }: Props) {
     // includes / excludes added individually
     includes.forEach((v) => fd.append("includes", v));
     excludes.forEach((v) => fd.append("excludes", v));
+
+    // price tiers as JSON
+    const tiersPayload = priceTiers
+      .filter((t) => t.tierGroup && t.tierLabel && t.price)
+      .map((t, i) => ({
+        tierGroup: t.tierGroup,
+        tierLabel: t.tierLabel,
+        price: Math.round(parseFloat(t.price) * 100),
+        sortOrder: t.sortOrder ?? i,
+      }));
+    fd.set("priceTiers", JSON.stringify(tiersPayload));
     
     // add local files to the same formData for creation
     localFiles.forEach((lf) => fd.append("images", lf.file));
@@ -101,8 +129,10 @@ export function ActivityForm({ categories, activity }: Props) {
           await createService(fd);
         }
       } catch (err: any) {
-        // Next.js redirect is not an error
-        if (err.message === "NEXT_REDIRECT") return;
+        // Next.js redirect is not an error, we must re-throw it so the router can redirect
+        if (err.message && err.message.includes("NEXT_REDIRECT")) {
+          throw err;
+        }
         console.error(err);
       }
     });
@@ -487,6 +517,127 @@ export function ActivityForm({ categories, activity }: Props) {
                 </button>
               </section>
             </div>
+
+            {/* Price Tiers / Packages */}
+            <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 space-y-6">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center">
+                  <Users className="w-4 h-4 text-amber-600" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 tracking-tight">
+                    Price Packages
+                  </h2>
+                  <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">
+                    Optional — for multi-tier pricing (e.g. Buggy rentals)
+                  </p>
+                </div>
+              </div>
+
+              {priceTiers.length > 0 && (
+                <div className="space-y-4">
+                  {priceTiers.map((tier, i) => (
+                    <div
+                      key={i}
+                      className="p-4 border border-gray-100 rounded-xl bg-gray-50/50 space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                          Tier #{i + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setPriceTiers((prev) => prev.filter((_, idx) => idx !== i))
+                          }
+                          className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                            Group
+                          </label>
+                          <input
+                            type="text"
+                            value={tier.tierGroup}
+                            onChange={(e) =>
+                              setPriceTiers((prev) =>
+                                prev.map((t, idx) =>
+                                  idx === i ? { ...t, tierGroup: e.target.value } : t
+                                )
+                              )
+                            }
+                            placeholder="e.g. 4-Seater"
+                            className={inputCls}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                            Duration
+                          </label>
+                          <input
+                            type="text"
+                            value={tier.tierLabel}
+                            onChange={(e) =>
+                              setPriceTiers((prev) =>
+                                prev.map((t, idx) =>
+                                  idx === i ? { ...t, tierLabel: e.target.value } : t
+                                )
+                              )
+                            }
+                            placeholder="e.g. 4-5 Hours"
+                            className={inputCls}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                            Price (IDR ÷100)
+                          </label>
+                          <input
+                            type="number"
+                            min={0}
+                            step={0.01}
+                            value={tier.price}
+                            onChange={(e) =>
+                              setPriceTiers((prev) =>
+                                prev.map((t, idx) =>
+                                  idx === i ? { ...t, price: e.target.value } : t
+                                )
+                              )
+                            }
+                            placeholder="e.g. 6000"
+                            className={inputCls}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() =>
+                  setPriceTiers((prev) => [
+                    ...prev,
+                    { tierGroup: "", tierLabel: "", price: "", sortOrder: prev.length },
+                  ])
+                }
+                className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-gray-100 rounded-xl text-sm font-bold text-gray-400 hover:border-amber-200 hover:text-amber-600 hover:bg-amber-50/30 transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                Add Price Tier
+              </button>
+
+              {priceTiers.length === 0 && (
+                <p className="text-xs text-gray-400 text-center">
+                  No price tiers added. The base price above will be used.
+                </p>
+              )}
+            </section>
           </form>
         </div>
 

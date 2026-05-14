@@ -34,6 +34,7 @@ export const activityRepo = {
         itineraries: { orderBy: { stepOrder: "asc" } },
         includes: true,
         excludes: true,
+        priceTiers: { orderBy: { sortOrder: "asc" } },
       },
     });
   },
@@ -47,6 +48,7 @@ export const activityRepo = {
         itineraries: { orderBy: { stepOrder: "asc" } },
         includes: true,
         excludes: true,
+        priceTiers: { orderBy: { sortOrder: "asc" } },
       },
     });
   },

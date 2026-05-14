@@ -10,7 +10,7 @@ type User = {
   id: string;
   name: string | null;
   email: string | null;
-  role: string;
+  role?: string | null;
 };
 
 type Props = {
@@ -85,6 +85,21 @@ export function UserForm({ user }: Props) {
               </div>
             </div>
 
+            {/* Role (Read-only for now) */}
+            <div className="px-8 md:px-12 py-8 md:py-10 flex flex-col md:flex-row gap-4 md:gap-12 md:items-start">
+              <div className="md:w-52 shrink-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">Role</p>
+              </div>
+              <div className="flex-1 max-w-lg">
+                <input
+                  name="role"
+                  readOnly
+                  defaultValue={user?.role ?? "ADMIN"}
+                  className="w-full px-5 py-3.5 text-sm text-zinc-400 bg-zinc-50/50 border border-zinc-50 rounded-2xl cursor-not-allowed"
+                />
+              </div>
+            </div>
+
             {/* Password */}
             <div className="px-8 md:px-12 py-8 md:py-10 flex flex-col md:flex-row gap-4 md:gap-12 md:items-start">
               <div className="md:w-52 shrink-0">
@@ -115,26 +130,6 @@ export function UserForm({ user }: Props) {
                     {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-              </div>
-            </div>
-
-            {/* Role */}
-            <div className="px-8 md:px-12 py-8 md:py-10 flex flex-col md:flex-row gap-4 md:gap-12 md:items-start">
-              <div className="md:w-52 shrink-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">Role</p>
-                <p className="text-[9px] text-zinc-300 mt-1 leading-relaxed">
-                  Admin can access all management pages
-                </p>
-              </div>
-              <div className="flex-1 max-w-lg">
-                <select
-                  name="role"
-                  defaultValue={user?.role ?? "USER"}
-                  className="w-full px-5 py-3.5 text-sm text-zinc-900 bg-zinc-50 border border-zinc-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:bg-white transition-all appearance-none"
-                >
-                  <option value="USER">User</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
               </div>
             </div>
           </div>

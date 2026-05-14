@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, Variants } from "framer-motion";
+import { useState, useMemo } from "react";
+import { motion, Variants, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -13,20 +14,69 @@ import {
   Share2,
   Calendar,
   Info,
+  Users,
 } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatUSD } from "@/lib/utils";
 import { CONTACT_INFO } from "@/constants/contact";
+
+interface PriceTier {
+  id: string;
+  tierGroup: string;
+  tierLabel: string;
+  price: number;
+  sortOrder: number;
+}
 
 interface ServiceDetailContentProps {
   activity: any;
+  exchangeRate: number;
 }
 
-export default function ServiceDetailContent({ activity }: ServiceDetailContentProps) {
+export default function ServiceDetailContent({ activity, exchangeRate }: ServiceDetailContentProps) {
   const primaryImage = activity.images.find((img: any) => img.isPrimary) ?? activity.images[0];
+  const priceTiers: PriceTier[] = activity.priceTiers ?? [];
+  const hasTiers = priceTiers.length > 0;
 
-  const waMessage = encodeURIComponent(
-    `Hi Fun Trip Lembongan! 👋\nI'm interested in booking:\n*${activity.name}*\n\nCould you please provide more details?`
+  // Derive unique tier groups (e.g., "4-Seater", "7-Seater")
+  const tierGroups = useMemo(() => {
+    const groups: string[] = [];
+    priceTiers.forEach((t) => {
+      if (!groups.includes(t.tierGroup)) groups.push(t.tierGroup);
+    });
+    return groups;
+  }, [priceTiers]);
+
+  const [selectedGroup, setSelectedGroup] = useState(tierGroups[0] ?? "");
+
+  // Derive durations for selected group
+  const groupTiers = useMemo(
+    () => priceTiers.filter((t) => t.tierGroup === selectedGroup),
+    [priceTiers, selectedGroup]
   );
+
+  const [selectedTierId, setSelectedTierId] = useState(groupTiers[0]?.id ?? "");
+
+  // When group changes, reset to first duration of that group
+  const handleGroupChange = (group: string) => {
+    setSelectedGroup(group);
+    const firstTier = priceTiers.find((t) => t.tierGroup === group);
+    if (firstTier) setSelectedTierId(firstTier.id);
+  };
+
+  const activeTier = priceTiers.find((t) => t.id === selectedTierId);
+  const displayPrice = hasTiers && activeTier ? activeTier.price : activity.price;
+
+  // Build WhatsApp message
+  const waMessage = useMemo(() => {
+    if (hasTiers && activeTier) {
+      return encodeURIComponent(
+        `Hi Fun Trip Lembongan! 👋\nI'm interested in booking:\n*${activity.name}*\n\n🚗 Type: ${activeTier.tierGroup}\n⏱ Duration: ${activeTier.tierLabel}\n💰 Price: ${formatCurrency(activeTier.price)}\n\nCould you please confirm availability?`
+      );
+    }
+    return encodeURIComponent(
+      `Hi Fun Trip Lembongan! 👋\nI'm interested in booking:\n*${activity.name}*\n\nCould you please provide more details?`
+    );
+  }, [hasTiers, activeTier, activity.name]);
 
   const fadeIn: Variants = {
     initial: { opacity: 0, y: 20 },
@@ -166,6 +216,51 @@ export default function ServiceDetailContent({ activity }: ServiceDetailContentP
                     />
                   </motion.div>
                 ))}
+              </motion.div>
+            )}
+
+            {/* Pricing Table (shown only for tiered activities) */}
+            {hasTiers && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="mb-20"
+              >
+                <h2 className="text-[11px] uppercase tracking-[0.3em] font-bold text-zinc-400 mb-8 flex items-center gap-4">
+                  Pricing Packages <span className="h-px flex-grow bg-zinc-100" />
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {tierGroups.map((group) => {
+                    const tiers = priceTiers.filter((t) => t.tierGroup === group);
+                    return (
+                      <div key={group} className="border border-zinc-200 bg-white">
+                        <div className="px-6 py-4 bg-zinc-900 text-white flex items-center gap-3">
+                          <Users className="w-4 h-4" />
+                          <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold">{group}</h3>
+                        </div>
+                        <div className="divide-y divide-zinc-100">
+                          {tiers.map((tier) => (
+                            <div key={tier.id} className="flex items-center justify-between px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <Clock className="w-3.5 h-3.5 text-zinc-400" />
+                                <span className="text-sm text-zinc-600 font-light">{tier.tierLabel}</span>
+                              </div>
+                              <div className="text-right">
+                                <span className="text-base font-medium text-zinc-900 font-(family-name:--font-outfit)">
+                                  {formatCurrency(tier.price)}
+                                </span>
+                                <span className="block text-[11px] text-zinc-400 font-light">
+                                  ≈ {formatUSD(tier.price, exchangeRate)}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </motion.div>
             )}
 
@@ -316,36 +411,151 @@ export default function ServiceDetailContent({ activity }: ServiceDetailContentP
                 transition={{ delay: 0.4 }}
                 className="border border-zinc-900 bg-white p-8"
               >
-                <div className="mb-8 pb-8 border-b border-zinc-100">
-                  <p className="text-[10px] text-zinc-400 uppercase tracking-widest mb-2">
-                    Premium Experience
-                  </p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-medium text-zinc-900 font-(family-name:--font-outfit)">
-                      {formatCurrency(activity.price)}
-                    </span>
-                    <span className="text-xs text-zinc-400 uppercase tracking-widest font-light">
-                      / Person
-                    </span>
-                  </div>
-                </div>
+                {/* Price Display */}
+                {hasTiers ? (
+                  <>
+                    {/* Tier Group Selector (Buggy Type) */}
+                    <div className="mb-6">
+                      <p className="text-[10px] text-zinc-400 uppercase tracking-widest mb-3">
+                        Select Type
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {tierGroups.map((group) => (
+                          <button
+                            key={group}
+                            onClick={() => handleGroupChange(group)}
+                            className={`
+                              px-4 py-3 text-[11px] uppercase tracking-[0.15em] font-bold transition-all border
+                              ${selectedGroup === group
+                                ? "bg-zinc-900 text-white border-zinc-900"
+                                : "bg-white text-zinc-500 border-zinc-200 hover:border-zinc-400"
+                              }
+                            `}
+                          >
+                            <Users className="w-3.5 h-3.5 mx-auto mb-1.5" />
+                            {group}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-                <div className="space-y-6 mb-10">
-                  <div className="flex items-start gap-4">
-                    <Clock className="w-4 h-4 text-zinc-900 mt-1" />
-                    <div>
-                      <p className="text-[10px] uppercase tracking-widest text-zinc-400 mb-1">Time</p>
-                      <p className="text-sm font-medium text-zinc-900">{activity.duration}</p>
+                    {/* Duration Selector */}
+                    <div className="mb-6">
+                      <p className="text-[10px] text-zinc-400 uppercase tracking-widest mb-3">
+                        Select Duration
+                      </p>
+                      <div className="space-y-2">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={selectedGroup}
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            transition={{ duration: 0.2 }}
+                            className="space-y-2"
+                          >
+                            {groupTiers.map((tier) => (
+                              <button
+                                key={tier.id}
+                                onClick={() => setSelectedTierId(tier.id)}
+                                className={`
+                                  w-full flex items-center justify-between px-4 py-3 text-sm transition-all border
+                                  ${selectedTierId === tier.id
+                                    ? "bg-zinc-50 border-zinc-900 ring-1 ring-zinc-900"
+                                    : "bg-white border-zinc-200 hover:border-zinc-300"
+                                  }
+                                `}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Clock className="w-3.5 h-3.5 text-zinc-400" />
+                                  <span className={`text-[11px] uppercase tracking-wider font-medium ${selectedTierId === tier.id ? "text-zinc-900" : "text-zinc-500"}`}>
+                                    {tier.tierLabel}
+                                  </span>
+                                </div>
+                                <div className="text-right">
+                                  <span className={`font-medium font-(family-name:--font-outfit) block ${selectedTierId === tier.id ? "text-zinc-900" : "text-zinc-400"}`}>
+                                    {formatCurrency(tier.price)}
+                                  </span>
+                                  <span className="text-[10px] text-zinc-400 font-light">
+                                    ≈ {formatUSD(tier.price, exchangeRate)}
+                                  </span>
+                                </div>
+                              </button>
+                            ))}
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
+                    </div>
+
+                    {/* Active Price */}
+                    <div className="mb-8 pb-6 border-b border-zinc-100">
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={displayPrice}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.25 }}
+                        >
+                          <p className="text-[10px] text-zinc-400 uppercase tracking-widest mb-1">
+                            Total Price
+                          </p>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-4xl font-medium text-zinc-900 font-(family-name:--font-outfit)">
+                              {formatCurrency(displayPrice)}
+                            </span>
+                          </div>
+                          <p className="text-sm text-zinc-400 mt-1 font-(family-name:--font-outfit)">
+                            ≈ {formatUSD(displayPrice, exchangeRate)}
+                          </p>
+                          {activeTier && (
+                            <p className="text-xs text-zinc-400 mt-2 font-light">
+                              {activeTier.tierGroup} · {activeTier.tierLabel}
+                            </p>
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
+                  </>
+                ) : (
+                  /* Standard price display for non-tiered activities */
+                  <div className="mb-8 pb-8 border-b border-zinc-100">
+                    <p className="text-[10px] text-zinc-400 uppercase tracking-widest mb-2">
+                      Premium Experience
+                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-medium text-zinc-900 font-(family-name:--font-outfit)">
+                        {formatCurrency(activity.price)}
+                      </span>
+                      <span className="text-xs text-zinc-400 uppercase tracking-widest font-light">
+                        / Person
+                      </span>
+                    </div>
+                    <p className="text-sm text-zinc-400 mt-1 font-(family-name:--font-outfit)">
+                      ≈ {formatUSD(activity.price, exchangeRate)}
+                    </p>
+                  </div>
+                )}
+
+                {/* Quick Info (only for non-tiered) */}
+                {!hasTiers && (
+                  <div className="space-y-6 mb-10">
+                    <div className="flex items-start gap-4">
+                      <Clock className="w-4 h-4 text-zinc-900 mt-1" />
+                      <div>
+                        <p className="text-[10px] uppercase tracking-widest text-zinc-400 mb-1">Time</p>
+                        <p className="text-sm font-medium text-zinc-900">{activity.duration}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4">
+                      <MapPin className="w-4 h-4 text-zinc-900 mt-1" />
+                      <div>
+                        <p className="text-[10px] uppercase tracking-widest text-zinc-400 mb-1">Location</p>
+                        <p className="text-sm font-medium text-zinc-900">Pickup Available</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-4">
-                    <MapPin className="w-4 h-4 text-zinc-900 mt-1" />
-                    <div>
-                      <p className="text-[10px] uppercase tracking-widest text-zinc-400 mb-1">Location</p>
-                      <p className="text-sm font-medium text-zinc-900">Pickup Available</p>
-                    </div>
-                  </div>
-                </div>
+                )}
 
                 <div className="space-y-3">
                   <a
@@ -357,7 +567,6 @@ export default function ServiceDetailContent({ activity }: ServiceDetailContentP
                     <Phone className="w-4 h-4" />
                     Book on WhatsApp
                   </a>
-
                 </div>
 
                 <div className="mt-8 text-center">

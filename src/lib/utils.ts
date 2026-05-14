@@ -14,6 +14,20 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
+/**
+ * Format IDR to USD using a provided exchange rate.
+ * For static/fallback usage when rate is not available from server.
+ */
+export function formatUSD(amountIDR: number, rate: number = 16000): string {
+  const usd = amountIDR / rate;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(usd);
+}
+
 export function slugify(text: string): string {
   return text
     .toLowerCase()

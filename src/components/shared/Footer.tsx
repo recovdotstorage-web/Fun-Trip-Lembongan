@@ -102,12 +102,12 @@ export function Footer() {
                 <div className="space-y-1">
                   <span className="block text-[10px] uppercase tracking-tighter text-zinc-600 font-bold">Office</span>
                   <a 
-                    href="https://www.google.com/maps/search/?api=1&query=Jl.+Jungutbatu,+Nusa+Lembongan,+Bali+80771"
+                    href={CONTACT_INFO.maps}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm font-light hover:text-zinc-200 transition-colors block leading-snug"
                   >
-                    Jl. Jungutbatu, Nusa Lembongan, Bali 80771
+                    Jungutbatu, Nusa Lembongan, Bali 80771
                   </a>
                 </div>
               </div>

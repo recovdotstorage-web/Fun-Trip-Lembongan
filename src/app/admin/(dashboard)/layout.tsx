@@ -1,12 +1,22 @@
 import { ReactNode } from "react";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { PageTransition } from "@/components/admin/PageTransition";
 
-export default function AdminDashboardLayout({
+export default async function AdminDashboardLayout({
   children,
 }: {
   children: ReactNode;
 }) {
+  const session = await auth();
+  console.log("AdminDashboardLayout session:", !!session, session?.user?.email);
+
+  if (!session?.user) {
+    console.log("No session found, redirecting to /admin/login");
+    redirect("/admin/login");
+  }
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />

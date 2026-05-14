@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Clock, ArrowRight } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatUSD } from "@/lib/utils";
 
 interface ActivityCardProps {
   name: string;
@@ -72,6 +72,9 @@ export function ActivityCard({
               </span>
               <span className="text-lg font-medium text-zinc-900">
                 {formatCurrency(price)}
+              </span>
+              <span className="text-[11px] text-zinc-400 font-light">
+                ≈ {formatUSD(price)}
               </span>
             </div>
             <div className="flex items-center gap-2 text-zinc-400">

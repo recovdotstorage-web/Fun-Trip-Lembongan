@@ -14,7 +14,7 @@ import {
   Info,
 } from "lucide-react";
 import { motion, Variants } from "framer-motion";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatUSD } from "@/lib/utils";
 import { CONTACT_INFO } from "@/constants/contact";
 
 const fadeUp: Variants = {
@@ -28,9 +28,10 @@ const stagger = {
 
 interface ActivityDetailClientProps {
   activity: any; // Using any for brevity here, should ideally be typed
+  exchangeRate?: number;
 }
 
-export default function ActivityDetailClient({ activity }: ActivityDetailClientProps) {
+export default function ActivityDetailClient({ activity, exchangeRate = 16000 }: ActivityDetailClientProps) {
   const primaryImage = activity.images.find((img: any) => img.isPrimary) ?? activity.images[0];
 
   const waMessage = encodeURIComponent(
@@ -289,6 +290,9 @@ export default function ActivityDetailClient({ activity }: ActivityDetailClientP
                       / Person
                     </span>
                   </div>
+                  <p className="text-sm text-zinc-400 mt-1 font-(family-name:--font-outfit)">
+                    ≈ {formatUSD(activity.price)}
+                  </p>
                 </div>
 
                 <div className="space-y-6 mb-10">

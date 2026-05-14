@@ -1,11 +1,9 @@
 import NextAuth from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcryptjs from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -38,6 +36,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           where: { email: rawEmail },
         });
 
+        console.log("Authorize attempt for:", rawEmail, "User found:", !!user);
+        if (user) console.log("User role in DB:", user.role);
+
         if (!user || !user.password) return null;
 
         const isValid = await bcryptjs.compare(rawPassword, user.password);
@@ -53,17 +54,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     })
   ],
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      // After sign-in, always go to dashboard
+      if (url.startsWith(baseUrl)) return url;
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      return `${baseUrl}/admin/dashboard`;
+    },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = (user as any).role;
+        token.id = user.id as string;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
-        (session.user as any).role = token.role as string;
+        session.user.role = token.role as string;
       }
       return session;
     }
