@@ -43,12 +43,13 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   "scooter-rental": <Bike className="h-6 w-6 text-zinc-900" />,
   "snorkeling-safari": <Ship className="h-6 w-6 text-zinc-900" />,
   "lembongan-island-tour": <MapPin className="h-6 w-6 text-zinc-900" />,
+  "nusa-penida-island-tour": <MapPin className="h-6 w-6 text-zinc-900" />,
 };
 
 export function ServicesSection({ onWaClick, services: dynamicServices, exchangeRate }: ServicesSectionProps) {
   // If no dynamic services, use hardcoded ones as fallback (optional, but good for safety)
   // or just use dynamic ones.
-  const displayServices = dynamicServices.length > 0 ? dynamicServices : [];
+  const displayServices = dynamicServices.slice(0, 4);
 
   return (
     <section id="services" className="py-24 bg-[#FDFBF7]">

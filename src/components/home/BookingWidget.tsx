@@ -6,14 +6,16 @@ import { motion } from "framer-motion";
 
 interface BookingWidgetProps {
   onWaClick: (message?: string) => void;
+  services: any[];
 }
 
-const services = [
-  { label: "Buggy Car Rental", icon: Car },
-  { label: "Scooter Rental", icon: Bike },
-  { label: "Snorkeling Trip", icon: Ship },
-  { label: "Island Tour", icon: MapPin },
-];
+const ICON_MAP: Record<string, any> = {
+  "buggy-car-rental": Car,
+  "scooter-rental": Bike,
+  "snorkeling-safari": Ship,
+  "lembongan-island-tour": MapPin,
+  "nusa-penida-west-day-tour": MapPin,
+};
 
 const springTransition = {
   type: "spring" as const,
@@ -32,8 +34,15 @@ const fadeUpVariants = {
 
 import { sanitizeString } from "@/lib/utils/sanitization";
 
-export function BookingWidget({ onWaClick }: BookingWidgetProps) {
-  const [selectedService, setSelectedService] = useState(services[2]);
+export function BookingWidget({ onWaClick, services: dynamicServices }: BookingWidgetProps) {
+  // Map dynamic services to include labels and icons
+  const mappedServices = dynamicServices.map(srv => ({
+    label: srv.name,
+    icon: ICON_MAP[srv.slug] || MapPin,
+    slug: srv.slug
+  })).slice(0, 5); // Limit to top 5
+
+  const [selectedService, setSelectedService] = useState(mappedServices[0] || { label: "Select Service", icon: MapPin });
   const [isOpen, setIsOpen] = useState(false);
   const [travelDate, setTravelDate] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -89,7 +98,7 @@ export function BookingWidget({ onWaClick }: BookingWidgetProps) {
             {/* Options List */}
             {isOpen && (
               <div className="absolute top-full left-0 right-0 z-50 bg-white border border-zinc-200 shadow-sm mt-1 py-1">
-                {services.map((svc) => {
+                {mappedServices.map((svc) => {
                   const Icon = svc.icon;
                   const isSelected = svc.label === selectedService.label;
                   return (

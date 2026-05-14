@@ -79,7 +79,7 @@ export function WhyChooseUsSection() {
             <div className="absolute -top-6 -left-2 lg:-left-6 w-full h-full bg-zinc-100 z-0" />
             <div className="relative z-10 bg-zinc-50">
               <Image
-                src="/images/island-tour.png"
+                src="/images/island.jpg"
                 alt="Exploring Nusa Lembongan"
                 width={800}
                 height={550}

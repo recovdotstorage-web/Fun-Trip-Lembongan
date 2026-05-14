@@ -84,7 +84,7 @@ const serviceBriefs = [
   },
   {
     icon: Compass,
-    name: "Island Tour",
+    name: "Island Tours",
     slug: "lembongan-island-tour",
     desc: "A guided full-day or half-day tour covering the best spots on Nusa Lembongan and Nusa Ceningan.",
   },
@@ -105,8 +105,8 @@ export default function AboutContent() {
               className="lg:col-span-7 p-8 sm:p-12 lg:p-20 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-zinc-200"
             >
               <motion.div variants={fadeUpVariants} className="flex items-center gap-3 mb-8">
-                <span className="w-8 h-[1px] bg-zinc-900"></span>
-                <span className="text-xs uppercase tracking-[0.2em] font-bold text-zinc-900">Our Heritage</span>
+                  <span className="w-8 h-[1px] bg-zinc-900"></span>
+                  <span className="text-xs uppercase tracking-[0.2em] font-bold text-zinc-900">Our Heritage</span>
               </motion.div>
               
               <motion.h1 
@@ -145,7 +145,7 @@ export default function AboutContent() {
               className="lg:col-span-5 relative h-[400px] lg:h-auto bg-zinc-100"
             >
               <img 
-                src="https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?q=80&w=1200&auto=format&fit=crop" 
+                src="/images/tour.JPG" 
                 alt="Nusa Lembongan Coastline" 
                 className="absolute inset-0 w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
               />
@@ -177,7 +177,7 @@ export default function AboutContent() {
                   We provide packages ranging from relaxing activities to thrilling sea adventures. We offer various tour packages, such as snorkeling trips, island tours of Nusa Lembongan and Nusa Penida, and full-day trips, all with complete facilities throughout the tour, including the Nusa Lembongan Snorkeling Trip. Each package is carefully designed so you can enjoy the best beauty of Nusa Lembongan island.
                 </p>
                 <p>
-                  We also provide vehicle rentals such as Buggy cars, scooters, and scooter drivers, supported by our highly adequate facilities. Especially for Buggy Cars, we provide 2 types of choices: <strong>4 Seater</strong> and <strong>7 Seater</strong>, which can be tailored to the needs of your group.
+                  We also provide vehicle rentals such as Buggy cars, scooters, and drivers, supported by our highly adequate facilities. Especially for Buggy Cars, we provide 2 types of choices: <strong>4 Seater</strong> and <strong>7 Seater</strong>, which can be tailored to the needs of your group.
                 </p>
                 
                 <div className="pt-4">

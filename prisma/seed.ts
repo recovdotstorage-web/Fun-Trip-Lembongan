@@ -62,7 +62,7 @@ async function main() {
         create: [
           {
             publicId: "funtrip-lembongan/buggy-car",
-            imageUrl: "https://images.unsplash.com/photo-1544923246-77307dd654ca?q=80&w=2070",
+            imageUrl: "/images/buggy.JPG",
             isPrimary: true,
           }
         ]
@@ -117,7 +117,7 @@ async function main() {
         create: [
           {
             publicId: "funtrip-lembongan/scooter-rental",
-            imageUrl: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=2070",
+            imageUrl: "/images/scooter.JPG",
             isPrimary: true,
           }
         ]
@@ -159,7 +159,7 @@ async function main() {
         create: [
           {
             publicId: "funtrip-lembongan/manta-snorkeling",
-            imageUrl: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=2070",
+            imageUrl: "/images/snorkeling.png",
             isPrimary: true,
           }
         ]
@@ -202,7 +202,7 @@ async function main() {
         create: [
           {
             publicId: "funtrip-lembongan/island-tour",
-            imageUrl: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?q=80&w=1200",
+            imageUrl: "/images/tour.JPG",
             isPrimary: true,
           }
         ]
@@ -245,7 +245,7 @@ async function main() {
         create: [
           {
             publicId: "funtrip-lembongan/kelingking-beach",
-            imageUrl: "https://images.unsplash.com/photo-1559628233-eb1b1a45564b?q=80&w=1964",
+            imageUrl: "/images/island2.jpg",
             isPrimary: true,
           }
         ]
