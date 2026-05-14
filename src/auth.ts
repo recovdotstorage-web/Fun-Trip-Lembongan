@@ -8,8 +8,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  // Ensure we trust the host (required for some environments)
-  trustHost: true,
   secret: process.env.AUTH_SECRET,
   pages: {
     signIn: "/admin/login",
@@ -26,18 +24,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const rawEmail = (credentials?.email as string | undefined)?.trim();
         const rawPassword = credentials?.password as string | undefined;
 
-        // Basic sanitization — reject missing or oversized inputs
         if (!rawEmail || !rawPassword) return null;
         if (rawEmail.length > 254 || rawPassword.length > 128) return null;
-        // Simple email format guard (no regex injection surface)
         if (!rawEmail.includes("@") || rawEmail.includes(" ")) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: rawEmail },
         });
-
-        console.log("Authorize attempt for:", rawEmail, "User found:", !!user);
-        if (user) console.log("User role in DB:", user.role);
 
         if (!user || !user.password) return null;
 
@@ -55,7 +48,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     async redirect({ url, baseUrl }) {
-      // After sign-in, always go to dashboard
       if (url.startsWith(baseUrl)) return url;
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       return `${baseUrl}/admin/dashboard`;

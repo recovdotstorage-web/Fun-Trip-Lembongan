@@ -14,6 +14,7 @@ import {
   setPrimaryImage,
 } from "./actions";
 import type { Activity, ActivityImage, ActivityPriceTier, Category } from "@prisma/client";
+import { formatNumber, formatUSD } from "@/lib/utils";
 
 type Props = {
   categories: Category[];
@@ -23,9 +24,10 @@ type Props = {
     excludes: { id: string; item: string }[];
     priceTiers: ActivityPriceTier[];
   };
+  exchangeRate: number;
 };
 
-export function ActivityForm({ categories, activity }: Props) {
+export function ActivityForm({ categories, activity, exchangeRate }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [uploadPending, startUpload] = useTransition();
@@ -50,22 +52,32 @@ export function ActivityForm({ categories, activity }: Props) {
     activity?.priceTiers.map((t) => ({
       tierGroup: t.tierGroup,
       tierLabel: t.tierLabel,
-      price: (t.price / 100).toString(),
+      price: t.price.toString(),
       sortOrder: t.sortOrder,
     })) ?? []
   );
+
+  const [basePrice, setBasePrice] = useState<string>(
+    activity ? activity.price.toString() : ""
+  );
   
-  // Local state for new images (creation mode or adding before saving)
-  const [localFiles, setLocalFiles] = useState<{ file: File; preview: string }[]>([]);
+  interface LocalFile {
+    file: File;
+    preview: string;
+    status: 'pending' | 'uploading' | 'success' | 'error';
+    id: string; // temporary unique ID
+  }
+  const [localFiles, setLocalFiles] = useState<LocalFile[]>([]);
   
   const [feedback, setFeedback] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Delete Confirmation State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [imageToDelete, setImageToDelete] = useState<{ id?: string; localIndex?: number } | null>(null);
   const [deletePending, startDelete] = useTransition();
   const [youtubeId, setYoutubeId] = useState(activity?.youtubeVideoId ?? "");
+  const [isVideoValid, setIsVideoValid] = useState<boolean | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
 
   // Cleanup local previews
   useEffect(() => {
@@ -100,6 +112,10 @@ export function ActivityForm({ categories, activity }: Props) {
     // Extract YouTube ID if it's a URL
     const cleanedYoutubeId = extractYoutubeId(youtubeId);
     fd.set("youtubeVideoId", cleanedYoutubeId);
+
+    // Clean up price from dots/formatting
+    const rawPrice = (fd.get("price") as string || "").replace(/\D/g, "");
+    fd.set("price", rawPrice);
     
     // includes / excludes added individually
     includes.forEach((v) => fd.append("includes", v));
@@ -111,7 +127,7 @@ export function ActivityForm({ categories, activity }: Props) {
       .map((t, i) => ({
         tierGroup: t.tierGroup,
         tierLabel: t.tierLabel,
-        price: Math.round(parseFloat(t.price) * 100),
+        price: Math.round(parseFloat(t.price.replace(/\D/g, ""))),
         sortOrder: t.sortOrder ?? i,
       }));
     fd.set("priceTiers", JSON.stringify(tiersPayload));
@@ -124,16 +140,14 @@ export function ActivityForm({ categories, activity }: Props) {
         if (activity) {
           await updateService(activity.id, fd);
           setFeedback("Saved successfully!");
-          setTimeout(() => setFeedback(""), 3000);
         } else {
           await createService(fd);
         }
       } catch (err: any) {
-        // Next.js redirect is not an error, we must re-throw it so the router can redirect
         if (err.message && err.message.includes("NEXT_REDIRECT")) {
           throw err;
         }
-        console.error(err);
+        setFeedback("Error: " + err.message);
       }
     });
   }
@@ -142,35 +156,73 @@ export function ActivityForm({ categories, activity }: Props) {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    // If edit mode, upload immediately (existing behavior but improved)
-    if (activity) {
-      const file = files[0];
-      const fd = new FormData();
-      fd.append("image", file);
-      fd.append("isPrimary", images.length === 0 ? "true" : "false");
+    const newFiles: LocalFile[] = Array.from(files).map(file => ({
+      file,
+      preview: URL.createObjectURL(file),
+      status: 'pending',
+      id: Math.random().toString(36).substring(7)
+    }));
 
+    setLocalFiles(prev => [...prev, ...newFiles]);
+
+    if (activity) {
       startUpload(async () => {
         try {
-          await uploadServiceImage(activity.id, fd);
+          const isInitiallyEmpty = images.length === 0 && localFiles.length === 0;
+          
+          for (let i = 0; i < newFiles.length; i++) {
+            const lf = newFiles[i];
+            
+            // Mark this specific file as uploading
+            setLocalFiles(prev => prev.map(f => f.id === lf.id ? { ...f, status: 'uploading' } : f));
+            
+            const fd = new FormData();
+            fd.append("image", lf.file);
+            // Set primary only if gallery is empty AND it's the first file in this batch
+            fd.append("isPrimary", (isInitiallyEmpty && i === 0) ? "true" : "false");
+            
+            try {
+              const uploadedImage = await uploadServiceImage(activity.id, fd);
+              
+              // Add to saved images and remove from local immediately
+              setImages(prev => [...prev, uploadedImage]);
+              setLocalFiles(prev => prev.filter(f => f.id !== lf.id));
+              
+            } catch (err) {
+              setLocalFiles(prev => prev.map(f => f.id === lf.id ? { ...f, status: 'error' } : f));
+              throw err;
+            }
+          }
+          
           router.refresh();
         } catch (err: any) {
           if (!err.message?.includes("NEXT_REDIRECT")) {
-            alert("Upload failed.");
+            setFeedback("Upload failed: " + err.message);
           }
         }
       });
-    } else {
-      // If creation mode, add to local files
-      const newFiles = Array.from(files).map(file => ({
-        file,
-        preview: URL.createObjectURL(file)
-      }));
-      setLocalFiles(prev => [...prev, ...newFiles]);
     }
     
-    // Reset input
     e.target.value = "";
   }
+
+  // Sync images state when activity prop updates from server (e.g. after upload/refresh)
+  useEffect(() => {
+    if (activity?.images) {
+      setImages(activity.images);
+    }
+  }, [activity?.images]);
+
+  const [lastImagesCount, setLastImagesCount] = useState(images.length);
+
+  // Cleanup logic simplified since we manage state manually now
+  useEffect(() => {
+    if (images.length < lastImagesCount) {
+      setLastImagesCount(images.length);
+    } else if (images.length > lastImagesCount) {
+      setLastImagesCount(images.length);
+    }
+  }, [images.length, lastImagesCount]);
 
   function handleDeleteImage(id?: string, localIndex?: number) {
     setImageToDelete({ id, localIndex });
@@ -200,8 +252,11 @@ export function ActivityForm({ categories, activity }: Props) {
     } else if (imageToDelete.localIndex !== undefined) {
       // Local deletion
       const index = imageToDelete.localIndex;
-      URL.revokeObjectURL(localFiles[index].preview);
-      setLocalFiles(prev => prev.filter((_, i) => i !== index));
+      const fileToRemove = localFiles[index];
+      if (fileToRemove) {
+        URL.revokeObjectURL(fileToRemove.preview);
+        setLocalFiles(prev => prev.filter((_, i) => i !== index));
+      }
       setIsDeleteModalOpen(false);
       setImageToDelete(null);
     }
@@ -211,6 +266,10 @@ export function ActivityForm({ categories, activity }: Props) {
     if (!activity) return;
     try {
       await setPrimaryImage(imageId, activity.id);
+      setImages(prev => prev.map(img => ({
+        ...img,
+        isPrimary: img.id === imageId
+      })));
       router.refresh();
     } catch (err: any) {
       if (!err.message?.includes("NEXT_REDIRECT")) {
@@ -239,6 +298,10 @@ export function ActivityForm({ categories, activity }: Props) {
     };
 
     Object.entries(dummyData).forEach(([key, val]) => {
+      if (key === "price") {
+        setBasePrice(val);
+        return;
+      }
       const input = form.querySelector(`[name="${key}"]`) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
       if (input) {
         input.value = val;
@@ -248,6 +311,7 @@ export function ActivityForm({ categories, activity }: Props) {
     setIncludes(["Professional Snorkeling Gear", "Private Boat", "English Speaking Guide", "Drinking Water"]);
     setExcludes(["Hotel Pickup (Optional)", "Underwater Camera", "Lunch"]);
     setYoutubeId("M7lc1UVf-VE");
+    setBasePrice("600000");
   }
 
   function extractYoutubeId(url: string) {
@@ -257,8 +321,55 @@ export function ActivityForm({ categories, activity }: Props) {
   }
 
   function handleYoutubeChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setYoutubeId(e.target.value);
+    const value = e.target.value;
+    setYoutubeId(value);
   }
+
+  // Effect to validate YouTube ID
+  useEffect(() => {
+    const id = extractYoutubeId(youtubeId);
+    if (!id) {
+      setIsVideoValid(null);
+      return;
+    }
+
+    if (id.length !== 11) {
+      setIsVideoValid(false);
+      return;
+    }
+
+    const validateVideo = async () => {
+      setIsValidating(true);
+      try {
+        // Use img.youtube.com to check if thumbnail exists (it returns a 120x90 image even if invalid, but with specific dimensions/content)
+        // Better: Use oEmbed but it might have CORS. 
+        // Let's use a simple approach: if we can load the iframe, it's probably fine.
+        // Or we can just use the thumbnail check: 
+        const img = new window.Image();
+        img.src = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+        img.onload = () => {
+          // YouTube returns a default "not found" image (120x90) if the video doesn't exist.
+          // mqdefault.jpg is 320x180. If the video is invalid, it returns a 120x90 placeholder.
+          if (img.width === 120) {
+            setIsVideoValid(false);
+          } else {
+            setIsVideoValid(true);
+          }
+          setIsValidating(false);
+        };
+        img.onerror = () => {
+          setIsVideoValid(false);
+          setIsValidating(false);
+        };
+      } catch (e) {
+        setIsVideoValid(false);
+        setIsValidating(false);
+      }
+    };
+
+    const timer = setTimeout(validateVideo, 500);
+    return () => clearTimeout(timer);
+  }, [youtubeId]);
 
   return (
     <div className="p-6 lg:p-10 max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -347,25 +458,37 @@ export function ActivityForm({ categories, activity }: Props) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className={labelCls}>Price (USD) *</label>
+                    <label className={labelCls}>Price (IDR) *</label>
                     <div className="relative group">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm group-focus-within:text-emerald-600 transition-colors font-semibold">
-                        $
+                        Rp
                       </span>
                       <input
                         name="price"
-                        type="number"
+                        type="text"
                         required
-                        min={0}
-                        step={0.01}
-                        defaultValue={
-                          activity ? (activity.price / 100).toFixed(2) : ""
-                        }
-                        placeholder="0.00"
-                        className={`${inputCls} pl-8`}
+                        value={basePrice && !isNaN(parseInt(basePrice)) ? formatNumber(parseInt(basePrice)) : ""}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, "");
+                          setBasePrice(raw);
+                        }}
+                        placeholder="e.g. 600.000"
+                        className={`${inputCls} pl-10`}
                       />
+                    </div>
+                    <div className="flex items-center justify-between mt-1.5 px-1">
+                      {basePrice && !isNaN(parseFloat(basePrice)) && parseFloat(basePrice) > 0 && (
+                        <p className="text-[11px] text-emerald-700 font-extrabold flex items-center gap-1.5 mt-1.5 bg-emerald-50 w-fit px-2.5 py-1 rounded-lg border border-emerald-100/50 shadow-sm shadow-emerald-500/5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          ~ {formatUSD(parseFloat(basePrice), exchangeRate || 16000)}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-1 text-[9px] text-gray-400 font-medium italic">
+                        <Info className="w-3 h-3" />
+                        Rate: 1 USD = Rp {formatNumber(exchangeRate)}
+                      </div>
                     </div>
                   </div>
 
@@ -391,14 +514,39 @@ export function ActivityForm({ categories, activity }: Props) {
                       value={youtubeId}
                       onChange={handleYoutubeChange}
                       placeholder="Paste YouTube URL or ID here..."
-                      className={inputCls}
+                      className={`${inputCls} ${
+                        isVideoValid === true ? "border-emerald-200" : 
+                        isVideoValid === false ? "border-rose-200" : ""
+                      }`}
                     />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:opacity-100 opacity-0 transition-opacity pointer-events-none text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">
-                      {extractYoutubeId(youtubeId).length === 11 ? "Valid ID" : "Invalid URL"}
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                      {isValidating && <Loader2 className="w-3 h-3 animate-spin text-gray-400" />}
+                      {isVideoValid === true && (
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">
+                          Valid Video
+                        </span>
+                      )}
+                      {isVideoValid === false && (
+                        <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">
+                          Invalid / Not Found
+                        </span>
+                      )}
                     </div>
                   </div>
+                  
+                  {/* YouTube Preview */}
+                  {isVideoValid === true && (
+                    <div className="mt-4 relative aspect-video rounded-xl overflow-hidden border border-gray-100 shadow-sm animate-in zoom-in-95 duration-300">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${extractYoutubeId(youtubeId)}`}
+                        className="w-full h-full"
+                        allowFullScreen
+                      />
+                    </div>
+                  )}
+
                   <p className="text-[10px] text-gray-400 mt-2 flex items-center gap-1">
-                    <span className="font-bold">TIP:</span> You can paste the full URL (e.g., youtube.com/watch?v=...)
+                    <span className="font-bold">TIP:</span> Paste full URL or just the ID. Preview will appear if valid.
                   </p>
                 </div>
               </div>
@@ -520,98 +668,149 @@ export function ActivityForm({ categories, activity }: Props) {
 
             {/* Price Tiers / Packages */}
             <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 space-y-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center">
-                  <Users className="w-4 h-4 text-amber-600" />
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center">
+                    <Users className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 tracking-tight">
+                      Price Packages
+                    </h2>
+                    <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">
+                      Optional — for multi-tier pricing (e.g. Buggy rentals)
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900 tracking-tight">
-                    Price Packages
-                  </h2>
-                  <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">
-                    Optional — for multi-tier pricing (e.g. Buggy rentals)
-                  </p>
-                </div>
+                
+                {/* Preset Helper */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const buggyTiers = [
+                      { group: "4-Seater Buggy", labels: ["4-5 Hours", "12 Hours", "24 Hours"], prices: ["600000", "900000", "1300000"] },
+                      { group: "7-Seater Buggy", labels: ["4-5 Hours", "12 Hours", "24 Hours"], prices: ["800000", "1200000", "1500000"] }
+                    ];
+                    
+                    const newTiers: PriceTierEntry[] = [];
+                    buggyTiers.forEach(bt => {
+                      bt.labels.forEach((label, idx) => {
+                        newTiers.push({
+                          tierGroup: bt.group,
+                          tierLabel: label,
+                          price: bt.prices[idx],
+                          sortOrder: newTiers.length + priceTiers.length
+                        });
+                      });
+                    });
+                    setPriceTiers(prev => [...prev, ...newTiers]);
+                  }}
+                  className="text-[10px] font-bold text-amber-600 hover:text-amber-700 uppercase tracking-widest bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100 transition-colors"
+                >
+                  + Add Buggy Presets
+                </button>
               </div>
 
               {priceTiers.length > 0 && (
-                <div className="space-y-4">
-                  {priceTiers.map((tier, i) => (
-                    <div
-                      key={i}
-                      className="p-4 border border-gray-100 rounded-xl bg-gray-50/50 space-y-3"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                          Tier #{i + 1}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setPriceTiers((prev) => prev.filter((_, idx) => idx !== i))
-                          }
-                          className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                <div className="space-y-6">
+                  {/* Grouping tiers by tierGroup for better management */}
+                  {Array.from(new Set(priceTiers.map(t => t.tierGroup || "Un-grouped"))).map((groupName) => (
+                    <div key={groupName} className="space-y-3">
+                      <div className="flex items-center gap-3 ml-1">
+                        <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                          {groupName}
+                        </h3>
+                        <div className="h-px flex-grow bg-gray-100" />
                       </div>
-                      <div className="grid grid-cols-3 gap-3">
-                        <div>
-                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">
-                            Group
-                          </label>
-                          <input
-                            type="text"
-                            value={tier.tierGroup}
-                            onChange={(e) =>
-                              setPriceTiers((prev) =>
-                                prev.map((t, idx) =>
-                                  idx === i ? { ...t, tierGroup: e.target.value } : t
-                                )
-                              )
-                            }
-                            placeholder="e.g. 4-Seater"
-                            className={inputCls}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">
-                            Duration
-                          </label>
-                          <input
-                            type="text"
-                            value={tier.tierLabel}
-                            onChange={(e) =>
-                              setPriceTiers((prev) =>
-                                prev.map((t, idx) =>
-                                  idx === i ? { ...t, tierLabel: e.target.value } : t
-                                )
-                              )
-                            }
-                            placeholder="e.g. 4-5 Hours"
-                            className={inputCls}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">
-                            Price (IDR ÷100)
-                          </label>
-                          <input
-                            type="number"
-                            min={0}
-                            step={0.01}
-                            value={tier.price}
-                            onChange={(e) =>
-                              setPriceTiers((prev) =>
-                                prev.map((t, idx) =>
-                                  idx === i ? { ...t, price: e.target.value } : t
-                                )
-                              )
-                            }
-                            placeholder="e.g. 6000"
-                            className={inputCls}
-                          />
-                        </div>
+                      
+                      <div className="grid grid-cols-1 gap-3">
+                        {priceTiers
+                          .map((t, originalIdx) => ({ ...t, originalIdx }))
+                          .filter(t => (t.tierGroup || "Un-grouped") === groupName)
+                          .map((tier) => (
+                            <div
+                              key={tier.originalIdx}
+                              className="p-4 border border-gray-100 rounded-xl bg-gray-50/50 hover:bg-white hover:shadow-md hover:border-amber-200 transition-all duration-300"
+                            >
+                              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
+                                <div className="sm:col-span-4">
+                                  <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
+                                    Package Type / Group
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={tier.tierGroup}
+                                    onChange={(e) =>
+                                      setPriceTiers((prev) =>
+                                        prev.map((t, idx) =>
+                                          idx === tier.originalIdx ? { ...t, tierGroup: e.target.value } : t
+                                        )
+                                      )
+                                    }
+                                    placeholder="e.g. 4-Seater Buggy"
+                                    className={`${inputCls} py-2.5`}
+                                  />
+                                </div>
+                                <div className="sm:col-span-3">
+                                  <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
+                                    Duration
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={tier.tierLabel}
+                                    onChange={(e) =>
+                                      setPriceTiers((prev) =>
+                                        prev.map((t, idx) =>
+                                          idx === tier.originalIdx ? { ...t, tierLabel: e.target.value } : t
+                                        )
+                                      )
+                                    }
+                                    placeholder="e.g. 4-5 Hours"
+                                    className={`${inputCls} py-2.5`}
+                                  />
+                                </div>
+                                <div className="sm:col-span-4 relative group">
+                                  <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
+                                    Price (IDR)
+                                  </label>
+                                  <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[10px] font-bold">Rp</span>
+                                    <input
+                                      type="text"
+                                      value={tier.price && !isNaN(parseInt(tier.price)) ? formatNumber(parseInt(tier.price)) : ""}
+                                      onChange={(e) => {
+                                        const raw = e.target.value.replace(/\D/g, "");
+                                        setPriceTiers((prev) =>
+                                          prev.map((t, idx) =>
+                                            idx === tier.originalIdx ? { ...t, price: raw } : t
+                                          )
+                                        );
+                                      }}
+                                      placeholder="600.000"
+                                      className={`${inputCls} py-2.5 pl-8`}
+                                    />
+                                  </div>
+                                  {tier.price && !isNaN(parseFloat(tier.price)) && (
+                                    <p className="text-[10px] text-amber-600 font-bold mt-1.5 ml-1 flex items-center gap-1">
+                                      <span className="w-1 h-1 rounded-full bg-amber-500" />
+                                      ≈ {formatUSD(parseFloat(tier.price), exchangeRate)}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="sm:col-span-1 flex justify-end">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setPriceTiers((prev) => prev.filter((_, idx) => idx !== tier.originalIdx))
+                                    }
+                                    className="p-2.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                       </div>
                     </div>
                   ))}
@@ -629,13 +828,18 @@ export function ActivityForm({ categories, activity }: Props) {
                 className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-gray-100 rounded-xl text-sm font-bold text-gray-400 hover:border-amber-200 hover:text-amber-600 hover:bg-amber-50/30 transition-all"
               >
                 <Plus className="w-4 h-4" />
-                Add Price Tier
+                Add Custom Package
               </button>
 
               {priceTiers.length === 0 && (
-                <p className="text-xs text-gray-400 text-center">
-                  No price tiers added. The base price above will be used.
-                </p>
+                <div className="py-12 text-center border-2 border-dashed border-gray-50 rounded-xl">
+                  <p className="text-xs text-gray-400 font-medium">
+                    No packages added yet.
+                  </p>
+                  <p className="text-[10px] text-gray-300 uppercase tracking-widest mt-1">
+                    The base price from Core Details will be used instead.
+                  </p>
+                </div>
               )}
             </section>
           </form>
@@ -669,7 +873,7 @@ export function ActivityForm({ categories, activity }: Props) {
                   ref={fileRef}
                   type="file"
                   accept="image/*"
-                  multiple={!activity}
+                  multiple
                   className="hidden"
                   onChange={handleFileSelect}
                 />
@@ -734,8 +938,8 @@ export function ActivityForm({ categories, activity }: Props) {
                     {/* Local Selected Files (Unsaved) */}
                     {localFiles.map((lf, i) => (
                       <div
-                        key={i}
-                        className="relative group rounded-xl overflow-hidden aspect-square bg-gray-100 border-2 border-blue-400 ring-4 ring-blue-50/50 transition-all"
+                        key={lf.id}
+                        className={`relative group rounded-xl overflow-hidden aspect-square bg-gray-100 border-2 border-blue-400 ring-4 ring-blue-50/50 transition-all ${lf.status === 'uploading' ? "opacity-70" : ""}`}
                       >
                         <Image
                           src={lf.preview}
@@ -743,9 +947,22 @@ export function ActivityForm({ categories, activity }: Props) {
                           fill
                           className="object-cover"
                         />
+                        {lf.status === 'uploading' && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-white/30 backdrop-blur-[1px] z-20">
+                            <div className="flex flex-col items-center gap-2">
+                              <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                              <span className="text-[8px] font-black text-blue-700 uppercase tracking-widest">Uploading</span>
+                            </div>
+                          </div>
+                        )}
+                        {lf.status === 'error' && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-red-500/20 backdrop-blur-[1px] z-20">
+                            <span className="text-[8px] font-black text-red-700 bg-white px-2 py-1 rounded uppercase tracking-widest">Error</span>
+                          </div>
+                        )}
                         <div className="absolute top-2 left-2 z-10">
-                          <span className="px-3 py-1 text-[8px] font-black bg-blue-500 text-white rounded-full shadow-md uppercase tracking-[0.15em]">
-                            New
+                          <span className={`px-3 py-1 text-[8px] font-black ${lf.status === 'uploading' ? 'bg-amber-500' : 'bg-blue-500'} text-white rounded-full shadow-md uppercase tracking-[0.15em]`}>
+                            {lf.status === 'uploading' ? "Uploading..." : "New"}
                           </span>
                         </div>
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">

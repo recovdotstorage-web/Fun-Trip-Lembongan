@@ -10,10 +10,7 @@ export default async function AdminDashboardLayout({
   children: ReactNode;
 }) {
   const session = await auth();
-  console.log("AdminDashboardLayout session:", !!session, session?.user?.email);
-
   if (!session?.user) {
-    console.log("No session found, redirecting to /admin/login");
     redirect("/admin/login");
   }
 

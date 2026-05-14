@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ActivityForm } from "../../ActivityForm";
 import { deleteService } from "../../actions";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { getIDRtoUSDRate } from "@/lib/exchange-rate";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -24,9 +25,10 @@ export default async function EditServicePage({ params }: Props) {
 
   if (!service) notFound();
 
+  const rate = await getIDRtoUSDRate();
   return (
     <div>
-      <ActivityForm categories={categories} activity={service} />
+      <ActivityForm categories={categories} activity={service} exchangeRate={rate} />
 
       {/* Danger zone */}
       <div className="px-6 lg:px-8 pb-12 max-w-4xl mx-auto">

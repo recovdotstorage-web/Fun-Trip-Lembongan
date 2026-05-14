@@ -8,9 +8,7 @@ import * as motion from "framer-motion/client";
 
 export const dynamic = "force-dynamic";
 
-function formatPrice(cents: number) {
-  return `$${(cents / 100).toFixed(0)}`;
-}
+import { formatCurrency } from "@/lib/utils";
 
 function timeAgo(date: Date) {
   const diff = Date.now() - new Date(date).getTime();
@@ -172,7 +170,7 @@ export default async function AdminServicesPage({
                       </td>
                       <td className="px-10 py-6">
                         <span className="text-sm font-medium text-zinc-900">
-                          {formatPrice(act.price)}
+                          {formatCurrency(act.price)}
                         </span>
                       </td>
                       <td className="px-10 py-6">
@@ -221,7 +219,7 @@ export default async function AdminServicesPage({
                       <p className="text-base font-bold text-zinc-900 truncate">{act.name}</p>
                       <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">{act.category.name}</p>
                       <div className="flex items-center gap-3 mt-3">
-                        <span className="text-sm font-bold text-zinc-900">{formatPrice(act.price)}</span>
+                        <p className="text-sm font-bold text-zinc-900">{formatCurrency(act.price)}</p>
                         <span className={`px-2 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-widest ${
                           act.status === "PUBLISHED" ? "bg-emerald-50 text-emerald-600" : "bg-zinc-50 text-zinc-400"
                         }`}>
