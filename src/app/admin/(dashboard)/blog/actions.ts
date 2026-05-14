@@ -102,6 +102,14 @@ export async function updateBlogPost(id: string, formData: FormData) {
   let thumbnailPublicId = existing.thumbnailPublicId;
   let thumbnailUrl = existing.thumbnailUrl;
 
+  const removeThumbnail = formData.get("removeThumbnail") === "true";
+
+  if (removeThumbnail && thumbnailPublicId) {
+    await cloudinary.uploader.destroy(thumbnailPublicId).catch(() => {});
+    thumbnailPublicId = null;
+    thumbnailUrl = null;
+  }
+
   if (imageFile && imageFile.size > 0) {
     if (thumbnailPublicId) {
       await cloudinary.uploader.destroy(thumbnailPublicId).catch(() => { });
@@ -150,26 +158,36 @@ export async function updateBlogPost(id: string, formData: FormData) {
 }
 
 export async function deleteBlogPost(id: string) {
-  await requireAdmin();
+  try {
+    await requireAdmin();
 
-  const post = await prisma.blogPost.findUnique({ where: { id } });
-  if (!post) return;
+    const post = await prisma.blogPost.findUnique({ where: { id } });
+    if (!post) {
+      return { error: "Post not found" };
+    }
 
-  if (post.thumbnailPublicId) {
-    await cloudinary.uploader.destroy(post.thumbnailPublicId).catch(() => { });
+    if (post.thumbnailPublicId) {
+      await cloudinary.uploader.destroy(post.thumbnailPublicId).catch((err) => {
+        console.error("Cloudinary delete error:", err);
+      });
+    }
+
+    await prisma.blogPost.delete({ where: { id } });
+
+    await recordAuditLog({
+      action: "DELETE",
+      entity: "BlogPost",
+      entityId: id,
+      entityName: post.title,
+    });
+
+    revalidatePath("/admin/blog");
+    revalidatePath("/blog");
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error in deleteBlogPost:", error);
+    return { error: error.message || "Failed to delete post" };
   }
-
-  await prisma.blogPost.delete({ where: { id } });
-
-  await recordAuditLog({
-    action: "DELETE",
-    entity: "BlogPost",
-    entityId: id,
-    entityName: post.title,
-  });
-
-  revalidatePath("/admin/blog");
-  revalidatePath("/blog");
-  redirect("/admin/blog");
 }
 

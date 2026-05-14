@@ -3,7 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Plus, BookOpen, Clock } from "lucide-react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
-import { EditButton, ViewButton } from "@/components/admin/AdminButtons";
+import { EditButton, ViewButton, DeleteButton } from "@/components/admin/AdminButtons";
+import { deleteBlogPost } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -174,6 +175,12 @@ export default async function AdminBlogPage({
                             <ViewButton href={`/blog/${post.slug}`} />
                           )}
                           <EditButton href={`/admin/blog/${post.id}/edit`} />
+                          <DeleteButton 
+                            id={post.id} 
+                            name={post.title} 
+                            title="Blog Post" 
+                            action={deleteBlogPost} 
+                          />
                         </div>
                       </td>
                     </tr>
@@ -220,6 +227,13 @@ export default async function AdminBlogPage({
                     {post.status === "PUBLISHED" && (
                       <ViewButton href={`/blog/${post.slug}`} variant="full" />
                     )}
+                    <DeleteButton 
+                      id={post.id} 
+                      name={post.title} 
+                      title="Blog Post" 
+                      action={deleteBlogPost} 
+                      variant="full"
+                    />
                   </div>
                 </div>
               ))}

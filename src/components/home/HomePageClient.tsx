@@ -13,7 +13,7 @@ import { CONTACT_INFO } from "@/constants/contact";
 
 const WA_NUMBER = CONTACT_INFO.whatsapp;
 
-export function HomePageClient({ services, posts, exchangeRate }: { services: any[], posts: any[], exchangeRate: number }) {
+export function HomePageClient({ services, posts, testimonials, exchangeRate }: { services: any[], posts: any[], testimonials: any[], exchangeRate: number }) {
   const handleWhatsAppRedirect = (message?: string) => {
     const defaultMessage =
       "Hello Funtrip Lembongan, I would like to book a service.";
@@ -28,7 +28,7 @@ export function HomePageClient({ services, posts, exchangeRate }: { services: an
       <TrustedSection />
       <ServicesSection onWaClick={handleWhatsAppRedirect} services={services} exchangeRate={exchangeRate} />
       <WhyChooseUsSection />
-      <TestimonialsSection />
+      <TestimonialsSection testimonials={testimonials} />
       <BlogSection posts={posts} />
       <FAQSection onWaClick={handleWhatsAppRedirect} />
       <ContactSection onWaClick={handleWhatsAppRedirect} />

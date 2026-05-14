@@ -131,3 +131,16 @@ model VisitorLog {
   countryCode String?
   createdAt   DateTime @default(now())
 }
+
+model Testimonial {
+  id            String   @id @default(cuid())
+  name          String
+  content       String
+  imageUrl      String?
+  imagePublicId String?
+  rating        Int      @default(5)
+  status        String   @default("PUBLISHED")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+

@@ -177,7 +177,7 @@ export default function BlogPageClient({ posts }: { posts: Post[] }) {
   const showFeatured = activeCategory === "All" && !searchQuery && filtered.length > 0;
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] pb-24">
+    <div className="">
       {/* Editorial Header */}
       <section className="pt-32 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-[1400px] mx-auto">

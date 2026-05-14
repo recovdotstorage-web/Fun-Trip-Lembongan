@@ -68,7 +68,7 @@ const serviceBriefs = [
     icon: Car,
     name: "Buggy Car Rental",
     slug: "buggy-car-rental",
-    desc: "Explore the island in style. No driver's license required! Note: Buggy cannot cross to Nusa Ceningan.",
+    desc: "Explore the island in style. No license required! Note: Driver available (+250k) and buggy cannot cross to Ceningan.",
   },
   {
     icon: Bike,

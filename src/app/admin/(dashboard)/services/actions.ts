@@ -197,34 +197,44 @@ export async function updateService(id: string, formData: FormData) {
 }
 
 export async function deleteService(id: string) {
-  await requireAdmin();
+  try {
+    await requireAdmin();
 
-  const existing = await prisma.activity.findUnique({ where: { id } });
-  if (!existing) return;
+    const existing = await prisma.activity.findUnique({ where: { id } });
+    if (!existing) {
+      return { error: "Service not found" };
+    }
 
-  const images = await prisma.activityImage.findMany({ where: { activityId: id } });
-  await Promise.all(
-    images.map((img) => cloudinary.uploader.destroy(img.publicId).catch(() => { }))
-  );
+    const images = await prisma.activityImage.findMany({ where: { activityId: id } });
+    await Promise.all(
+      images.map((img) => cloudinary.uploader.destroy(img.publicId).catch((err) => {
+        console.error("Cloudinary delete error:", err);
+      }))
+    );
 
-  await prisma.activity.delete({ where: { id } });
+    await prisma.activity.delete({ where: { id } });
 
-  await recordAuditLog({
-    action: "DELETE",
-    entity: "Activity",
-    entityId: id,
-    entityName: existing.name,
-  });
+    await recordAuditLog({
+      action: "DELETE",
+      entity: "Activity",
+      entityId: id,
+      entityName: existing.name,
+    });
 
-  // Aggressive revalidation
-  revalidatePath("/admin/services", "page");
-  revalidatePath("/services", "page");
-  revalidatePath("/", "layout");
+    // Aggressive revalidation
+    revalidatePath("/admin/services", "page");
+    revalidatePath("/services", "page");
+    revalidatePath("/", "layout");
 
-  if (existing.slug) {
-    revalidatePath(`/services/${existing.slug}`, "page");
+    if (existing.slug) {
+      revalidatePath(`/services/${existing.slug}`, "page");
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error in deleteService:", error);
+    return { error: error.message || "Failed to delete service" };
   }
-  redirect("/admin/services");
 }
 
 export async function uploadServiceImage(
