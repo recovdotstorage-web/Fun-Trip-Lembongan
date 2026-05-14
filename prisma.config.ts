@@ -7,4 +7,7 @@ export default defineConfig({
     path: "prisma/migrations",
     seed: "npx tsx prisma/seed.ts",
   },
+  datasource: {
+    url: "file:./dummy.db",
+  },
 });

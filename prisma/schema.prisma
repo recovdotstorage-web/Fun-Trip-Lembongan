@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./main.db" // Placeholder for Prisma CLI validation. Real connection is via LibSQL adapter.
 }
 
 model Category {
