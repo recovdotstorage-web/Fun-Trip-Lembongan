@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     siteName: "Fun Trip Lembongan",
     images: [
       {
-        url: `${baseUrl}/images/hero.png`,
+        url: `${baseUrl}/images/logo.jpg`,
         width: 1200,
         height: 630,
         alt: "Fun Trip Lembongan - Nusa Lembongan Adventures",
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Fun Trip Lembongan - Best Tours & Snorkeling Nusa Lembongan",
     description: "Discover premium snorkeling, mangrove tours, and island hopping in Nusa Lembongan.",
-    images: [`${baseUrl}/images/hero.png`],
+    images: [`${baseUrl}/images/logo.jpg`],
   },
 };
 
@@ -89,7 +89,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "TravelAgency",
               "name": "Fun Trip Lembongan",
-              "image": `${baseUrl}/images/hero.png`,
+              "image": `${baseUrl}/images/logo.jpg`,
               "@id": baseUrl,
               "url": baseUrl,
               "telephone": "+6281234567890",
