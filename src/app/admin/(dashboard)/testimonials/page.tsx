@@ -1,11 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import Image from "next/image";
-import { Plus, Star, Search, Pencil, Trash2, Quote, CheckCircle2, XCircle } from "lucide-react";
+import { Star, Quote, Clock } from "lucide-react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
-import { EditButton, ViewButton } from "@/components/admin/AdminButtons";
 import * as motion from "framer-motion/client";
-import { deleteTestimonial, toggleTestimonialStatus } from "./actions";
+import { deleteTestimonial } from "./actions";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 
 export const dynamic = "force-dynamic";
@@ -49,14 +47,10 @@ export default async function AdminTestimonialsPage({
       className="p-4 md:p-8 lg:p-12 max-w-7xl mx-auto bg-[#FDFBF7] min-h-screen"
     >
       <AdminHeader
-        title="Reviews"
-        highlight="Voices"
+        title="Guest Reviews"
+        highlight="Overview"
         category="Public Relations"
-        subtitle={`Manage guest feedback and testimonials. ${totalTestimonials} stories shared.`}
-        addButton={{
-          href: "/admin/testimonials/new",
-          label: "Add Testimonial",
-        }}
+        subtitle={`View guest testimonials submitted from the website. You can view all reviews or delete inappropriate ones. ${totalTestimonials} reviews received.`}
       />
 
       {/* Filter Bar */}
@@ -91,67 +85,61 @@ export default async function AdminTestimonialsPage({
         <div className="bg-white rounded-xl border border-zinc-100 shadow-sm py-32 text-center">
           <Quote className="w-16 h-16 text-zinc-100 mx-auto mb-6" />
           <h2 className="text-xl font-semibold text-zinc-400 font-serif italic">
-            Silence in the hall
+            No guest reviews yet
           </h2>
-          <p className="text-sm text-zinc-300 mt-2 mb-8 max-w-xs mx-auto">
-            No testimonials have been recorded yet. Start by adding a guest's kind words.
+          <p className="text-sm text-zinc-300 mt-2 max-w-xs mx-auto">
+            Testimonials submitted by guests on the homepage will automatically appear here.
           </p>
-          <Link
-            href="/admin/testimonials/new"
-            className="inline-flex items-center gap-3 px-8 py-3 bg-zinc-900 text-white text-[11px] font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform"
-          >
-            <Plus className="w-4 h-4" />
-            Add First Review
-          </Link>
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {testimonials.map((t) => (
-              <div key={t.id} className="bg-white border border-zinc-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all group relative">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-100 border border-zinc-200">
-                      {t.imageUrl ? (
-                        <Image src={t.imageUrl} alt={t.name} width={40} height={40} className="object-cover w-full h-full" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-zinc-300 text-xs font-bold uppercase">
-                          {t.name.charAt(0)}
+              <div 
+                key={t.id} 
+                className="bg-white border border-zinc-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all group relative flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-zinc-900 text-white font-bold text-sm uppercase border border-zinc-200">
+                        {t.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-zinc-900 uppercase tracking-tight">{t.name}</h4>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <div className="flex gap-0.5">
+                            {[...Array(5)].map((_, i) => (
+                              <Star 
+                                key={i} 
+                                className={`w-2.5 h-2.5 ${i < t.rating ? "text-amber-400 fill-amber-400" : "text-zinc-200"}`} 
+                                fill={i < t.rating ? "currentColor" : "none"}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-[10px] font-bold text-zinc-500">
+                            ({t.rating}/5)
+                          </span>
                         </div>
-                      )}
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-zinc-900 uppercase tracking-tight">{t.name}</h4>
-                      <div className="flex gap-0.5 mt-0.5">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-2.5 h-2.5 ${i < t.rating ? "text-amber-400 fill-amber-400" : "text-zinc-200"}`} />
-                        ))}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <form action={toggleTestimonialStatus.bind(null, t.id, t.status)}>
-                      <button className={`p-1.5 rounded-lg transition-colors ${t.status === "PUBLISHED" ? "text-emerald-500 hover:bg-emerald-50" : "text-zinc-300 hover:bg-zinc-50"}`} title={t.status === "PUBLISHED" ? "Unpublish" : "Publish"}>
-                        {t.status === "PUBLISHED" ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-                      </button>
-                    </form>
-                  </div>
+
+                  <p className="text-xs text-zinc-600 leading-relaxed italic line-clamp-5 mb-6 bg-zinc-50/50 p-3 rounded-xl border border-zinc-100">
+                    &ldquo;{t.content}&rdquo;
+                  </p>
                 </div>
 
-                <p className="text-xs text-zinc-600 leading-relaxed italic line-clamp-4 mb-6">
-                  &ldquo;{t.content}&rdquo;
-                </p>
-
                 <div className="flex items-center justify-between pt-4 border-t border-zinc-50">
-                  <span className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest">{timeAgo(t.createdAt)}</span>
+                  <span className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {timeAgo(t.createdAt)}
+                  </span>
                   <div className="flex items-center gap-2">
-                    <Link href={`/admin/testimonials/${t.id}/edit`} className="p-2 text-zinc-400 hover:text-zinc-900 transition-colors">
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Link>
                     <DeleteButton 
                       id={t.id} 
                       name={t.name} 
-                      title="Testimonial" 
+                      title="Review" 
                       action={deleteTestimonial} 
                     />
                   </div>

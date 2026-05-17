@@ -136,10 +136,11 @@ async function main() {
     await prisma.activity.update({
       where: { id: islandTour.id },
       data: {
+        name: "Lembongan Island Motorbike Tour",
         price: 400000,
         duration: "3-4 Hours",
-        shortDescription: "A comprehensive guided tour of Nusa Lembongan's most iconic landmarks with a scooter driver.",
-        description: "Discover the best of Nusa Lembongan in a single trip. Our local expert scooter driver will take you to Dream Beach, Devil's Tear, Panorama Point, and the Yellow Bridge. You'll also enjoy a serene boat ride through the Mangrove Forest.\n\nPrice: Rp 400.000 per person (with scooter driver, 3-4 hours)\n\nSit back and enjoy the ride while our experienced driver navigates the island roads safely.",
+        shortDescription: "Explore all attractions of Nusa Lembongan and Nusa Ceningan with a private local driver guide on a motorbike. Perfect if you don't ride yourself!",
+        description: "If you want to explore our beloved island but can't ride a motorbike, we offer island tours using motorbikes.\n\nTo explore all of Nusa Lembongan's attractions, of course:\n1. Mangrove Point\n2. Mahagiri Beach\n3. Dream Beach\n4. Devil's Steps\n5. Yellow Bridge\n\nAnd:\n1. Blue Lagoon\n2. Secret Beach\n3. Mahana Point\n4. Mushroom Beach",
       },
     });
 
@@ -147,7 +148,7 @@ async function main() {
   }
 
   // ─── NUSA PENIDA TOUR ───────────────────────────────────────────
-  const penidaTour = await prisma.activity.findUnique({ where: { slug: "nusa-penida-west-day-tour" } });
+  const penidaTour = await prisma.activity.findUnique({ where: { slug: "nusa-penida-island-tour" } });
   if (penidaTour) {
     await prisma.activity.update({
       where: { id: penidaTour.id },
@@ -157,7 +158,7 @@ async function main() {
         price: 1800000,
         duration: "Full Day",
         shortDescription: "Explore the breathtaking Nusa Penida with a private driver. Choose between West Trip or East Trip routes.",
-        description: "Explore the breathtaking landscapes of Nusa Penida with an experienced local driver. Choose from two stunning routes:\n\n🌊 WEST TRIP\n• Kelingking Beach — the iconic T-Rex cliff\n• Angel Billabong — natural infinity pool\n• Broken Beach — circular cliff formation\n• Crystal Beach — pristine white sand\n\n🏔️ EAST TRIP\n• Diamond Beach — dramatic cliff staircase\n• Atuh Beach — secluded paradise cove\n• Treehouse — panoramic viewpoint\n• Molenteng Hill — rolling green hills\n\nPrice starts from Rp 1.800.000 for 2 persons (private), including:\n• Ticket boat from Nusa Lembongan to Nusa Penida (private)\n• Free drop-off and pick-up from your hotel\n• English-speaking driver\n• Entrance fees\n• Lunch",
+        description: "Hello everyone, if you're interested in a day trip to Nusa Penida with a driver, please contact me. We have two location options:\n\nWest Trip:\n• Klingking beach\n• Angel Billabong\n• Broken Beach\n• Crystal Beach\n\nEast Trip:\n• Diamond Beach\n• Atuh Beach\n• Treehouse\n• Molenteng Hill\n\nPrice starts from Rp 1.800.000 for 2 persons (private), including:\n• Fast Boat return tickets from Nusa Lembongan to Nusa Penida\n• Free drop-off and pick-up from your hotel\n• English-speaking private driver\n• Entrance fees\n• Lunch",
       },
     });
 
@@ -166,11 +167,11 @@ async function main() {
     await prisma.activityItinerary.createMany({
       data: [
         { activityId: penidaTour.id, stepOrder: 1, title: "Hotel Pickup & Boat Transfer", description: "Free pickup from your hotel in Lembongan, then private boat to Nusa Penida." },
-        { activityId: penidaTour.id, stepOrder: 2, title: "West Trip: Kelingking Beach", description: "Visit the iconic T-Rex shaped cliff with stunning ocean views." },
-        { activityId: penidaTour.id, stepOrder: 3, title: "West Trip: Angel Billabong & Broken Beach", description: "Explore the natural infinity pool and the circular cliff formation." },
-        { activityId: penidaTour.id, stepOrder: 4, title: "West Trip: Crystal Beach", description: "Relax at the pristine white sand beach with crystal clear water." },
-        { activityId: penidaTour.id, stepOrder: 5, title: "East Trip: Diamond Beach & Atuh Beach", description: "Descend the dramatic cliff staircase to the secluded paradise cove." },
-        { activityId: penidaTour.id, stepOrder: 6, title: "East Trip: Treehouse & Molenteng Hill", description: "Enjoy panoramic viewpoints and rolling green hills." },
+        { activityId: penidaTour.id, stepOrder: 2, title: "West Trip: Klingking beach", description: "Visit the iconic Klingking beach with stunning ocean views." },
+        { activityId: penidaTour.id, stepOrder: 3, title: "West Trip: Angel Billabong & Broken Beach", description: "Explore the natural infinity pool of Angel Billabong and the circular cliff formation of Broken Beach." },
+        { activityId: penidaTour.id, stepOrder: 4, title: "West Trip: Crystal Beach", description: "Relax at the pristine white sand of Crystal Beach with crystal clear water." },
+        { activityId: penidaTour.id, stepOrder: 5, title: "East Trip: Diamond Beach & Atuh Beach", description: "Descend the dramatic cliff staircase of Diamond Beach and visit the secluded paradise cove of Atuh Beach." },
+        { activityId: penidaTour.id, stepOrder: 6, title: "East Trip: Treehouse & Molenteng Hill", description: "Enjoy panoramic viewpoints from the Treehouse and Molenteng Hill." },
       ],
     });
 
