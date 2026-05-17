@@ -14,7 +14,7 @@ const ICON_MAP: Record<string, any> = {
   "scooter-rental": Bike,
   "snorkeling-safari": Ship,
   "lembongan-island-tour": MapPin,
-  "nusa-penida-west-day-tour": MapPin,
+  "nusa-penida-island-tour": MapPin,
 };
 
 const springTransition = {

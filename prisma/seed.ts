@@ -201,13 +201,13 @@ async function main() {
 
   await prisma.activity.create({
     data: {
-      name: "Lembongan Island Tour",
+      name: "Lembongan Island Motorbike Tour",
       slug: "lembongan-island-tour",
       categoryId: islandTours.id,
-      price: 450000,
-      duration: "4-5 Hours",
-      shortDescription: "A comprehensive guided tour of Nusa Lembongan's most iconic landmarks.",
-      description: "Discover the best of Nusa Lembongan in a single day. Our local expert driver will take you to Dream Beach, Devil's Tear, Panorama Point, and the Yellow Bridge. You'll also enjoy a serene boat ride through the Mangrove Forest.",
+      price: 400000,
+      duration: "3-4 Hours",
+      shortDescription: "Explore all attractions of Nusa Lembongan and Nusa Ceningan with a private local driver guide on a motorbike. Perfect if you don't ride yourself!",
+      description: "If you want to explore our beloved island but can't ride a motorbike, we offer island tours using motorbikes.\n\nTo explore all of Nusa Lembongan's attractions, of course:\n1. Mangrove Point\n2. Mahagiri Beach\n3. Dream Beach\n4. Devil's Steps\n5. Yellow Bridge\n\nAnd:\n1. Blue Lagoon\n2. Secret Beach\n3. Mahana Point\n4. Mushroom Beach",
       status: "PUBLISHED",
       images: {
         create: [
@@ -220,23 +220,23 @@ async function main() {
       },
       includes: {
         create: [
-          { item: "Private Transport" },
-          { item: "Mangrove Boat Tour" },
-          { item: "Entry Fees" },
-          { item: "Local Guide" }
+          { item: "Guided Motorbike Tour (with local driver)" },
+          { item: "All Fuel / Petrol" },
+          { item: "Safety Helmet" },
+          { item: "Mineral Water" },
+          { item: "Free hotel pick-up & drop-off" }
         ]
       },
       excludes: {
         create: [
-          { item: "Lunch" }
+          { item: "Lunch" },
+          { item: "Personal Expenses" }
         ]
       },
       itineraries: {
         create: [
-          { stepOrder: 1, title: "Panorama Point", description: "Overview of Jungutbatu village and the ocean." },
-          { stepOrder: 2, title: "Devil's Tear", description: "Witness the powerful ocean spray against the cliffs." },
-          { stepOrder: 3, title: "Yellow Bridge", description: "Visit the iconic bridge connecting Lembongan and Ceningan." },
-          { stepOrder: 4, title: "Mangrove Forest", description: "A quiet boat ride through the mangroves." }
+          { stepOrder: 1, title: "Nusa Lembongan Tour", description: "1. Mangrove Point, 2. Mahagiri Beach, 3. Dream Beach, 4. Devil's Steps, 5. Yellow Bridge" },
+          { stepOrder: 2, title: "Nusa Ceningan & Mushroom Beach Tour", description: "1. Blue Lagoon, 2. Secret Beach, 3. Mahana Point, 4. Mushroom Beach" }
         ]
       }
     }
@@ -244,13 +244,13 @@ async function main() {
 
   await prisma.activity.create({
     data: {
-      name: "Nusa Penida West Day Tour",
-      slug: "nusa-penida-west-day-tour",
+      name: "Nusa Penida Island Tour",
+      slug: "nusa-penida-island-tour",
       categoryId: islandTours.id,
-      price: 600000,
-      duration: "Full Day (8 Hours)",
-      shortDescription: "Discover the iconic Kelingking Beach, Broken Beach, and Angel's Billabong on the West side of Nusa Penida.",
-      description: "Explore the breathtaking landscapes of Nusa Penida's west coast. This full-day guided tour takes you to the island's most famous photogenic spots. Travel in a comfortable air-conditioned car with our experienced local driver-guide.",
+      price: 1800000,
+      duration: "Full Day",
+      shortDescription: "Explore the breathtaking Nusa Penida with a private driver. Choose between West Trip or East Trip routes.",
+      description: "Hello everyone, if you're interested in a day trip to Nusa Penida with a driver, please contact me. We have two location options:\n\nWest Trip:\n• Klingking beach\n• Angel Billabong\n• Broken Beach\n• Crystal Beach\n\nEast Trip:\n• Diamond Beach\n• Atuh Beach\n• Treehouse\n• Molenteng Hill\n\nPrice starts from Rp 1.800.000 for 2 persons (private), including:\n• Fast Boat return tickets from Nusa Lembongan to Nusa Penida\n• Free drop-off and pick-up from your hotel\n• English-speaking private driver\n• Entrance fees\n• Lunch",
       status: "PUBLISHED",
       images: {
         create: [
@@ -263,10 +263,10 @@ async function main() {
       },
       includes: {
         create: [
-          { item: "Private AC Car" },
-          { item: "English Speaking Driver" },
-          { item: "Fast Boat Return Tickets (Sanur - Penida)" },
-          { item: "Entrance Fees" },
+          { item: "Private boat from Nusa Lembongan to Nusa Penida" },
+          { item: "Free hotel drop-off & pick-up" },
+          { item: "English-speaking driver" },
+          { item: "Entrance fees" },
           { item: "Lunch" }
         ]
       },
@@ -277,10 +277,24 @@ async function main() {
       },
       itineraries: {
         create: [
-          { stepOrder: 1, title: "Depart from Sanur", description: "Take the fast boat at 08:00 AM." },
-          { stepOrder: 2, title: "Arrive in Nusa Penida", description: "Meet the driver at the port." },
-          { stepOrder: 3, title: "Angel's Billabong & Broken Beach", description: "Explore the natural infinity pool and the circular cliff formation." },
-          { stepOrder: 4, title: "Kelingking Beach", description: "Visit the iconic T-Rex shaped cliff." }
+          { stepOrder: 1, title: "Hotel Pickup & Boat Transfer", description: "Free pickup from your hotel in Lembongan, then private boat to Nusa Penida." },
+          { stepOrder: 2, title: "West Trip: Klingking beach", description: "Visit the iconic Klingking beach with stunning ocean views." },
+          { stepOrder: 3, title: "West Trip: Angel Billabong & Broken Beach", description: "Explore the natural infinity pool of Angel Billabong and the circular cliff formation of Broken Beach." },
+          { stepOrder: 4, title: "West Trip: Crystal Beach", description: "Relax at the pristine white sand of Crystal Beach with crystal clear water." },
+          { stepOrder: 5, title: "East Trip: Diamond Beach & Atuh Beach", description: "Descend the dramatic cliff staircase of Diamond Beach and visit the secluded paradise cove of Atuh Beach." },
+          { stepOrder: 6, title: "East Trip: Treehouse & Molenteng Hill", description: "Enjoy panoramic viewpoints from the Treehouse and Molenteng Hill." }
+        ]
+      },
+      priceTiers: {
+        create: [
+          { tierGroup: "West Trip", tierLabel: "2 Pax", price: 1800000, sortOrder: 1 },
+          { tierGroup: "West Trip", tierLabel: "4 Pax", price: 2500000, sortOrder: 2 },
+          { tierGroup: "West Trip", tierLabel: "5 Pax", price: 3000000, sortOrder: 3 },
+          { tierGroup: "West Trip", tierLabel: "6+ Pax", price: 3500000, sortOrder: 4 },
+          { tierGroup: "East Trip", tierLabel: "2 Pax", price: 1800000, sortOrder: 5 },
+          { tierGroup: "East Trip", tierLabel: "4 Pax", price: 2500000, sortOrder: 6 },
+          { tierGroup: "East Trip", tierLabel: "5 Pax", price: 3000000, sortOrder: 7 },
+          { tierGroup: "East Trip", tierLabel: "6+ Pax", price: 3500000, sortOrder: 8 }
         ]
       }
     }
@@ -333,57 +347,6 @@ async function main() {
       password: hashedPassword,
     },
   });
-
-  // Create Testimonials
-  console.log("Seeding testimonials...");
-  const testimonials = [
-    {
-      name: "axfordfamily",
-      content: "The buggy car rental was a game changer for our family. It was so easy to drive and allowed us to explore the island's beaches comfortably with our 7 year old daughter. Great service!",
-      imageUrl: "/images/testi-1.jpg",
-      rating: 5,
-      status: "PUBLISHED",
-    },
-    {
-      name: "Amanda C",
-      content: "What an amazing day! The views around Nusa Lembongan are simply breathtaking. We visited the cliff points and the scenery was so beautiful. Highly recommend for the photos alone!",
-      imageUrl: "/images/testi-2.jpg",
-      rating: 5,
-      status: "PUBLISHED",
-    },
-    {
-      name: "Alicia Martin",
-      content: "Incredible scenery! Every stop on the tour offered a new, stunning perspective of the island. The operation is well run with excellent, prompt communication and friendly local guides.",
-      imageUrl: "/images/testi-3.JPG",
-      rating: 5,
-      status: "PUBLISHED",
-    },
-    {
-      name: "Tenaya Reddish",
-      content: "We had such an amazing time exploring the island. The landscape is so unique and photogenic, especially the hidden spots and cliff views. A must-do if you want to see the best of the island.",
-      imageUrl: "/images/testi-4.JPG",
-      rating: 5,
-      status: "PUBLISHED",
-    },
-    {
-      name: "Mandy Burns",
-      content: "Renting a scooter was the best way to get around! The bikes were in great condition and very reliable. It gave us the freedom to explore every corner of Lembongan and Ceningan at our own pace.",
-      imageUrl: "/images/testi-5.JPG",
-      rating: 5,
-      status: "PUBLISHED",
-    },
-    {
-      name: "Trish",
-      content: "Had so much fun on this trip! The island's natural beauty is surreal. From the turquoise waters to the dramatic cliff views, everything was absolutely stunning! A truly memorable experience.",
-      imageUrl: "/images/testi-6.JPG",
-      rating: 5,
-      status: "PUBLISHED",
-    },
-  ];
-
-  for (const t of testimonials) {
-    await prisma.testimonial.create({ data: t });
-  }
 
   console.log("Seeding finished.");
 }
