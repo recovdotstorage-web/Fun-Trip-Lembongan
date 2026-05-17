@@ -134,7 +134,7 @@ export function TestimonialsSection({ testimonials = [] }: { testimonials?: any[
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
           
           {/* Left: Testimonials Grid */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-8 order-2 lg:order-1">
             <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest border-b border-zinc-200 pb-3 mb-6">
               Guest Reviews ({activeTestimonials.length})
             </h4>
@@ -202,82 +202,84 @@ export function TestimonialsSection({ testimonials = [] }: { testimonials?: any[
                 </p>
               </motion.div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <AnimatePresence mode="popLayout">
-                  {activeTestimonials.map((t) => (
-                    <motion.div
-                      key={t.id}
-                      layout
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={springTransition}
-                      className="bg-white border border-zinc-200 p-8 flex flex-col justify-between rounded-2xl group shadow-sm hover:shadow-md transition-all duration-300"
-                    >
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-4">
-                        <div className="flex items-center gap-1.5">
-                          <div className="flex gap-0.5">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4.5 w-4.5 ${
-                                  i < t.rating
-                                    ? "text-amber-500 fill-amber-500"
-                                    : "text-zinc-200"
-                                }`}
-                                fill={i < t.rating ? "currentColor" : "none"}
-                              />
-                            ))}
+              <div className={activeTestimonials.length > 4 ? "max-h-[460px] overflow-y-auto pr-3 md:pr-4 -mr-3 md:-mr-4" : ""}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-2">
+                  <AnimatePresence mode="popLayout">
+                    {activeTestimonials.map((t) => (
+                      <motion.div
+                        key={t.id}
+                        layout
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={springTransition}
+                        className="bg-white border border-zinc-200 p-8 flex flex-col justify-between rounded-2xl group shadow-sm hover:shadow-md transition-all duration-300"
+                      >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-4">
+                          <div className="flex items-center gap-1.5">
+                            <div className="flex gap-0.5">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-4.5 w-4.5 ${
+                                    i < t.rating
+                                      ? "text-amber-500 fill-amber-500"
+                                      : "text-zinc-200"
+                                  }`}
+                                  fill={i < t.rating ? "currentColor" : "none"}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs font-bold text-zinc-700">
+                              ({t.rating}/5)
+                            </span>
                           </div>
-                          <span className="text-xs font-bold text-zinc-700">
-                            ({t.rating}/5)
+                          <span 
+                            suppressHydrationWarning
+                            className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider"
+                          >
+                            {new Date(t.createdAt).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })}
                           </span>
                         </div>
-                        <span 
-                          suppressHydrationWarning
-                          className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider"
-                        >
-                          {new Date(t.createdAt).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </span>
+                        <p className="text-zinc-600 italic mb-6 leading-relaxed text-sm md:text-base font-light">
+                          &ldquo;{t.content}&rdquo;
+                        </p>
                       </div>
-                      <p className="text-zinc-600 italic mb-6 leading-relaxed text-sm md:text-base font-light">
-                        &ldquo;{t.content}&rdquo;
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3 pt-4 border-t border-zinc-100">
-                      <div className="w-8 h-8 rounded-full bg-zinc-900 text-white flex items-center justify-center font-bold text-xs uppercase">
-                        {t.name.charAt(0)}
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-zinc-900 text-sm uppercase tracking-wider">
-                          {t.name}
-                        </h4>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <img
-                            src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-                            alt="Google"
-                            className="w-3 h-3"
-                          />
-                          <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-light">
-                            Verified Guest Review
-                          </p>
+                      <div className="flex items-center gap-3 pt-4 border-t border-zinc-100">
+                        <div className="w-8 h-8 rounded-full bg-zinc-900 text-white flex items-center justify-center font-bold text-xs uppercase">
+                          {t.name.charAt(0)}
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-zinc-900 text-sm uppercase tracking-wider">
+                            {t.name}
+                          </h4>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                              alt="Google"
+                              className="w-3 h-3"
+                            />
+                            <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-light">
+                              Verified Guest Review
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-                </AnimatePresence>
+                    </motion.div>
+                  ))}
+                  </AnimatePresence>
+                </div>
               </div>
             )}
           </div>
 
           {/* Right: Review Form Card */}
-          <div className="lg:col-span-1 lg:sticky lg:top-24">
+          <div className="lg:col-span-1 lg:sticky lg:top-24 order-1 lg:order-2">
             <div className="bg-white border border-zinc-200 rounded-3xl p-6 md:p-8 shadow-sm">
               <h3 className="text-xl font-medium text-zinc-900 mb-2 flex items-center gap-2">
                 <MessageSquarePlus className="w-5 h-5 text-zinc-800" />
